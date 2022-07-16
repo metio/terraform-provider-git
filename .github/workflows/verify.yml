@@ -1,0 +1,93 @@
+name: Verify Commits
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - .github/workflows/verify.yml
+      - go.mod
+      - go.sum
+      - main.go
+      - internal/**
+      - examples/**
+      - docs/**
+  pull_request:
+    branches: [ main ]
+    paths:
+      - .github/workflows/verify.yml
+      - go.mod
+      - go.sum
+      - main.go
+      - internal/**
+      - examples/**
+      - docs/**
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v3
+      - id: setup_go
+        name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version-file: go.mod
+          cache: true
+      - id: dependencies
+        name: Get dependencies
+        run: go mod download
+      - id: build
+        name: Build
+        run: go build -v .
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v3
+      - id: setup_go
+        name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: go generate ./...
+      - name: git diff
+        run: |
+          git diff --compact-summary --exit-code || \
+            (echo; echo "Unexpected difference in directories after code generation. Run 'go generate ./...' command and commit."; exit 1)
+  test:
+    name: Matrix Test
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        terraform:
+          - 1.0.*
+          - 1.1.*
+          - 1.2.*
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v3
+      - id: setup_go
+        name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ matrix.terraform }}
+          terraform_wrapper: false
+      - name: Get dependencies
+        run: |
+          go mod download
+#      - name: TF acceptance tests
+#        timeout-minutes: 10
+#        env:
+#          TF_ACC: "1"
+#        run: |
+#          go test -v -cover ./internal/provider/

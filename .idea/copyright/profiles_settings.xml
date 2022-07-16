@@ -1,0 +1,10 @@
+<component name="CopyrightManager">
+  <settings default="terraform-provider-git">
+    <module2copyright>
+      <element module="Project Files" copyright="terraform-provider-git" />
+    </module2copyright>
+    <LanguageOptions name="JAVA">
+      <option name="addBlankBefore" value="true" />
+    </LanguageOptions>
+  </settings>
+</component>
