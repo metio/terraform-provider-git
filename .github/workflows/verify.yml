@@ -22,7 +22,7 @@ on:
       - docs/**
 jobs:
   build:
-    name: Build
+    name: Build Binary
     runs-on: ubuntu-latest
     steps:
       - id: checkout
@@ -40,7 +40,8 @@ jobs:
       - id: build
         name: Build
         run: go build -v .
-  generate:
+  documentation:
+    name: Generate Documentation
     runs-on: ubuntu-latest
     steps:
       - id: checkout
@@ -52,13 +53,16 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
-      - run: go generate ./...
-      - name: git diff
+      - id: generate_docs
+        name: Generate Documentation
+        run: go generate ./...
+      - id: verify_docs
+        name: Verify Documentation
         run: |
           git diff --compact-summary --exit-code || \
             (echo; echo "Unexpected difference in directories after code generation. Run 'go generate ./...' command and commit."; exit 1)
   test:
-    name: Matrix Test
+    name: Acceptance Tests
     needs: build
     runs-on: ubuntu-latest
     strategy:
@@ -78,16 +82,18 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
-      - uses: hashicorp/setup-terraform@v2
+      - id: setup_terraform
+        name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ matrix.terraform }}
           terraform_wrapper: false
-      - name: Get dependencies
-        run: |
-          go mod download
-#      - name: TF acceptance tests
-#        timeout-minutes: 10
-#        env:
-#          TF_ACC: "1"
-#        run: |
-#          go test -v -cover ./internal/provider/
+      - id: dependencies
+        name: Get Dependencies
+        run: go mod download
+      - id: tests
+        name: Run Tests
+        timeout-minutes: 10
+        run: go test -v -cover ./internal/provider/
+        env:
+          TF_ACC: "1"

@@ -27,6 +27,7 @@ type dataSourceGitBranch struct {
 
 type dataSourceGitBranchSchema struct {
 	Directory types.String `tfsdk:"directory"`
+	Id        types.String `tfsdk:"id"`
 	Branch    types.String `tfsdk:"branch"`
 	SHA1      types.String `tfsdk:"sha1"`
 	Remote    types.String `tfsdk:"remote"`
@@ -46,6 +47,11 @@ func (r dataSourceGitBranchType) GetSchema(_ context.Context) (tfsdk.Schema, dia
 				Description: "The name of the Git branch.",
 				Type:        types.StringType,
 				Required:    true,
+			},
+			"id": {
+				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"sha1": {
 				Description: "The SHA1 checksum of the HEAD commit in the specified Git branch.",
@@ -133,6 +139,7 @@ func (r dataSourceGitBranch) Read(ctx context.Context, req tfsdk.ReadDataSourceR
 	}
 
 	outputs.Directory.Value = directory
+	outputs.Id.Value = directory
 	outputs.Branch = types.String{Value: requestedBranch}
 	outputs.Remote = types.String{Value: branch.Remote}
 	outputs.Rebase = types.String{Value: branch.Rebase}

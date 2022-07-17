@@ -29,6 +29,7 @@ data "git_branch" "branch" {
 
 ### Read-Only
 
+- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.
 - `rebase` (String) The rebase configuration for the specified Git branch.
 - `remote` (String) The configured remote for the specified Git branch.
 - `sha1` (String) The SHA1 checksum of the HEAD commit in the specified Git branch.
