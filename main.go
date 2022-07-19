@@ -4,12 +4,12 @@ import (
 	"context"
 	"log"
 
-	"github.com/metio/terraform-provider-git/internal/provider"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+
+	"github.com/metio/terraform-provider-git/internal/provider"
 )
 
-// Run the docs generation tool
+// Run the documentation generation tool
 //go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
 
 func main() {

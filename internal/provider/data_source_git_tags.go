@@ -9,14 +9,12 @@ package provider
 
 import (
 	"context"
-
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
 )
 
 type dataSourceGitTagsType struct{}
@@ -27,6 +25,7 @@ type dataSourceGitTags struct {
 
 type dataSourceGitTagsSchema struct {
 	Directory   types.String      `tfsdk:"directory"`
+	Id          types.String      `tfsdk:"id"`
 	Lightweight types.Bool        `tfsdk:"lightweight"`
 	Annotated   types.Bool        `tfsdk:"annotated"`
 	Tags        map[string]GitTag `tfsdk:"tags"`
@@ -40,6 +39,11 @@ func (r dataSourceGitTagsType) GetSchema(_ context.Context) (tfsdk.Schema, diag.
 				Description: "The path to the local Git repository.",
 				Type:        types.StringType,
 				Required:    true,
+			},
+			"id": {
+				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"annotated": {
 				MarkdownDescription: "Whether to request annotated tags. Defaults to `true`.",
@@ -158,6 +162,7 @@ func (r dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceReq
 	}
 
 	outputs.Directory.Value = directory
+	outputs.Id.Value = directory
 	outputs.Annotated.Value = showAnnotatedTags
 	outputs.Lightweight.Value = showLightweightTags
 	outputs.Tags = allTags

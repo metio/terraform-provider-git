@@ -9,17 +9,14 @@ package provider
 
 import (
 	"context"
-	"github.com/metio/terraform-provider-git/internal/validators"
-
-	"github.com/metio/terraform-provider-git/internal/modifiers"
-
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/config"
+	"github.com/metio/terraform-provider-git/internal/modifiers"
+	"github.com/metio/terraform-provider-git/internal/validators"
 )
 
 type dataSourceGitConfigType struct{}
@@ -32,6 +29,11 @@ func (r dataSourceGitConfigType) GetSchema(_ context.Context) (tfsdk.Schema, dia
 				Description: "The path to the local Git repository.",
 				Type:        types.StringType,
 				Required:    true,
+			},
+			"id": {
+				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"scope": {
 				MarkdownDescription: "The configuration scope to read. Possible values are `local`, `global`, and `system`. Defaults to `global`.",
@@ -95,6 +97,7 @@ type dataSourceGitConfig struct {
 
 type dataSourceGitConfigSchema struct {
 	Directory      types.String `tfsdk:"directory"`
+	Id             types.String `tfsdk:"id"`
 	Scope          types.String `tfsdk:"scope"`
 	UserName       types.String `tfsdk:"user_name"`
 	UserEmail      types.String `tfsdk:"user_email"`
@@ -112,6 +115,11 @@ func (r dataSourceGitConfig) Read(ctx context.Context, req tfsdk.ReadDataSourceR
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	// NOTE: It seems default values for data sources are not working?
+	if inputs.Scope.IsNull() {
+		inputs.Scope = types.String{Value: "global"}
 	}
 
 	directory := inputs.Directory.Value
@@ -144,6 +152,7 @@ func (r dataSourceGitConfig) Read(ctx context.Context, req tfsdk.ReadDataSourceR
 	})
 
 	outputs.Directory.Value = directory
+	outputs.Id.Value = directory
 	outputs.Scope.Value = scope
 	outputs.UserName.Value = cfg.User.Name
 	outputs.UserEmail.Value = cfg.User.Email

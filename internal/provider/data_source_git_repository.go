@@ -9,13 +9,11 @@ package provider
 
 import (
 	"context"
-
+	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
-	"github.com/go-git/go-git/v5"
 )
 
 type dataSourceGitRepositoryType struct{}
@@ -28,6 +26,11 @@ func (r dataSourceGitRepositoryType) GetSchema(_ context.Context) (tfsdk.Schema,
 				Description: "The path to the local Git repository.",
 				Type:        types.StringType,
 				Required:    true,
+			},
+			"id": {
+				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"branch": {
 				Description: "The current branch of the given Git repository.",
@@ -50,6 +53,7 @@ type dataSourceGitRepository struct {
 
 type dataSourceGitRepositorySchema struct {
 	Directory types.String `tfsdk:"directory"`
+	Id        types.String `tfsdk:"id"`
 	Branch    types.String `tfsdk:"branch"`
 }
 
@@ -92,6 +96,7 @@ func (r dataSourceGitRepository) Read(ctx context.Context, req tfsdk.ReadDataSou
 	})
 
 	outputs.Directory.Value = directory
+	outputs.Id.Value = directory
 	outputs.Branch.Value = head.Name().Short()
 
 	diags = resp.State.Set(ctx, &outputs)

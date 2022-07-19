@@ -9,14 +9,12 @@ package provider
 
 import (
 	"context"
+	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
-
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
-	"github.com/go-git/go-git/v5"
 )
 
 type dataSourceGitTagType struct{}
@@ -27,6 +25,7 @@ type dataSourceGitTag struct {
 
 type dataSourceGitTagSchema struct {
 	Directory   types.String `tfsdk:"directory"`
+	Id          types.String `tfsdk:"id"`
 	Tag         types.String `tfsdk:"tag"`
 	Lightweight types.Bool   `tfsdk:"lightweight"`
 	Annotated   types.Bool   `tfsdk:"annotated"`
@@ -41,6 +40,11 @@ func (r dataSourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.D
 				Description: "The path to the local Git repository.",
 				Type:        types.StringType,
 				Required:    true,
+			},
+			"id": {
+				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"tag": {
 				Description: "The tag to gather information about.",
@@ -112,6 +116,7 @@ func (r dataSourceGitTag) Read(ctx context.Context, req tfsdk.ReadDataSourceRequ
 	})
 
 	outputs.Directory.Value = directory
+	outputs.Id.Value = directory
 	outputs.Tag.Value = reference.Name().Short()
 	outputs.SHA1.Value = reference.Hash().String()
 	_, err = repository.TagObject(reference.Hash())

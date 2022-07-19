@@ -9,12 +9,11 @@ package provider
 
 import (
 	"context"
+	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
-	"github.com/go-git/go-git/v5"
 )
 
 type dataSourceGitRemotesType struct{}
@@ -25,6 +24,7 @@ type dataSourceGitRemotes struct {
 
 type dataSourceGitRemotesSchema struct {
 	Directory types.String         `tfsdk:"directory"`
+	Id        types.String         `tfsdk:"id"`
 	Remotes   map[string]GitRemote `tfsdk:"remotes"`
 }
 
@@ -36,6 +36,11 @@ func (r dataSourceGitRemotesType) GetSchema(_ context.Context) (tfsdk.Schema, di
 				Description: "The path to the local Git repository.",
 				Type:        types.StringType,
 				Required:    true,
+			},
+			"id": {
+				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"remotes": {
 				Description: "All configured remotes of the given Git repository.",
@@ -105,6 +110,7 @@ func (r dataSourceGitRemotes) Read(ctx context.Context, req tfsdk.ReadDataSource
 	}
 
 	outputs.Directory.Value = directory
+	outputs.Id.Value = directory
 	outputs.Remotes = allRemotes
 
 	diags = resp.State.Set(ctx, &outputs)

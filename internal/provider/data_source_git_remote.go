@@ -9,12 +9,11 @@ package provider
 
 import (
 	"context"
+	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
-	"github.com/go-git/go-git/v5"
 )
 
 type dataSourceGitRemoteType struct{}
@@ -25,6 +24,7 @@ type dataSourceGitRemote struct {
 
 type dataSourceGitRemoteSchema struct {
 	Directory types.String   `tfsdk:"directory"`
+	Id        types.String   `tfsdk:"id"`
 	Remote    types.String   `tfsdk:"remote"`
 	URLs      []types.String `tfsdk:"urls"`
 }
@@ -37,6 +37,11 @@ func (r dataSourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, dia
 				Description: "The path to the local Git repository.",
 				Type:        types.StringType,
 				Required:    true,
+			},
+			"id": {
+				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"remote": {
 				Description: "The remote to gather information about.",
@@ -100,6 +105,7 @@ func (r dataSourceGitRemote) Read(ctx context.Context, req tfsdk.ReadDataSourceR
 	})
 
 	outputs.Directory.Value = directory
+	outputs.Id.Value = directory
 	outputs.Remote.Value = remote.Config().Name
 	outputs.URLs = extractGitRemoteUrls(remote)
 
