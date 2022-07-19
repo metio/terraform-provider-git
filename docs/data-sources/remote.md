@@ -29,6 +29,7 @@ data "git_remote" "remote" {
 
 ### Read-Only
 
+- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.
 - `urls` (List of String) The configured URLs of the given remote.
 
 

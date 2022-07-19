@@ -44,6 +44,7 @@ data "git_tags" "lightweight_tags" {
 
 ### Read-Only
 
+- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.
 - `tags` (Attributes Map) (see [below for nested schema](#nestedatt--tags))
 
 <a id="nestedatt--tags"></a>

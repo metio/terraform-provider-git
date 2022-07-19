@@ -27,6 +27,7 @@ data "git_remotes" "remotes" {
 
 ### Read-Only
 
+- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.
 - `remotes` (Attributes Map) All configured remotes of the given Git repository. (see [below for nested schema](#nestedatt--remotes))
 
 <a id="nestedatt--remotes"></a>
