@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/metio/terraform-provider-git/internal/modifiers"
 )
 
 type dataSourceGitTagsType struct{}
@@ -50,12 +51,18 @@ func (r dataSourceGitTagsType) GetSchema(_ context.Context) (tfsdk.Schema, diag.
 				Type:                types.BoolType,
 				Required:            false,
 				Optional:            true,
+				PlanModifiers: []tfsdk.AttributePlanModifier{
+					modifiers.DefaultValue(types.Bool{Value: true}),
+				},
 			},
 			"lightweight": {
 				MarkdownDescription: "Whether to request lightweight tags. Defaults to `true`.",
 				Type:                types.BoolType,
 				Required:            false,
 				Optional:            true,
+				PlanModifiers: []tfsdk.AttributePlanModifier{
+					modifiers.DefaultValue(types.Bool{Value: true}),
+				},
 			},
 			"tags": {
 				Computed: true,
@@ -124,8 +131,13 @@ func (r dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceReq
 		"directory": directory,
 	})
 
-	showAnnotatedTags := inputs.Annotated.IsNull() || inputs.Annotated.Value
-	showLightweightTags := inputs.Lightweight.IsNull() || inputs.Lightweight.Value
+	// NOTE: It seems default values for data sources are not working?
+	if inputs.Annotated.IsNull() {
+		inputs.Annotated = types.Bool{Value: true}
+	}
+	if inputs.Lightweight.IsNull() {
+		inputs.Lightweight = types.Bool{Value: true}
+	}
 
 	allTags := make(map[string]GitTag)
 	if err := tags.ForEach(func(ref *plumbing.Reference) error {
@@ -133,7 +145,7 @@ func (r dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceReq
 
 		switch err {
 		case nil:
-			if showAnnotatedTags {
+			if inputs.Annotated.Value {
 				allTags[ref.Name().Short()] = GitTag{
 					Lightweight: types.Bool{Value: false},
 					Annotated:   types.Bool{Value: true},
@@ -142,7 +154,7 @@ func (r dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceReq
 			}
 			return nil
 		case plumbing.ErrObjectNotFound:
-			if showLightweightTags {
+			if inputs.Lightweight.Value {
 				allTags[ref.Name().Short()] = GitTag{
 					Lightweight: types.Bool{Value: true},
 					Annotated:   types.Bool{Value: false},
@@ -163,8 +175,8 @@ func (r dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceReq
 
 	outputs.Directory.Value = directory
 	outputs.Id.Value = directory
-	outputs.Annotated.Value = showAnnotatedTags
-	outputs.Lightweight.Value = showLightweightTags
+	outputs.Annotated.Value = inputs.Annotated.Value
+	outputs.Lightweight.Value = inputs.Lightweight.Value
 	outputs.Tags = allTags
 
 	diags = resp.State.Set(ctx, &outputs)

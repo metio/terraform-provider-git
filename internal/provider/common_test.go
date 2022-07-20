@@ -64,11 +64,7 @@ func addAndCommitNewFile(t *testing.T, worktree *git.Worktree) {
 		t.Fatal(err)
 	}
 	_, err = worktree.Commit("example go-git commit", &git.CommitOptions{
-		Author: &object.Signature{
-			Name:  "Some Person",
-			Email: "person@example.com",
-			When:  time.Now(),
-		},
+		Author: signature(),
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -87,6 +83,38 @@ func writeConfig(t *testing.T, repository *git.Repository, cfg *config.Config) {
 	err := repository.SetConfig(cfg)
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func createRemote(t *testing.T, repository *git.Repository, remote string) {
+	_, err := repository.CreateRemote(&config.RemoteConfig{
+		Name: remote,
+		URLs: []string{"https://example.com/metio/terraform-provider-git.git"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func createTag(t *testing.T, repository *git.Repository, tag string) {
+	head, err := repository.Head()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = repository.CreateTag(tag, head.Hash(), &git.CreateTagOptions{
+		Message: tag,
+		Tagger:  signature(),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func signature() *object.Signature {
+	return &object.Signature{
+		Name:  "Some Person",
+		Email: "person@example.com",
+		When:  time.Now(),
 	}
 }
 

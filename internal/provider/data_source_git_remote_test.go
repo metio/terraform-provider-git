@@ -14,25 +14,27 @@ import (
 	"testing"
 )
 
-func TestDataSourceGitRepository(t *testing.T) {
+func TestDataSourceGitRemote(t *testing.T) {
 	directory, repository := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree)
+	remote := "example"
+	createRemote(t, repository, remote)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-					data "git_repository" "test" {
+					data "git_remote" "test" {
 						directory = "%s"
+						remote    = "%s"
 					}
-				`, directory),
+				`, directory, remote),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.git_repository.test", "directory", directory),
-					resource.TestCheckResourceAttr("data.git_repository.test", "id", directory),
-					resource.TestCheckResourceAttr("data.git_repository.test", "branch", "master"),
+					resource.TestCheckResourceAttr("data.git_remote.test", "directory", directory),
+					resource.TestCheckResourceAttr("data.git_remote.test", "id", directory),
+					resource.TestCheckResourceAttr("data.git_remote.test", "remote", remote),
+					resource.TestCheckResourceAttr("data.git_remote.test", "urls.#", "1"),
 				),
 			},
 		},

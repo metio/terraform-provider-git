@@ -14,25 +14,29 @@ import (
 	"testing"
 )
 
-func TestDataSourceGitRepository(t *testing.T) {
+func TestDataSourceGitTags(t *testing.T) {
 	directory, repository := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 	worktree := createWorktree(t, repository)
 	addAndCommitNewFile(t, worktree)
+	tag := "some-tag"
+	createTag(t, repository, tag)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
-					data "git_repository" "test" {
+					data "git_tags" "test" {
 						directory = "%s"
 					}
 				`, directory),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.git_repository.test", "directory", directory),
-					resource.TestCheckResourceAttr("data.git_repository.test", "id", directory),
-					resource.TestCheckResourceAttr("data.git_repository.test", "branch", "master"),
+					resource.TestCheckResourceAttr("data.git_tags.test", "directory", directory),
+					resource.TestCheckResourceAttr("data.git_tags.test", "id", directory),
+					resource.TestCheckResourceAttr("data.git_tags.test", "annotated", "true"),
+					resource.TestCheckResourceAttr("data.git_tags.test", "lightweight", "true"),
+					resource.TestCheckResourceAttr("data.git_tags.test", "tags.%", "1"),
 				),
 			},
 		},
