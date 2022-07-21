@@ -5,7 +5,7 @@
  * in the LICENSE file.
  */
 
-package provider
+package provider_test
 
 import (
 	"fmt"
@@ -14,6 +14,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
+	"github.com/metio/terraform-provider-git/internal/provider"
 	"io/ioutil"
 	"path/filepath"
 	"testing"
@@ -22,7 +23,7 @@ import (
 
 func protoV6ProviderFactories() map[string]func() (tfprotov6.ProviderServer, error) {
 	return map[string]func() (tfprotov6.ProviderServer, error){
-		"git": providerserver.NewProtocol6WithError(New()),
+		"git": providerserver.NewProtocol6WithError(provider.New()),
 	}
 }
 

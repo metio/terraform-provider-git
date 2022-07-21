@@ -5,7 +5,7 @@
  * in the LICENSE file.
  */
 
-package provider
+package provider_test
 
 import (
 	"fmt"
