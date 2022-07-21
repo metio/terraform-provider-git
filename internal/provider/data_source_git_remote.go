@@ -10,6 +10,7 @@ package provider
 import (
 	"context"
 	"github.com/go-git/go-git/v5"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -37,6 +38,9 @@ func (r dataSourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, dia
 				Description: "The path to the local Git repository.",
 				Type:        types.StringType,
 				Required:    true,
+				Validators: []tfsdk.AttributeValidator{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"id": {
 				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
@@ -47,6 +51,9 @@ func (r dataSourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, dia
 				Description: "The remote to gather information about.",
 				Type:        types.StringType,
 				Required:    true,
+				Validators: []tfsdk.AttributeValidator{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"urls": {
 				Description: "The configured URLs of the given remote.",

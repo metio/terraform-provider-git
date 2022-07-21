@@ -11,12 +11,12 @@ import (
 	"context"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/metio/terraform-provider-git/internal/modifiers"
-	"github.com/metio/terraform-provider-git/internal/validators"
 )
 
 type dataSourceGitConfigType struct{}
@@ -29,6 +29,9 @@ func (r dataSourceGitConfigType) GetSchema(_ context.Context) (tfsdk.Schema, dia
 				Description: "The path to the local Git repository.",
 				Type:        types.StringType,
 				Required:    true,
+				Validators: []tfsdk.AttributeValidator{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"id": {
 				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
@@ -44,10 +47,10 @@ func (r dataSourceGitConfigType) GetSchema(_ context.Context) (tfsdk.Schema, dia
 					modifiers.DefaultValue(types.String{Value: "global"}),
 				},
 				Validators: []tfsdk.AttributeValidator{
-					validators.OneOf(
-						types.String{Value: "local"},
-						types.String{Value: "global"},
-						types.String{Value: "system"},
+					stringvalidator.OneOf(
+						"local",
+						"global",
+						"system",
 					),
 				},
 			},
