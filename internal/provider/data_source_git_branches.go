@@ -89,18 +89,11 @@ func (r dataSourceGitBranches) Read(ctx context.Context, req tfsdk.ReadDataSourc
 	}
 
 	directory := inputs.Directory.Value
-	repository, err := git.PlainOpen(directory)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error opening repository",
-			"Could not open git repository ["+directory+"] because of: "+err.Error(),
-		)
+
+	repository := openRepository(ctx, directory, resp)
+	if repository == nil {
 		return
 	}
-
-	tflog.Trace(ctx, "opened repository", map[string]interface{}{
-		"directory": directory,
-	})
 
 	branches, err := repository.Branches()
 	if err != nil {

@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
+	"regexp"
 	"testing"
 )
 
@@ -37,6 +38,22 @@ func TestDataSourceGitBranches(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_branches.test", "branches.master.rebase", ""),
 					resource.TestCheckResourceAttrWith("data.git_branches.test", "branches.master.sha1", testCheckLen(40)),
 				),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitBranches_InvalidRepository(t *testing.T) {
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					data "git_branches" "test" {
+						directory = "/some/random/path"
+					}
+				`,
+				ExpectError: regexp.MustCompile(`Cannot open repository`),
 			},
 		},
 	})

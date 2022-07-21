@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
+	"regexp"
 	"testing"
 )
 
@@ -34,6 +35,22 @@ func TestDataSourceGitRepository(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_repository.test", "id", directory),
 					resource.TestCheckResourceAttr("data.git_repository.test", "branch", "master"),
 				),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitRepository_InvalidRepository(t *testing.T) {
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					data "git_repository" "test" {
+						directory = "/some/random/path"
+					}
+				`,
+				ExpectError: regexp.MustCompile(`Cannot open repository`),
 			},
 		},
 	})

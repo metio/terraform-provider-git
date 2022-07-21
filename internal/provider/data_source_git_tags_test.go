@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
+	"regexp"
 	"testing"
 )
 
@@ -38,6 +39,22 @@ func TestDataSourceGitTags(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_tags.test", "lightweight", "true"),
 					resource.TestCheckResourceAttr("data.git_tags.test", "tags.%", "1"),
 				),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitTags_InvalidRepository(t *testing.T) {
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					data "git_tags" "test" {
+						directory = "/some/random/path"
+					}
+				`,
+				ExpectError: regexp.MustCompile(`Cannot open repository`),
 			},
 		},
 	})

@@ -12,6 +12,7 @@ import (
 	"github.com/go-git/go-git/v5/config"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
+	"regexp"
 	"testing"
 )
 
@@ -44,6 +45,23 @@ func TestDataSourceGitBranch(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_branch.test", "remote", remote),
 					resource.TestCheckResourceAttr("data.git_branch.test", "rebase", rebase),
 				),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitBranch_InvalidRepository(t *testing.T) {
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					data "git_branch" "test" {
+						directory = "/some/random/path"
+						branch    = "this-does-not-exist"
+					}
+				`,
+				ExpectError: regexp.MustCompile(`Cannot open repository`),
 			},
 		},
 	})

@@ -9,7 +9,6 @@ package provider
 
 import (
 	"context"
-	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -94,20 +93,13 @@ func (r dataSourceGitBranch) Read(ctx context.Context, req tfsdk.ReadDataSourceR
 	}
 
 	directory := inputs.Directory.Value
-	repository, err := git.PlainOpen(directory)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error opening repository",
-			"Could not open git repository ["+directory+"] because of: "+err.Error(),
-		)
+	requestedBranch := inputs.Branch.Value
+
+	repository := openRepository(ctx, directory, resp)
+	if repository == nil {
 		return
 	}
 
-	tflog.Trace(ctx, "opened repository", map[string]interface{}{
-		"directory": directory,
-	})
-
-	requestedBranch := inputs.Branch.Value
 	branch, err := repository.Branch(requestedBranch)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -119,7 +111,7 @@ func (r dataSourceGitBranch) Read(ctx context.Context, req tfsdk.ReadDataSourceR
 
 	tflog.Trace(ctx, "read branch", map[string]interface{}{
 		"directory": directory,
-		"branch":    requestedBranch,
+		"branch":    branch.Name,
 	})
 
 	branches, err := repository.Branches()
@@ -131,7 +123,7 @@ func (r dataSourceGitBranch) Read(ctx context.Context, req tfsdk.ReadDataSourceR
 		return
 	}
 	if err := branches.ForEach(func(ref *plumbing.Reference) error {
-		if ref.Name().Short() == requestedBranch {
+		if ref.Name().Short() == branch.Name {
 			outputs.SHA1 = types.String{Value: ref.Hash().String()}
 		}
 		return nil
@@ -145,7 +137,7 @@ func (r dataSourceGitBranch) Read(ctx context.Context, req tfsdk.ReadDataSourceR
 
 	outputs.Directory.Value = directory
 	outputs.Id.Value = directory
-	outputs.Branch = types.String{Value: requestedBranch}
+	outputs.Branch = types.String{Value: branch.Name}
 	outputs.Remote = types.String{Value: branch.Remote}
 	outputs.Rebase = types.String{Value: branch.Rebase}
 

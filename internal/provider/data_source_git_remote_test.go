@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
+	"regexp"
 	"testing"
 )
 
@@ -36,6 +37,23 @@ func TestDataSourceGitRemote(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_remote.test", "remote", remote),
 					resource.TestCheckResourceAttr("data.git_remote.test", "urls.#", "1"),
 				),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitRemote_InvalidRepository(t *testing.T) {
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					data "git_remote" "test" {
+						directory = "/some/random/path"
+						remote    = "does-not-exist"
+					}
+				`,
+				ExpectError: regexp.MustCompile(`Cannot open repository`),
 			},
 		},
 	})

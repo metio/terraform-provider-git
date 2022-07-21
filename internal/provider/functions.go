@@ -8,9 +8,27 @@
 package provider
 
 import (
+	"context"
 	"github.com/go-git/go-git/v5"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
+
+func openRepository(ctx context.Context, directory string, resp *tfsdk.ReadDataSourceResponse) *git.Repository {
+	repository, err := git.PlainOpen(directory)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Cannot open repository",
+			"Could not open git repository ["+directory+"] because of: "+err.Error(),
+		)
+		return nil
+	}
+	tflog.Trace(ctx, "opened repository", map[string]interface{}{
+		"directory": directory,
+	})
+	return repository
+}
 
 func extractGitRemoteUrls(remote *git.Remote) []types.String {
 	var remoteUrls []types.String

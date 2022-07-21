@@ -13,6 +13,7 @@ import (
 	"github.com/go-git/go-git/v5/config"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
+	"regexp"
 	"testing"
 )
 
@@ -41,6 +42,22 @@ func TestDataSourceGitConfig(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_config.test", "committer_name", cfg.Committer.Name),
 					resource.TestCheckResourceAttr("data.git_config.test", "committer_email", cfg.Committer.Email),
 				),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitConfig_InvalidRepository(t *testing.T) {
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					data "git_config" "test" {
+						directory = "/some/random/path"
+					}
+				`,
+				ExpectError: regexp.MustCompile(`Cannot open repository`),
 			},
 		},
 	})

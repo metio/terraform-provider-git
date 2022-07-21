@@ -9,7 +9,6 @@ package provider
 
 import (
 	"context"
-	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -83,20 +82,13 @@ func (r dataSourceGitRemote) Read(ctx context.Context, req tfsdk.ReadDataSourceR
 	}
 
 	directory := inputs.Directory.Value
-	repository, err := git.PlainOpen(directory)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error opening repository",
-			"Could not open git repository ["+directory+"] because of: "+err.Error(),
-		)
+	requestedRemote := inputs.Remote.Value
+
+	repository := openRepository(ctx, directory, resp)
+	if repository == nil {
 		return
 	}
 
-	tflog.Trace(ctx, "opened repository", map[string]interface{}{
-		"directory": directory,
-	})
-
-	requestedRemote := inputs.Remote.Value
 	remote, err := repository.Remote(requestedRemote)
 	if err != nil {
 		resp.Diagnostics.AddError(
