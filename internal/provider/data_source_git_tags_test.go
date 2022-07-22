@@ -59,3 +59,17 @@ func TestDataSourceGitTags_InvalidRepository(t *testing.T) {
 		},
 	})
 }
+
+func TestDataSourceGitTags_MissingRepository(t *testing.T) {
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					data "git_tags" "test" {}
+				`,
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+		},
+	})
+}

@@ -58,3 +58,17 @@ func TestDataSourceGitBranches_InvalidRepository(t *testing.T) {
 		},
 	})
 }
+
+func TestDataSourceGitBranches_MissingRepository(t *testing.T) {
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					data "git_branches" "test" {}
+				`,
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+		},
+	})
+}

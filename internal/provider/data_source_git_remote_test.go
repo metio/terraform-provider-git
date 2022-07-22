@@ -58,3 +58,56 @@ func TestDataSourceGitRemote_InvalidRepository(t *testing.T) {
 		},
 	})
 }
+
+func TestDataSourceGitRemote_InvalidRemote(t *testing.T) {
+	directory, _ := initializeGitRepository(t)
+	defer os.RemoveAll(directory)
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "git_remote" "test" {
+						directory = "%s"
+						remote    = "does-not-exist"
+					}
+				`, directory),
+				ExpectError: regexp.MustCompile(`Cannot read remote`),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitRemote_MissingRemote(t *testing.T) {
+	directory, _ := initializeGitRepository(t)
+	defer os.RemoveAll(directory)
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "git_remote" "test" {
+						directory = "%s"
+					}
+				`, directory),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitRemote_MissingRepository(t *testing.T) {
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					data "git_remote" "test" {}
+				`,
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+		},
+	})
+}

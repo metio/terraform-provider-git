@@ -66,3 +66,56 @@ func TestDataSourceGitBranch_InvalidRepository(t *testing.T) {
 		},
 	})
 }
+
+func TestDataSourceGitBranch_InvalidBranch(t *testing.T) {
+	directory, _ := initializeGitRepository(t)
+	defer os.RemoveAll(directory)
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "git_branch" "test" {
+						directory = "%s"
+						branch    = "does-not-exist"
+					}
+				`, directory),
+				ExpectError: regexp.MustCompile(`Cannot read branch`),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitBranch_MissingBranch(t *testing.T) {
+	directory, _ := initializeGitRepository(t)
+	defer os.RemoveAll(directory)
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "git_branch" "test" {
+						directory = "%s"
+					}
+				`, directory),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitBranch_MissingRepository(t *testing.T) {
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					data "git_branch" "test" {}
+				`,
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+		},
+	})
+}

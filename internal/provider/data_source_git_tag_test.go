@@ -62,3 +62,56 @@ func TestDataSourceGitTag_InvalidRepository(t *testing.T) {
 		},
 	})
 }
+
+func TestDataSourceGitTag_InvalidTag(t *testing.T) {
+	directory, _ := initializeGitRepository(t)
+	defer os.RemoveAll(directory)
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "git_tag" "test" {
+						directory = "%s"
+						tag       = "does-not-exist"
+					}
+				`, directory),
+				ExpectError: regexp.MustCompile(`Cannot read tag`),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitTag_MissingTag(t *testing.T) {
+	directory, _ := initializeGitRepository(t)
+	defer os.RemoveAll(directory)
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "git_tag" "test" {
+						directory = "%s"
+					}
+				`, directory),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitTag_MissingRepository(t *testing.T) {
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					data "git_tag" "test" {}
+				`,
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+		},
+	})
+}

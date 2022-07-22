@@ -9,8 +9,6 @@ package provider_test
 
 import (
 	"fmt"
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/config"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
 	"regexp"
@@ -58,6 +56,26 @@ func TestDataSourceGitConfig_InvalidRepository(t *testing.T) {
 					}
 				`,
 				ExpectError: regexp.MustCompile(`Cannot open repository`),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitConfig_InvalidScope(t *testing.T) {
+	directory, _ := initializeGitRepository(t)
+	defer os.RemoveAll(directory)
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "git_config" "test" {
+						directory = "%s"
+						scope     = "unknown-scope"
+					}
+				`, directory),
+				ExpectError: regexp.MustCompile(`Invalid Attribute Value Match`),
 			},
 		},
 	})
@@ -156,14 +174,16 @@ func TestDataSourceGitConfig_ScopeSystem(t *testing.T) {
 	})
 }
 
-func initTestConfig(t *testing.T, repository *git.Repository) *config.Config {
-	cfg := readConfig(t, repository)
-	cfg.User.Name = "user name"
-	cfg.User.Email = "user@example.com"
-	cfg.Author.Name = "author name"
-	cfg.Author.Email = "author@example.com"
-	cfg.Committer.Name = "committer name"
-	cfg.Committer.Email = "committer@example.com"
-	writeConfig(t, repository, cfg)
-	return cfg
+func TestDataSourceGitConfig_MissingRepository(t *testing.T) {
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					data "git_config" "test" {}
+				`,
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+		},
+	})
 }

@@ -56,3 +56,17 @@ func TestDataSourceGitRemotes_InvalidRepository(t *testing.T) {
 		},
 	})
 }
+
+func TestDataSourceGitRemotes_MissingRepository(t *testing.T) {
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: `
+					data "git_remotes" "test" {}
+				`,
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+		},
+	})
+}

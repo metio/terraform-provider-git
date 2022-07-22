@@ -103,7 +103,7 @@ func (r dataSourceGitBranch) Read(ctx context.Context, req tfsdk.ReadDataSourceR
 	branch, err := repository.Branch(requestedBranch)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error reading branch",
+			"Cannot read branch",
 			"Could not read branch ["+requestedBranch+"] of ["+directory+"] because of: "+err.Error(),
 		)
 		return
@@ -117,7 +117,7 @@ func (r dataSourceGitBranch) Read(ctx context.Context, req tfsdk.ReadDataSourceR
 	branches, err := repository.Branches()
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error reading branches",
+			"Cannot read branches",
 			"Could not read branches of ["+directory+"] because of: "+err.Error(),
 		)
 		return
@@ -129,7 +129,7 @@ func (r dataSourceGitBranch) Read(ctx context.Context, req tfsdk.ReadDataSourceR
 		return nil
 	}); err != nil {
 		resp.Diagnostics.AddError(
-			"Error reading branches",
+			"Cannot read branches",
 			"Could not read branches of ["+directory+"] because of: "+err.Error(),
 		)
 		return

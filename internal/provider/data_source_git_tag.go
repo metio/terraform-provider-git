@@ -103,7 +103,7 @@ func (r dataSourceGitTag) Read(ctx context.Context, req tfsdk.ReadDataSourceRequ
 	reference, err := repository.Tag(tag)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error reading tag",
+			"Cannot read tag",
 			"Could not read tag ["+tag+"] of ["+directory+"] because of: "+err.Error(),
 		)
 		return

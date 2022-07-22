@@ -92,7 +92,7 @@ func (r dataSourceGitRemote) Read(ctx context.Context, req tfsdk.ReadDataSourceR
 	remote, err := repository.Remote(requestedRemote)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error reading remote",
+			"Cannot read remote",
 			"Could not read remote ["+requestedRemote+"] of ["+directory+"] because of: "+err.Error(),
 		)
 		return

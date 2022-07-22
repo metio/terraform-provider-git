@@ -72,6 +72,18 @@ func addAndCommitNewFile(t *testing.T, worktree *git.Worktree) {
 	}
 }
 
+func initTestConfig(t *testing.T, repository *git.Repository) *config.Config {
+	cfg := readConfig(t, repository)
+	cfg.User.Name = "user name"
+	cfg.User.Email = "user@example.com"
+	cfg.Author.Name = "author name"
+	cfg.Author.Email = "author@example.com"
+	cfg.Committer.Name = "committer name"
+	cfg.Committer.Email = "committer@example.com"
+	writeConfig(t, repository, cfg)
+	return cfg
+}
+
 func readConfig(t *testing.T, repository *git.Repository) *config.Config {
 	cfg, err := repository.Config()
 	if err != nil {
