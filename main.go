@@ -27,8 +27,9 @@ func main() {
 	flag.Parse()
 
 	opts := providerserver.ServeOpts{
-		Address: "registry.terraform.io/metio/git",
-		Debug:   debug,
+		Address:         "registry.terraform.io/metio/git",
+		Debug:           debug,
+		ProtocolVersion: 6,
 	}
 
 	err := providerserver.Serve(context.Background(), provider.New, opts)
