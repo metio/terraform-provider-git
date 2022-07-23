@@ -41,7 +41,11 @@ func temporaryDirectory(t *testing.T) string {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return directory
+	absolutePath, err := filepath.Abs(directory)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return absolutePath
 }
 
 func createBranch(t *testing.T, repository *git.Repository, branch *config.Branch) {
