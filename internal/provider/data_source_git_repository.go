@@ -1,6 +1,6 @@
 /*
- * This file is part of terraform-gitProvider-git. It is subject to the license terms in the LICENSE file found in the top-level
- * directory of this distribution and at https://creativecommons.org/publicdomain/zero/1.0/. No part of terraform-gitProvider-git,
+ * This file is part of terraform-provider-git. It is subject to the license terms in the LICENSE file found in the top-level
+ * directory of this distribution and at https://creativecommons.org/publicdomain/zero/1.0/. No part of terraform-provider-git,
  * including this file, may be copied, modified, propagated, or distributed except according to the terms contained
  * in the LICENSE file.
  */
@@ -18,7 +18,17 @@ import (
 
 type dataSourceGitRepositoryType struct{}
 
-func (r dataSourceGitRepositoryType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+type dataSourceGitRepository struct {
+	p gitProvider
+}
+
+type dataSourceGitRepositorySchema struct {
+	Directory types.String `tfsdk:"directory"`
+	Id        types.String `tfsdk:"id"`
+	Branch    types.String `tfsdk:"branch"`
+}
+
+func (r *dataSourceGitRepositoryType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description: "Reads information about a specific Git repository.",
 		Attributes: map[string]tfsdk.Attribute{
@@ -44,23 +54,15 @@ func (r dataSourceGitRepositoryType) GetSchema(_ context.Context) (tfsdk.Schema,
 	}, nil
 }
 
-func (r dataSourceGitRepositoryType) NewDataSource(_ context.Context, p tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
-	return dataSourceGitRepository{
+func (r *dataSourceGitRepositoryType) NewDataSource(_ context.Context, p tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
+	return &dataSourceGitRepository{
 		p: *(p.(*gitProvider)),
 	}, nil
 }
 
-type dataSourceGitRepository struct {
-	p gitProvider
-}
+func (r *dataSourceGitRepository) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
+	tflog.Debug(ctx, "Reading Git repository")
 
-type dataSourceGitRepositorySchema struct {
-	Directory types.String `tfsdk:"directory"`
-	Id        types.String `tfsdk:"id"`
-	Branch    types.String `tfsdk:"branch"`
-}
-
-func (r dataSourceGitRepository) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
 	var inputs dataSourceGitRepositorySchema
 	var outputs dataSourceGitRepositorySchema
 

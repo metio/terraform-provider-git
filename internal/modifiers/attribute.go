@@ -21,11 +21,11 @@ func DefaultValue(val attr.Value) tfsdk.AttributePlanModifier {
 }
 
 type defaultValueAttributePlanModifier struct {
-	val attr.Value
+	defaultValue attr.Value
 }
 
 func (d *defaultValueAttributePlanModifier) Description(ctx context.Context) string {
-	return "If the config does not contain a value, a default will be set using val."
+	return "If the config does not contain a value, a default will be set using defaultValue."
 }
 
 func (d *defaultValueAttributePlanModifier) MarkdownDescription(ctx context.Context) string {
@@ -36,10 +36,16 @@ func (d *defaultValueAttributePlanModifier) MarkdownDescription(ctx context.Cont
 // the value in the config is null. This is a destructive operation in that it will overwrite any value
 // present in the plan.
 func (d *defaultValueAttributePlanModifier) Modify(ctx context.Context, req tfsdk.ModifyAttributePlanRequest, resp *tfsdk.ModifyAttributePlanResponse) {
-	// Do not set default if the attribute configuration has been set.
+	// If the attribute configuration is not null, we are done here
 	if !req.AttributeConfig.IsNull() {
 		return
 	}
 
-	resp.AttributePlan = d.val
+	// If the attribute plan is "known" and "not null", then a previous plan modifier in the sequence
+	// has already been applied, and we don't want to interfere.
+	if !req.AttributePlan.IsUnknown() && !req.AttributePlan.IsNull() {
+		return
+	}
+
+	resp.AttributePlan = d.defaultValue
 }

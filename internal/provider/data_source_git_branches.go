@@ -1,6 +1,6 @@
 /*
- * This file is part of terraform-gitProvider-git. It is subject to the license terms in the LICENSE file found in the top-level
- * directory of this distribution and at https://creativecommons.org/publicdomain/zero/1.0/. No part of terraform-gitProvider-git,
+ * This file is part of terraform-provider-git. It is subject to the license terms in the LICENSE file found in the top-level
+ * directory of this distribution and at https://creativecommons.org/publicdomain/zero/1.0/. No part of terraform-provider-git,
  * including this file, may be copied, modified, propagated, or distributed except according to the terms contained
  * in the LICENSE file.
  */
@@ -30,7 +30,7 @@ type dataSourceGitBranchesSchema struct {
 	Branches  map[string]GitBranch `tfsdk:"branches"`
 }
 
-func (r dataSourceGitBranchesType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (r *dataSourceGitBranchesType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description: "Fetches all branches of a Git repository.",
 		Attributes: map[string]tfsdk.Attribute{
@@ -72,13 +72,15 @@ func (r dataSourceGitBranchesType) GetSchema(_ context.Context) (tfsdk.Schema, d
 	}, nil
 }
 
-func (r dataSourceGitBranchesType) NewDataSource(_ context.Context, p tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
-	return dataSourceGitBranches{
+func (r *dataSourceGitBranchesType) NewDataSource(_ context.Context, p tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
+	return &dataSourceGitBranches{
 		p: *(p.(*gitProvider)),
 	}, nil
 }
 
-func (r dataSourceGitBranches) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
+func (r *dataSourceGitBranches) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
+	tflog.Debug(ctx, "Reading Git repository branches")
+
 	var inputs dataSourceGitBranchesSchema
 	var outputs dataSourceGitBranchesSchema
 

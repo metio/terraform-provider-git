@@ -1,6 +1,6 @@
 /*
- * This file is part of terraform-gitProvider-git. It is subject to the license terms in the LICENSE file found in the top-level
- * directory of this distribution and at https://creativecommons.org/publicdomain/zero/1.0/. No part of terraform-gitProvider-git,
+ * This file is part of terraform-provider-git. It is subject to the license terms in the LICENSE file found in the top-level
+ * directory of this distribution and at https://creativecommons.org/publicdomain/zero/1.0/. No part of terraform-provider-git,
  * including this file, may be copied, modified, propagated, or distributed except according to the terms contained
  * in the LICENSE file.
  */
@@ -28,7 +28,7 @@ type dataSourceGitRemotesSchema struct {
 	Remotes   map[string]GitRemote `tfsdk:"remotes"`
 }
 
-func (r dataSourceGitRemotesType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (r *dataSourceGitRemotesType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description: "Reads all configured remotes of a Git repository.",
 		Attributes: map[string]tfsdk.Attribute{
@@ -62,13 +62,15 @@ func (r dataSourceGitRemotesType) GetSchema(_ context.Context) (tfsdk.Schema, di
 	}, nil
 }
 
-func (r dataSourceGitRemotesType) NewDataSource(_ context.Context, p tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
-	return dataSourceGitRemotes{
+func (r *dataSourceGitRemotesType) NewDataSource(_ context.Context, p tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
+	return &dataSourceGitRemotes{
 		p: *(p.(*gitProvider)),
 	}, nil
 }
 
-func (r dataSourceGitRemotes) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
+func (r *dataSourceGitRemotes) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
+	tflog.Debug(ctx, "Reading Git repository remotes")
+
 	var inputs dataSourceGitRemotesSchema
 	var outputs dataSourceGitRemotesSchema
 

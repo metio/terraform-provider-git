@@ -1,6 +1,6 @@
 /*
- * This file is part of terraform-gitProvider-git. It is subject to the license terms in the LICENSE file found in the top-level
- * directory of this distribution and at https://creativecommons.org/publicdomain/zero/1.0/. No part of terraform-gitProvider-git,
+ * This file is part of terraform-provider-git. It is subject to the license terms in the LICENSE file found in the top-level
+ * directory of this distribution and at https://creativecommons.org/publicdomain/zero/1.0/. No part of terraform-provider-git,
  * including this file, may be copied, modified, propagated, or distributed except according to the terms contained
  * in the LICENSE file.
  */
@@ -35,20 +35,20 @@ func (p *gitProvider) Configure(_ context.Context, _ tfsdk.ConfigureProviderRequ
 // GetResources - Defines gitProvider resources
 func (p *gitProvider) GetResources(_ context.Context) (map[string]tfsdk.ResourceType, diag.Diagnostics) {
 	return map[string]tfsdk.ResourceType{
-		//"git_init": resourceGitInit{},
+		"git_init": &resourceGitInitType{},
 	}, nil
 }
 
 // GetDataSources - Defines gitProvider data sources
 func (p *gitProvider) GetDataSources(_ context.Context) (map[string]tfsdk.DataSourceType, diag.Diagnostics) {
 	return map[string]tfsdk.DataSourceType{
-		"git_branch":     dataSourceGitBranchType{},
-		"git_branches":   dataSourceGitBranchesType{},
-		"git_config":     dataSourceGitConfigType{},
-		"git_repository": dataSourceGitRepositoryType{},
-		"git_remote":     dataSourceGitRemoteType{},
-		"git_remotes":    dataSourceGitRemotesType{},
-		"git_tag":        dataSourceGitTagType{},
-		"git_tags":       dataSourceGitTagsType{},
+		"git_branch":     &dataSourceGitBranchType{},
+		"git_branches":   &dataSourceGitBranchesType{},
+		"git_config":     &dataSourceGitConfigType{},
+		"git_repository": &dataSourceGitRepositoryType{},
+		"git_remote":     &dataSourceGitRemoteType{},
+		"git_remotes":    &dataSourceGitRemotesType{},
+		"git_tag":        &dataSourceGitTagType{},
+		"git_tags":       &dataSourceGitTagsType{},
 	}, nil
 }

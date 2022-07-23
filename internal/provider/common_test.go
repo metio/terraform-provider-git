@@ -28,15 +28,20 @@ func protoV6ProviderFactories() map[string]func() (tfprotov6.ProviderServer, err
 }
 
 func initializeGitRepository(t *testing.T) (string, *git.Repository) {
-	directory, err := ioutil.TempDir("", "terraform-provider-git")
-	if err != nil {
-		t.Fatal(err)
-	}
+	directory := temporaryDirectory(t)
 	repository, err := git.PlainInit(directory, false)
 	if err != nil {
 		t.Fatal(err)
 	}
 	return directory, repository
+}
+
+func temporaryDirectory(t *testing.T) string {
+	directory, err := ioutil.TempDir("", "terraform-provider-git")
+	if err != nil {
+		t.Fatal(err)
+	}
+	return directory
 }
 
 func createBranch(t *testing.T, repository *git.Repository, branch *config.Branch) {

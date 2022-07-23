@@ -44,6 +44,66 @@ func TestDataSourceGitTags(t *testing.T) {
 	})
 }
 
+func TestDataSourceGitTags_NoAnnotated(t *testing.T) {
+	directory, repository := initializeGitRepository(t)
+	defer os.RemoveAll(directory)
+	worktree := createWorktree(t, repository)
+	addAndCommitNewFile(t, worktree)
+	tag := "some-tag"
+	createTag(t, repository, tag)
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "git_tags" "test" {
+						directory = "%s"
+						annotated = false
+					}
+				`, directory),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.git_tags.test", "directory", directory),
+					resource.TestCheckResourceAttr("data.git_tags.test", "id", directory),
+					resource.TestCheckResourceAttr("data.git_tags.test", "annotated", "false"),
+					resource.TestCheckResourceAttr("data.git_tags.test", "lightweight", "true"),
+					resource.TestCheckResourceAttr("data.git_tags.test", "tags.%", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitTags_NoLightweight(t *testing.T) {
+	directory, repository := initializeGitRepository(t)
+	defer os.RemoveAll(directory)
+	worktree := createWorktree(t, repository)
+	addAndCommitNewFile(t, worktree)
+	tag := "some-tag"
+	createTag(t, repository, tag)
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "git_tags" "test" {
+						directory   = "%s"
+						lightweight = false
+					}
+				`, directory),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.git_tags.test", "directory", directory),
+					resource.TestCheckResourceAttr("data.git_tags.test", "id", directory),
+					resource.TestCheckResourceAttr("data.git_tags.test", "annotated", "true"),
+					resource.TestCheckResourceAttr("data.git_tags.test", "lightweight", "false"),
+					resource.TestCheckResourceAttr("data.git_tags.test", "tags.%", "1"),
+				),
+			},
+		},
+	})
+}
+
 func TestDataSourceGitTags_InvalidRepository(t *testing.T) {
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),

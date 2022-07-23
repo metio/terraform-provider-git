@@ -1,6 +1,6 @@
 /*
- * This file is part of terraform-gitProvider-git. It is subject to the license terms in the LICENSE file found in the top-level
- * directory of this distribution and at https://creativecommons.org/publicdomain/zero/1.0/. No part of terraform-gitProvider-git,
+ * This file is part of terraform-provider-git. It is subject to the license terms in the LICENSE file found in the top-level
+ * directory of this distribution and at https://creativecommons.org/publicdomain/zero/1.0/. No part of terraform-provider-git,
  * including this file, may be copied, modified, propagated, or distributed except according to the terms contained
  * in the LICENSE file.
  */
@@ -32,7 +32,7 @@ type dataSourceGitTagSchema struct {
 	SHA1        types.String `tfsdk:"sha1"`
 }
 
-func (r dataSourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (r *dataSourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description: "Reads information about a specific tag of a Git repository.",
 		Attributes: map[string]tfsdk.Attribute{
@@ -76,13 +76,15 @@ func (r dataSourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.D
 	}, nil
 }
 
-func (r dataSourceGitTagType) NewDataSource(_ context.Context, p tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
-	return dataSourceGitTag{
+func (r *dataSourceGitTagType) NewDataSource(_ context.Context, p tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
+	return &dataSourceGitTag{
 		p: *(p.(*gitProvider)),
 	}, nil
 }
 
-func (r dataSourceGitTag) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
+func (r *dataSourceGitTag) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
+	tflog.Debug(ctx, "Reading Git repository tag")
+
 	var inputs dataSourceGitTagSchema
 	var outputs dataSourceGitTagSchema
 
