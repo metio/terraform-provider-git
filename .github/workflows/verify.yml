@@ -46,7 +46,7 @@ jobs:
         name: Build Provider
         run: go build -v ./...
   test:
-    name: Run Tests on ${{ matrix.os }} with Terraform ${{ terraform.os }}
+    name: Run Tests on ${{ matrix.os }} with Terraform ${{ matrix.terraform }}
     needs: build
     runs-on: ${{ matrix.os }}
     strategy:
