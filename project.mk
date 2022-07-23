@@ -1,6 +1,6 @@
 .PHONY: build
 build:
-	go build -o out/terraform-provider-git ./...
+	go build -o out/terraform-provider-git
 
 .PHONY: install
 install:

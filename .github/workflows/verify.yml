@@ -34,35 +34,19 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
-      - id: dependencies
-        name: Get dependencies
-        run: go mod download
-      - id: build
-        name: Build
-        run: go build -v .
-  documentation:
-    name: Generate Documentation
-    runs-on: ubuntu-latest
-    steps:
-      - id: checkout
-        name: Checkout
-        uses: actions/checkout@v3
-      - id: setup_go
-        name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version-file: go.mod
-          cache: true
       - id: generate_docs
         name: Generate Documentation
-        run: go generate ./...
+        run: go generate
       - id: verify_docs
         name: Verify Documentation
         run: |
           git diff --compact-summary --exit-code || \
             (echo "*** Unexpected differences after code generation. Run 'make generate' and commit."; exit 1)
+      - id: build
+        name: Build
+        run: go build -v ./...
   test:
-    name: Acceptance Tests
+    name: Run Tests
     needs: build
     runs-on: ubuntu-latest
     strategy:
@@ -88,12 +72,8 @@ jobs:
         with:
           terraform_version: ${{ matrix.terraform }}
           terraform_wrapper: false
-      - id: dependencies
-        name: Get Dependencies
-        run: go mod download
       - id: tests
         name: Run Tests
-        timeout-minutes: 10
-        run: go test -v -cover ./internal/provider/
+        run: go test -v -cover -parallel=4 -timeout=120s ./internal/provider/
         env:
           TF_ACC: "1"
