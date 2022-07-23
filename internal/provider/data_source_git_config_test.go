@@ -16,6 +16,7 @@ import (
 )
 
 func TestDataSourceGitConfig(t *testing.T) {
+	t.Parallel()
 	directory, repository := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 	cfg := initTestConfig(t, repository)
@@ -46,6 +47,7 @@ func TestDataSourceGitConfig(t *testing.T) {
 }
 
 func TestDataSourceGitConfig_InvalidRepository(t *testing.T) {
+	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
 		Steps: []resource.TestStep{
@@ -62,6 +64,7 @@ func TestDataSourceGitConfig_InvalidRepository(t *testing.T) {
 }
 
 func TestDataSourceGitConfig_InvalidScope(t *testing.T) {
+	t.Parallel()
 	directory, _ := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 
@@ -82,6 +85,7 @@ func TestDataSourceGitConfig_InvalidScope(t *testing.T) {
 }
 
 func TestDataSourceGitConfig_ScopeLocal(t *testing.T) {
+	t.Parallel()
 	directory, repository := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 	cfg := initTestConfig(t, repository)
@@ -113,6 +117,7 @@ func TestDataSourceGitConfig_ScopeLocal(t *testing.T) {
 }
 
 func TestDataSourceGitConfig_ScopeGlobal(t *testing.T) {
+	t.Parallel()
 	directory, repository := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 	cfg := initTestConfig(t, repository)
@@ -144,6 +149,7 @@ func TestDataSourceGitConfig_ScopeGlobal(t *testing.T) {
 }
 
 func TestDataSourceGitConfig_ScopeSystem(t *testing.T) {
+	t.Parallel()
 	directory, repository := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 	cfg := initTestConfig(t, repository)
@@ -175,6 +181,7 @@ func TestDataSourceGitConfig_ScopeSystem(t *testing.T) {
 }
 
 func TestDataSourceGitConfig_MissingRepository(t *testing.T) {
+	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
 		Steps: []resource.TestStep{

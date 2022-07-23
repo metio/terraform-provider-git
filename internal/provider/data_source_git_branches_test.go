@@ -16,6 +16,7 @@ import (
 )
 
 func TestDataSourceGitBranches(t *testing.T) {
+	t.Parallel()
 	directory, repository := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 	worktree := createWorktree(t, repository)
@@ -44,6 +45,7 @@ func TestDataSourceGitBranches(t *testing.T) {
 }
 
 func TestDataSourceGitBranches_InvalidRepository(t *testing.T) {
+	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
 		Steps: []resource.TestStep{
@@ -60,6 +62,7 @@ func TestDataSourceGitBranches_InvalidRepository(t *testing.T) {
 }
 
 func TestDataSourceGitBranches_MissingRepository(t *testing.T) {
+	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
 		Steps: []resource.TestStep{

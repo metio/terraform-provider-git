@@ -16,6 +16,7 @@ import (
 )
 
 func TestDataSourceGitTag(t *testing.T) {
+	t.Parallel()
 	directory, repository := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 	worktree := createWorktree(t, repository)
@@ -47,6 +48,7 @@ func TestDataSourceGitTag(t *testing.T) {
 }
 
 func TestDataSourceGitTag_InvalidRepository(t *testing.T) {
+	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
 		Steps: []resource.TestStep{
@@ -64,6 +66,7 @@ func TestDataSourceGitTag_InvalidRepository(t *testing.T) {
 }
 
 func TestDataSourceGitTag_InvalidTag(t *testing.T) {
+	t.Parallel()
 	directory, _ := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 
@@ -84,6 +87,7 @@ func TestDataSourceGitTag_InvalidTag(t *testing.T) {
 }
 
 func TestDataSourceGitTag_MissingTag(t *testing.T) {
+	t.Parallel()
 	directory, _ := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 
@@ -103,6 +107,7 @@ func TestDataSourceGitTag_MissingTag(t *testing.T) {
 }
 
 func TestDataSourceGitTag_MissingRepository(t *testing.T) {
+	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
 		Steps: []resource.TestStep{

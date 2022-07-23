@@ -15,6 +15,7 @@ import (
 )
 
 func TestResourceGitInit(t *testing.T) {
+	t.Parallel()
 	directory := temporaryDirectory(t)
 	defer os.RemoveAll(directory)
 
@@ -38,6 +39,7 @@ func TestResourceGitInit(t *testing.T) {
 }
 
 func TestResourceGitInit_Bare(t *testing.T) {
+	t.Parallel()
 	directory := temporaryDirectory(t)
 	defer os.RemoveAll(directory)
 
@@ -62,6 +64,7 @@ func TestResourceGitInit_Bare(t *testing.T) {
 }
 
 func TestResourceGitInit_NonBare(t *testing.T) {
+	t.Parallel()
 	directory := temporaryDirectory(t)
 	defer os.RemoveAll(directory)
 

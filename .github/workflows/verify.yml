@@ -60,7 +60,7 @@ jobs:
         name: Verify Documentation
         run: |
           git diff --compact-summary --exit-code || \
-            (echo; echo "Unexpected difference in directories after code generation. Run 'go generate ./...' command and commit."; exit 1)
+            (echo "*** Unexpected differences after code generation. Run 'make generate' and commit."; exit 1)
   test:
     name: Acceptance Tests
     needs: build

@@ -17,6 +17,7 @@ import (
 )
 
 func TestDataSourceGitBranch(t *testing.T) {
+	t.Parallel()
 	directory, repository := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 	branch := "name-of-branch"
@@ -51,6 +52,7 @@ func TestDataSourceGitBranch(t *testing.T) {
 }
 
 func TestDataSourceGitBranch_InvalidRepository(t *testing.T) {
+	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
 		Steps: []resource.TestStep{
@@ -68,6 +70,7 @@ func TestDataSourceGitBranch_InvalidRepository(t *testing.T) {
 }
 
 func TestDataSourceGitBranch_InvalidBranch(t *testing.T) {
+	t.Parallel()
 	directory, _ := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 
@@ -88,6 +91,7 @@ func TestDataSourceGitBranch_InvalidBranch(t *testing.T) {
 }
 
 func TestDataSourceGitBranch_MissingBranch(t *testing.T) {
+	t.Parallel()
 	directory, _ := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 
@@ -107,6 +111,7 @@ func TestDataSourceGitBranch_MissingBranch(t *testing.T) {
 }
 
 func TestDataSourceGitBranch_MissingRepository(t *testing.T) {
+	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
 		Steps: []resource.TestStep{
