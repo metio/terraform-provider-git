@@ -137,8 +137,8 @@ func (r *dataSourceGitBranches) Read(ctx context.Context, req tfsdk.ReadDataSour
 		return
 	}
 
-	outputs.Directory.Value = directory
-	outputs.Id.Value = directory
+	outputs.Directory = types.String{Value: directory}
+	outputs.Id = types.String{Value: directory}
 	outputs.Branches = allBranches
 
 	diags = resp.State.Set(ctx, &outputs)

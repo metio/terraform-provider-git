@@ -93,9 +93,9 @@ func (r *dataSourceGitRepository) Read(ctx context.Context, req tfsdk.ReadDataSo
 		"head":      head.Name().String(),
 	})
 
-	outputs.Directory.Value = directory
-	outputs.Id.Value = directory
-	outputs.Branch.Value = head.Name().Short()
+	outputs.Directory = types.String{Value: directory}
+	outputs.Id = types.String{Value: directory}
+	outputs.Branch = types.String{Value: head.Name().Short()}
 
 	diags = resp.State.Set(ctx, &outputs)
 	resp.Diagnostics.Append(diags...)

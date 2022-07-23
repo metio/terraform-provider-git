@@ -137,8 +137,8 @@ func (r *dataSourceGitBranch) Read(ctx context.Context, req tfsdk.ReadDataSource
 		return
 	}
 
-	outputs.Directory.Value = directory
-	outputs.Id.Value = directory
+	outputs.Directory = types.String{Value: directory}
+	outputs.Id = types.String{Value: directory}
 	outputs.Branch = types.String{Value: branch.Name}
 	outputs.Remote = types.String{Value: branch.Remote}
 	outputs.Rebase = types.String{Value: branch.Rebase}

@@ -116,17 +116,17 @@ func (r *dataSourceGitTag) Read(ctx context.Context, req tfsdk.ReadDataSourceReq
 		"tag":       tag,
 	})
 
-	outputs.Directory.Value = directory
-	outputs.Id.Value = directory
-	outputs.Tag.Value = reference.Name().Short()
-	outputs.SHA1.Value = reference.Hash().String()
+	outputs.Directory = types.String{Value: directory}
+	outputs.Id = types.String{Value: directory}
+	outputs.Tag = types.String{Value: reference.Name().Short()}
+	outputs.SHA1 = types.String{Value: reference.Hash().String()}
 	_, err = repository.TagObject(reference.Hash())
 	if err == plumbing.ErrObjectNotFound {
-		outputs.Annotated.Value = false
-		outputs.Lightweight.Value = true
+		outputs.Annotated = types.Bool{Value: false}
+		outputs.Lightweight = types.Bool{Value: true}
 	} else {
-		outputs.Annotated.Value = true
-		outputs.Lightweight.Value = false
+		outputs.Annotated = types.Bool{Value: true}
+		outputs.Lightweight = types.Bool{Value: false}
 	}
 
 	diags = resp.State.Set(ctx, &outputs)

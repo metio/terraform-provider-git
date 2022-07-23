@@ -105,9 +105,9 @@ func (r *dataSourceGitRemote) Read(ctx context.Context, req tfsdk.ReadDataSource
 		"remote":    requestedRemote,
 	})
 
-	outputs.Directory.Value = directory
-	outputs.Id.Value = directory
-	outputs.Remote.Value = remote.Config().Name
+	outputs.Directory = types.String{Value: directory}
+	outputs.Id = types.String{Value: directory}
+	outputs.Remote = types.String{Value: remote.Config().Name}
 	outputs.URLs = extractGitRemoteUrls(remote)
 
 	diags = resp.State.Set(ctx, &outputs)

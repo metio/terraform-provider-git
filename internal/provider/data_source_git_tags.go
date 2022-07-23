@@ -171,10 +171,10 @@ func (r *dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceRe
 		return
 	}
 
-	outputs.Directory.Value = directory
-	outputs.Id.Value = directory
-	outputs.Annotated.Value = inputs.Annotated.Value
-	outputs.Lightweight.Value = inputs.Lightweight.Value
+	outputs.Directory = types.String{Value: directory}
+	outputs.Id = types.String{Value: directory}
+	outputs.Annotated = types.Bool{Value: inputs.Annotated.Value}
+	outputs.Lightweight = types.Bool{Value: inputs.Lightweight.Value}
 	outputs.Tags = allTags
 
 	diags = resp.State.Set(ctx, &outputs)

@@ -148,15 +148,15 @@ func (r *dataSourceGitConfig) Read(ctx context.Context, req tfsdk.ReadDataSource
 		"scope":     scope,
 	})
 
-	outputs.Directory.Value = directory
-	outputs.Id.Value = directory
-	outputs.Scope.Value = scope
-	outputs.UserName.Value = cfg.User.Name
-	outputs.UserEmail.Value = cfg.User.Email
-	outputs.AuthorName.Value = cfg.Author.Name
-	outputs.AuthorEmail.Value = cfg.Author.Email
-	outputs.CommitterName.Value = cfg.Committer.Name
-	outputs.CommitterEmail.Value = cfg.Committer.Email
+	outputs.Directory = types.String{Value: directory}
+	outputs.Id = types.String{Value: directory}
+	outputs.Scope = types.String{Value: scope}
+	outputs.UserName = types.String{Value: cfg.User.Name}
+	outputs.UserEmail = types.String{Value: cfg.User.Email}
+	outputs.AuthorName = types.String{Value: cfg.Author.Name}
+	outputs.AuthorEmail = types.String{Value: cfg.Author.Email}
+	outputs.CommitterName = types.String{Value: cfg.Committer.Name}
+	outputs.CommitterEmail = types.String{Value: cfg.Committer.Email}
 
 	diags = resp.State.Set(ctx, &outputs)
 	resp.Diagnostics.Append(diags...)
