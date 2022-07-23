@@ -32,6 +32,7 @@ type resourceGitInitSchema struct {
 
 func (c *resourceGitInitType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
+		Description: "Initializes a Git repository.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
 				Description: "The path to the local Git repository.",
