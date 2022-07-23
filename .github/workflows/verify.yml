@@ -22,7 +22,7 @@ on:
       - docs/**
 jobs:
   build:
-    name: Build Binary
+    name: Build Project
     runs-on: ubuntu-latest
     steps:
       - id: checkout
@@ -43,7 +43,7 @@ jobs:
           git diff --compact-summary --exit-code || \
             (echo "*** Unexpected differences after code generation. Run 'make generate' and commit."; exit 1)
       - id: build
-        name: Build
+        name: Build Provider
         run: go build -v ./...
   test:
     name: Run Tests
