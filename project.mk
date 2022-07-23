@@ -17,3 +17,8 @@ docs:
 .PHONY: fmt
 fmt:
 	gofmt -s -w -e .
+
+.PHONY: update
+update:
+	go get -u
+	go mod tidy
