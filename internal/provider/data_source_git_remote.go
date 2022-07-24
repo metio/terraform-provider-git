@@ -86,7 +86,7 @@ func (r *dataSourceGitRemote) Read(ctx context.Context, req tfsdk.ReadDataSource
 	directory := inputs.Directory.Value
 	requestedRemote := inputs.Remote.Value
 
-	repository := openRepository(ctx, directory, resp)
+	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
 		return
 	}

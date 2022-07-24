@@ -92,7 +92,7 @@ func (r *dataSourceGitBranches) Read(ctx context.Context, req tfsdk.ReadDataSour
 
 	directory := inputs.Directory.Value
 
-	repository := openRepository(ctx, directory, resp)
+	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
 		return
 	}

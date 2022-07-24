@@ -10,15 +10,19 @@ package provider
 import (
 	"context"
 	"github.com/go-git/go-git/v5"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-func openRepository(ctx context.Context, directory string, resp *tfsdk.ReadDataSourceResponse) *git.Repository {
-	repository, err := git.PlainOpen(directory)
+func openRepository(ctx context.Context, directory string, diag *diag.Diagnostics) *git.Repository {
+	repository, err := git.PlainOpenWithOptions(directory, &git.PlainOpenOptions{
+		DetectDotGit:          true,
+		EnableDotGitCommonDir: true,
+	})
 	if err != nil {
-		resp.Diagnostics.AddError(
+		diag.AddError(
 			"Cannot open repository",
 			"Could not open git repository ["+directory+"] because of: "+err.Error(),
 		)

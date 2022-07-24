@@ -115,3 +115,23 @@ func TestResourceGitInit_Import(t *testing.T) {
 		},
 	})
 }
+
+func TestResourceGitInit_Delete(t *testing.T) {
+	t.Parallel()
+	directory := temporaryDirectory(t)
+	defer os.RemoveAll(directory)
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					resource "git_init" "test" {
+						directory = "%s"
+					}
+				`, directory),
+				Destroy: true,
+			},
+		},
+	})
+}

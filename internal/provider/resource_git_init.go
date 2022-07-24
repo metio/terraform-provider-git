@@ -10,6 +10,7 @@ package provider
 import (
 	"context"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/storage/filesystem"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -17,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/metio/terraform-provider-git/internal/modifiers"
+	"os"
 )
 
 type resourceGitInitType struct{}
@@ -74,17 +76,17 @@ func (r *resourceGitInitType) NewResource(_ context.Context, p tfsdk.Provider) (
 func (r *resourceGitInit) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
 	tflog.Debug(ctx, "Creating Git repository")
 
-	var state resourceGitInitSchema
+	var inputs resourceGitInitSchema
 	var output resourceGitInitSchema
 
-	diags := req.Config.Get(ctx, &state)
+	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := state.Directory.Value
-	bare := state.Bare.Value
+	directory := inputs.Directory.Value
+	bare := inputs.Bare.Value
 
 	_, err := git.PlainInit(directory, bare)
 	if err != nil {
@@ -120,8 +122,38 @@ func (r *resourceGitInit) Update(ctx context.Context, req tfsdk.UpdateResourceRe
 	updatedUsingPlan(ctx, &req, resp, &resourceGitInitSchema{})
 }
 
-func (r *resourceGitInit) Delete(ctx context.Context, _ tfsdk.DeleteResourceRequest, _ *tfsdk.DeleteResourceResponse) {
+func (r *resourceGitInit) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
 	tflog.Debug(ctx, "Removing Git repository")
+
+	var inputs resourceGitInitSchema
+
+	diags := req.State.Get(ctx, &inputs)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	directory := inputs.Directory.Value
+	bare := inputs.Bare.Value
+
+	if !bare {
+		repository := openRepository(ctx, directory, &resp.Diagnostics)
+
+		if repository.Storer != nil {
+			storage, ok := repository.Storer.(*filesystem.Storage)
+
+			if ok {
+				err := os.RemoveAll(storage.Filesystem().Root())
+				if err != nil {
+					resp.Diagnostics.AddError(
+						"Cannot delete repository",
+						"Could not delete git repository ["+directory+"] because of: "+err.Error(),
+					)
+					return
+				}
+			}
+		}
+	}
 }
 
 func (r *resourceGitInit) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
