@@ -35,7 +35,8 @@ func (p *gitProvider) Configure(_ context.Context, _ tfsdk.ConfigureProviderRequ
 // GetResources - Defines gitProvider resources
 func (p *gitProvider) GetResources(_ context.Context) (map[string]tfsdk.ResourceType, diag.Diagnostics) {
 	return map[string]tfsdk.ResourceType{
-		"git_init": &resourceGitInitType{},
+		"git_init":   &resourceGitInitType{},
+		"git_remote": &resourceGitRemoteType{},
 	}, nil
 }
 
