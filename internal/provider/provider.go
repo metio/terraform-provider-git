@@ -37,6 +37,7 @@ func (p *gitProvider) GetResources(_ context.Context) (map[string]tfsdk.Resource
 	return map[string]tfsdk.ResourceType{
 		"git_init":   &resourceGitInitType{},
 		"git_remote": &resourceGitRemoteType{},
+		"git_tag":    &resourceGitTagType{},
 	}, nil
 }
 
