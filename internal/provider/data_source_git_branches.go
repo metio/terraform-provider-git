@@ -97,6 +97,10 @@ func (r *dataSourceGitBranches) Read(ctx context.Context, req tfsdk.ReadDataSour
 		return
 	}
 
+	tflog.Trace(ctx, "opened repository", map[string]interface{}{
+		"directory": directory,
+	})
+
 	branches, err := repository.Branches()
 	if err != nil {
 		resp.Diagnostics.AddError(

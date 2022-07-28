@@ -134,6 +134,10 @@ func (r *dataSourceGitConfig) Read(ctx context.Context, req tfsdk.ReadDataSource
 		return
 	}
 
+	tflog.Trace(ctx, "opened repository", map[string]interface{}{
+		"directory": directory,
+	})
+
 	cfg, err := repository.ConfigScoped(mapScope(scope))
 	if err != nil {
 		resp.Diagnostics.AddError(

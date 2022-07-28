@@ -103,13 +103,26 @@ func (r *resourceGitRemote) Create(ctx context.Context, req tfsdk.CreateResource
 		return
 	}
 
+	tflog.Trace(ctx, "opened repository", map[string]interface{}{
+		"directory": directory,
+	})
+
 	remote, err := repository.CreateRemote(&config.RemoteConfig{
 		Name: name,
 		URLs: urls,
 	})
 	if err != nil {
+		resp.Diagnostics.AddError(
+			"Cannot create remote",
+			"Could not create remote ["+name+"] in git repository ["+directory+"] because of: "+err.Error(),
+		)
 		return
 	}
+
+	tflog.Trace(ctx, "created remote", map[string]interface{}{
+		"directory": directory,
+		"remote":    remote.Config().Name,
+	})
 
 	output.Directory = types.String{Value: directory}
 	output.Id = types.String{Value: directory}

@@ -79,6 +79,10 @@ func (r *dataSourceGitRepository) Read(ctx context.Context, req tfsdk.ReadDataSo
 		return
 	}
 
+	tflog.Trace(ctx, "opened repository", map[string]interface{}{
+		"directory": directory,
+	})
+
 	head, err := repository.Head()
 	if err != nil {
 		resp.Diagnostics.AddError(

@@ -102,6 +102,10 @@ func (r *dataSourceGitTag) Read(ctx context.Context, req tfsdk.ReadDataSourceReq
 		return
 	}
 
+	tflog.Trace(ctx, "opened repository", map[string]interface{}{
+		"directory": directory,
+	})
+
 	reference, err := repository.Tag(tag)
 	if err != nil {
 		resp.Diagnostics.AddError(

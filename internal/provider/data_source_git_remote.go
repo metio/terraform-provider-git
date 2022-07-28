@@ -91,6 +91,10 @@ func (r *dataSourceGitRemote) Read(ctx context.Context, req tfsdk.ReadDataSource
 		return
 	}
 
+	tflog.Trace(ctx, "opened repository", map[string]interface{}{
+		"directory": directory,
+	})
+
 	remote, err := repository.Remote(requestedRemote)
 	if err != nil {
 		resp.Diagnostics.AddError(
