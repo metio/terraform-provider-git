@@ -9,13 +9,14 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"strings"
 )
 
 type resourceGitRemoteType struct{}
@@ -68,9 +69,6 @@ func (c *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 					ElemType: types.StringType,
 				},
 				Required: true,
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					tfsdk.RequiresReplace(),
-				},
 			},
 		},
 	}, nil
@@ -125,7 +123,7 @@ func (r *resourceGitRemote) Create(ctx context.Context, req tfsdk.CreateResource
 	})
 
 	output.Directory = types.String{Value: directory}
-	output.Id = types.String{Value: directory}
+	output.Id = types.String{Value: remote.Config().Name}
 	output.Name = types.String{Value: remote.Config().Name}
 	output.Urls = urls
 
@@ -137,28 +135,82 @@ func (r *resourceGitRemote) Create(ctx context.Context, req tfsdk.CreateResource
 }
 
 func (r *resourceGitRemote) Read(ctx context.Context, _ tfsdk.ReadResourceRequest, _ *tfsdk.ReadResourceResponse) {
-	// NO-OP: all there is to read is in the State, and response is already populated with that.
 	tflog.Debug(ctx, "Reading Git remote from state")
+	// NO-OP: all there is to read is in the State, and response is already populated with that.
 }
 
 func (r *resourceGitRemote) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
 	tflog.Debug(ctx, "Updating Git remote")
-	updatedUsingPlan(ctx, &req, resp, &resourceGitRemoteSchema{})
-}
-
-func (r *resourceGitRemote) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
-	tflog.Debug(ctx, "Removing Git remote")
 
 	var inputs resourceGitRemoteSchema
+	var state resourceGitRemoteSchema
 
-	diags := req.State.Get(ctx, &inputs)
+	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	directory := inputs.Directory.Value
-	name := inputs.Name.Value
+	remoteName := inputs.Name.Value
+
+	repository := openRepository(ctx, directory, &resp.Diagnostics)
+	if repository == nil {
+		return
+	}
+
+	remote := getRemote(ctx, repository, remoteName, &resp.Diagnostics)
+	if remote == nil {
+		return
+	}
+
+	cfg, err := repository.Config()
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Cannot read repository config",
+			"Could not read repository config of ["+directory+"] because of: "+err.Error(),
+		)
+		return
+	}
+
+	remoteConfig := remote.Config()
+	remoteConfig.URLs = inputs.Urls
+	cfg.Remotes[remoteName] = remoteConfig
+
+	err = repository.SetConfig(cfg)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Cannot write repository config",
+			"Could not write repository config of ["+directory+"] because of: "+err.Error(),
+		)
+		return
+	}
+
+	state.Directory = types.String{Value: directory}
+	state.Id = types.String{Value: remoteName}
+	state.Name = types.String{Value: remoteName}
+	state.Urls = inputs.Urls
+
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *resourceGitRemote) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
+	tflog.Debug(ctx, "Removing Git remote")
+
+	var state resourceGitRemoteSchema
+
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	directory := state.Directory.Value
+	name := state.Name.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	err := repository.DeleteRemote(name)
@@ -172,5 +224,27 @@ func (r *resourceGitRemote) Delete(ctx context.Context, req tfsdk.DeleteResource
 }
 
 func (r *resourceGitRemote) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
-	tfsdk.ResourceImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	id := req.ID
+	idParts := strings.Split(id, "|")
+
+	if len(idParts) < 2 || idParts[0] == "" || idParts[1] == "" {
+		resp.Diagnostics.AddError(
+			"Unexpected import identifier",
+			fmt.Sprintf("Expected import identifier with format: 'directory|remote-name|first-url,second-url,...' Got: %q", id),
+		)
+		return
+	}
+
+	var state resourceGitRemoteSchema
+
+	state.Directory = types.String{Value: idParts[0]}
+	state.Id = types.String{Value: idParts[1]}
+	state.Name = types.String{Value: idParts[1]}
+	state.Urls = strings.Split(idParts[2], ",")
+
+	diags := resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }

@@ -20,6 +20,7 @@ func TestResourceGitRemote(t *testing.T) {
 	directory, _ := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 	name := "some-name"
+	url1 := "https://github.com/some-org/some-repo.git"
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
@@ -29,14 +30,15 @@ func TestResourceGitRemote(t *testing.T) {
 					resource "git_remote" "test" {
 						directory = "%s"
 						name      = "%s"
-						urls      = ["https://github.com/some-org/some-repo.git"]
+						urls      = ["%s"]
 					}
-				`, directory, name),
+				`, directory, name, url1),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_remote.test", "id", directory),
+					resource.TestCheckResourceAttr("git_remote.test", "id", name),
 					resource.TestCheckResourceAttr("git_remote.test", "name", name),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
 				),
 			},
 		},
@@ -48,6 +50,8 @@ func TestResourceGitRemote_MultipleUrls(t *testing.T) {
 	directory, _ := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 	name := "some-name"
+	url1 := "https://github.com/some-org/some-repo.git"
+	url2 := "https://codeberg.org/some-org/some-repo.git"
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
@@ -57,14 +61,16 @@ func TestResourceGitRemote_MultipleUrls(t *testing.T) {
 					resource "git_remote" "test" {
 						directory = "%s"
 						name      = "%s"
-						urls      = ["https://github.com/some-org/some-repo.git", "https://gitlab.com/some-org/some-repo.git"]
+						urls      = ["%s", "%s"]
 					}
-				`, directory, name),
+				`, directory, name, url1, url2),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_remote.test", "id", directory),
+					resource.TestCheckResourceAttr("git_remote.test", "id", name),
 					resource.TestCheckResourceAttr("git_remote.test", "name", name),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "2"),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.1", url2),
 				),
 			},
 		},
@@ -150,6 +156,128 @@ func TestResourceGitRemote_MissingUrls(t *testing.T) {
 					}
 				`, directory, name),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+		},
+	})
+}
+
+func TestResourceGitRemote_Import(t *testing.T) {
+	t.Parallel()
+	directory, _ := initializeGitRepository(t)
+	defer os.RemoveAll(directory)
+	remote := "some-name"
+	url := "https://github.com/some-org/some-repo.git"
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					resource "git_remote" "test" {
+						directory = "%s"
+						name      = "%s"
+						urls      = ["%s"]
+					}
+				`, directory, remote, url),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
+					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url),
+				),
+			},
+			{
+				ResourceName:      "git_remote.test",
+				ImportState:       true,
+				ImportStateId:     fmt.Sprintf("%s|%s|%s", directory, remote, url),
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestResourceGitRemote_ImportMultipleUrls(t *testing.T) {
+	t.Parallel()
+	directory, _ := initializeGitRepository(t)
+	defer os.RemoveAll(directory)
+	remote := "some-name"
+	url1 := "https://github.com/some-org/some-repo.git"
+	url2 := "https://codeberg.org/some-org/some-repo.git"
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					resource "git_remote" "test" {
+						directory = "%s"
+						name      = "%s"
+						urls      = ["%s", "%s"]
+					}
+				`, directory, remote, url1, url2),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
+					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "2"),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.1", url2),
+				),
+			},
+			{
+				ResourceName:      "git_remote.test",
+				ImportState:       true,
+				ImportStateId:     fmt.Sprintf("%s|%s|%s,%s", directory, remote, url1, url2),
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestResourceGitRemote_Update_Urls(t *testing.T) {
+	t.Parallel()
+	directory, _ := initializeGitRepository(t)
+	defer os.RemoveAll(directory)
+	remote := "some-name"
+	url1 := "https://github.com/some-org/some-repo.git"
+	url2 := "https://codeberg.org/some-org/some-repo.git"
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					resource "git_remote" "test" {
+						directory = "%s"
+						name      = "%s"
+						urls      = ["%s"]
+					}
+				`, directory, remote, url1),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
+					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "git_remote" "test" {
+						directory = "%s"
+						name      = "%s"
+						urls      = ["%s", "%s"]
+					}
+				`, directory, remote, url1, url2),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
+					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "2"),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.1", url2),
+				),
 			},
 		},
 	})
