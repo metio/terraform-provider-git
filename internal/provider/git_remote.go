@@ -11,27 +11,27 @@ import (
 	"context"
 	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-func openRepository(ctx context.Context, directory string, diag *diag.Diagnostics) *git.Repository {
-	repository, err := git.PlainOpenWithOptions(directory, &git.PlainOpenOptions{
-		DetectDotGit:          true,
-		EnableDotGitCommonDir: true,
-	})
+type GitRemote struct {
+	URLs []types.String `tfsdk:"urls"`
+}
+
+func getRemote(ctx context.Context, repository *git.Repository, remoteName string, diag *diag.Diagnostics) *git.Remote {
+	remote, err := repository.Remote(remoteName)
 	if err != nil {
 		diag.AddError(
-			"Cannot open repository",
-			"Could not open git repository ["+directory+"] because of: "+err.Error(),
+			"Cannot read remote",
+			"Could not read remote ["+remoteName+"] because of: "+err.Error(),
 		)
 		return nil
 	}
-	tflog.Trace(ctx, "opened repository", map[string]interface{}{
-		"directory": directory,
+	tflog.Trace(ctx, "read remote", map[string]interface{}{
+		"remote": remoteName,
 	})
-	return repository
+	return remote
 }
 
 func extractGitRemoteUrls(remote *git.Remote) []types.String {
@@ -40,15 +40,4 @@ func extractGitRemoteUrls(remote *git.Remote) []types.String {
 		remoteUrls = append(remoteUrls, types.String{Value: url})
 	}
 	return remoteUrls
-}
-
-func updatedUsingPlan(ctx context.Context, req *tfsdk.UpdateResourceRequest, res *tfsdk.UpdateResourceResponse, model interface{}) {
-	// Read the plan
-	res.Diagnostics.Append(req.Plan.Get(ctx, model)...)
-	if res.Diagnostics.HasError() {
-		return
-	}
-
-	// Set it as the new state
-	res.Diagnostics.Append(res.State.Set(ctx, model)...)
 }

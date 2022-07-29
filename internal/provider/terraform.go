@@ -7,16 +7,18 @@
 
 package provider
 
-import "github.com/hashicorp/terraform-plugin-framework/types"
+import (
+	"context"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+)
 
-type GitTag struct {
-	Annotated   types.Bool   `tfsdk:"annotated"`
-	Lightweight types.Bool   `tfsdk:"lightweight"`
-	SHA1        types.String `tfsdk:"sha1"`
-}
+func updatedUsingPlan(ctx context.Context, req *tfsdk.UpdateResourceRequest, res *tfsdk.UpdateResourceResponse, model interface{}) {
+	// Read the plan
+	res.Diagnostics.Append(req.Plan.Get(ctx, model)...)
+	if res.Diagnostics.HasError() {
+		return
+	}
 
-type GitBranch struct {
-	SHA1   types.String `tfsdk:"sha1"`
-	Remote types.String `tfsdk:"remote"`
-	Rebase types.String `tfsdk:"rebase"`
+	// Set it as the new state
+	res.Diagnostics.Append(res.State.Set(ctx, model)...)
 }
