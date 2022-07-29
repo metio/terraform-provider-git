@@ -46,7 +46,7 @@ func (r *dataSourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, di
 				Type:                types.StringType,
 				Computed:            true,
 			},
-			"remote": {
+			"remote": { // TODO: rename to name
 				Description: "The remote to gather information about.",
 				Type:        types.StringType,
 				Required:    true,
@@ -84,30 +84,17 @@ func (r *dataSourceGitRemote) Read(ctx context.Context, req tfsdk.ReadDataSource
 	}
 
 	directory := inputs.Directory.Value
-	requestedRemote := inputs.Remote.Value
+	remoteName := inputs.Remote.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
 		return
 	}
 
-	tflog.Trace(ctx, "opened repository", map[string]interface{}{
-		"directory": directory,
-	})
-
-	remote, err := repository.Remote(requestedRemote)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Cannot read remote",
-			"Could not read remote ["+requestedRemote+"] of ["+directory+"] because of: "+err.Error(),
-		)
+	remote := getRemote(ctx, repository, remoteName, &resp.Diagnostics)
+	if remote == nil {
 		return
 	}
-
-	tflog.Trace(ctx, "read remote", map[string]interface{}{
-		"directory": directory,
-		"remote":    requestedRemote,
-	})
 
 	outputs.Directory = types.String{Value: directory}
 	outputs.Id = types.String{Value: directory}
