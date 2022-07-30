@@ -29,13 +29,13 @@ func TestDataSourceGitRemote(t *testing.T) {
 				Config: fmt.Sprintf(`
 					data "git_remote" "test" {
 						directory = "%s"
-						remote    = "%s"
+						name      = "%s"
 					}
 				`, directory, remote),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.git_remote.test", "directory", directory),
-					resource.TestCheckResourceAttr("data.git_remote.test", "id", directory),
-					resource.TestCheckResourceAttr("data.git_remote.test", "remote", remote),
+					resource.TestCheckResourceAttr("data.git_remote.test", "id", remote),
+					resource.TestCheckResourceAttr("data.git_remote.test", "name", remote),
 					resource.TestCheckResourceAttr("data.git_remote.test", "urls.#", "1"),
 				),
 			},
@@ -52,7 +52,7 @@ func TestDataSourceGitRemote_InvalidRepository(t *testing.T) {
 				Config: `
 					data "git_remote" "test" {
 						directory = "/some/random/path"
-						remote    = "does-not-exist"
+						name      = "does-not-exist"
 					}
 				`,
 				ExpectError: regexp.MustCompile(`Cannot open repository`),
@@ -73,7 +73,7 @@ func TestDataSourceGitRemote_InvalidRemote(t *testing.T) {
 				Config: fmt.Sprintf(`
 					data "git_remote" "test" {
 						directory = "%s"
-						remote    = "does-not-exist"
+						name      = "does-not-exist"
 					}
 				`, directory),
 				ExpectError: regexp.MustCompile(`Cannot read remote`),

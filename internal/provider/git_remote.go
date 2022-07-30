@@ -16,7 +16,7 @@ import (
 )
 
 type GitRemote struct {
-	URLs []types.String `tfsdk:"urls"`
+	URLs types.List `tfsdk:"urls"`
 }
 
 func getRemote(ctx context.Context, repository *git.Repository, remoteName string, diag *diag.Diagnostics) *git.Remote {
@@ -32,12 +32,4 @@ func getRemote(ctx context.Context, repository *git.Repository, remoteName strin
 		"remote": remoteName,
 	})
 	return remote
-}
-
-func extractGitRemoteUrls(remote *git.Remote) []types.String {
-	var remoteUrls []types.String
-	for _, url := range remote.Config().URLs {
-		remoteUrls = append(remoteUrls, types.String{Value: url})
-	}
-	return remoteUrls
 }

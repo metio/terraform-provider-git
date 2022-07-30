@@ -9,7 +9,9 @@ package provider
 
 import (
 	"context"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 func updatedUsingPlan(ctx context.Context, req *tfsdk.UpdateResourceRequest, res *tfsdk.UpdateResourceResponse, model interface{}) {
@@ -21,4 +23,15 @@ func updatedUsingPlan(ctx context.Context, req *tfsdk.UpdateResourceRequest, res
 
 	// Set it as the new state
 	res.Diagnostics.Append(res.State.Set(ctx, model)...)
+}
+
+func stringsToList(strings []string) types.List {
+	var values []attr.Value
+	for _, url := range strings {
+		values = append(values, types.String{Value: url})
+	}
+	return types.List{
+		Elems:    values,
+		ElemType: types.StringType,
+	}
 }

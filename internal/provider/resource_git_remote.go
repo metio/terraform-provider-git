@@ -29,7 +29,7 @@ type resourceGitRemoteSchema struct {
 	Directory types.String `tfsdk:"directory"`
 	Id        types.String `tfsdk:"id"`
 	Name      types.String `tfsdk:"name"`
-	Urls      []string     `tfsdk:"urls"`
+	Urls      types.List   `tfsdk:"urls"`
 }
 
 func (c *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
@@ -94,7 +94,6 @@ func (r *resourceGitRemote) Create(ctx context.Context, req tfsdk.CreateResource
 
 	directory := inputs.Directory.Value
 	name := inputs.Name.Value
-	urls := inputs.Urls
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -105,7 +104,13 @@ func (r *resourceGitRemote) Create(ctx context.Context, req tfsdk.CreateResource
 		"directory": directory,
 	})
 
-	remote, err := repository.CreateRemote(&config.RemoteConfig{
+	urls := make([]string, len(inputs.Urls.Elems))
+	resp.Diagnostics.Append(inputs.Urls.ElementsAs(ctx, &urls, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	_, err := repository.CreateRemote(&config.RemoteConfig{
 		Name: name,
 		URLs: urls,
 	})
@@ -119,13 +124,13 @@ func (r *resourceGitRemote) Create(ctx context.Context, req tfsdk.CreateResource
 
 	tflog.Trace(ctx, "created remote", map[string]interface{}{
 		"directory": directory,
-		"remote":    remote.Config().Name,
+		"remote":    name,
 	})
 
-	output.Directory = types.String{Value: directory}
-	output.Id = types.String{Value: remote.Config().Name}
-	output.Name = types.String{Value: remote.Config().Name}
-	output.Urls = urls
+	output.Directory = inputs.Directory
+	output.Id = inputs.Name
+	output.Name = inputs.Name
+	output.Urls = inputs.Urls
 
 	diags = resp.State.Set(ctx, &output)
 	resp.Diagnostics.Append(diags...)
@@ -173,8 +178,14 @@ func (r *resourceGitRemote) Update(ctx context.Context, req tfsdk.UpdateResource
 		return
 	}
 
+	urls := make([]string, len(inputs.Urls.Elems))
+	resp.Diagnostics.Append(inputs.Urls.ElementsAs(ctx, &urls, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	remoteConfig := remote.Config()
-	remoteConfig.URLs = inputs.Urls
+	remoteConfig.URLs = urls
 	cfg.Remotes[remoteName] = remoteConfig
 
 	err = repository.SetConfig(cfg)
@@ -186,9 +197,9 @@ func (r *resourceGitRemote) Update(ctx context.Context, req tfsdk.UpdateResource
 		return
 	}
 
-	state.Directory = types.String{Value: directory}
-	state.Id = types.String{Value: remoteName}
-	state.Name = types.String{Value: remoteName}
+	state.Directory = inputs.Directory
+	state.Id = inputs.Name
+	state.Name = inputs.Name
 	state.Urls = inputs.Urls
 
 	diags = resp.State.Set(ctx, &state)
@@ -240,7 +251,7 @@ func (r *resourceGitRemote) ImportState(ctx context.Context, req tfsdk.ImportRes
 	state.Directory = types.String{Value: idParts[0]}
 	state.Id = types.String{Value: idParts[1]}
 	state.Name = types.String{Value: idParts[1]}
-	state.Urls = strings.Split(idParts[2], ",")
+	state.Urls = stringsToList(strings.Split(idParts[2], ","))
 
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

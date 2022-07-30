@@ -279,6 +279,117 @@ func TestResourceGitRemote_Update_Urls(t *testing.T) {
 					resource.TestCheckResourceAttr("git_remote.test", "urls.1", url2),
 				),
 			},
+			{
+				Config: fmt.Sprintf(`
+					resource "git_remote" "test" {
+						directory = "%s"
+						name      = "%s"
+						urls      = ["%s"]
+					}
+				`, directory, remote, url1),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
+					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
+				),
+			},
+		},
+	})
+}
+
+func TestResourceGitRemote_Update_Name(t *testing.T) {
+	t.Parallel()
+	directory, _ := initializeGitRepository(t)
+	defer os.RemoveAll(directory)
+	remote := "some-name"
+	newRemote := "other-name"
+	url1 := "https://github.com/some-org/some-repo.git"
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					resource "git_remote" "test" {
+						directory = "%s"
+						name      = "%s"
+						urls      = ["%s"]
+					}
+				`, directory, remote, url1),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
+					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "git_remote" "test" {
+						directory = "%s"
+						name      = "%s"
+						urls      = ["%s"]
+					}
+				`, directory, newRemote, url1),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
+					resource.TestCheckResourceAttr("git_remote.test", "id", newRemote),
+					resource.TestCheckResourceAttr("git_remote.test", "name", newRemote),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
+				),
+			},
+		},
+	})
+}
+
+func TestResourceGitRemote_Update_Directory(t *testing.T) {
+	t.Parallel()
+	directory1, _ := initializeGitRepository(t)
+	directory2, _ := initializeGitRepository(t)
+	defer os.RemoveAll(directory1)
+	defer os.RemoveAll(directory2)
+	remote := "some-name"
+	url1 := "https://github.com/some-org/some-repo.git"
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					resource "git_remote" "test" {
+						directory = "%s"
+						name      = "%s"
+						urls      = ["%s"]
+					}
+				`, directory1, remote, url1),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("git_remote.test", "directory", directory1),
+					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "git_remote" "test" {
+						directory = "%s"
+						name      = "%s"
+						urls      = ["%s"]
+					}
+				`, directory2, remote, url1),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("git_remote.test", "directory", directory2),
+					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
+				),
+			},
 		},
 	})
 }

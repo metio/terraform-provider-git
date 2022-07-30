@@ -103,7 +103,7 @@ func (r *dataSourceGitRemotes) Read(ctx context.Context, req tfsdk.ReadDataSourc
 	allRemotes := make(map[string]GitRemote)
 	for _, remote := range remotes {
 		allRemotes[remote.Config().Name] = GitRemote{
-			URLs: extractGitRemoteUrls(remote),
+			URLs: stringsToList(remote.Config().URLs),
 		}
 	}
 

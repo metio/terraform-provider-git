@@ -23,10 +23,10 @@ type dataSourceGitRemote struct {
 }
 
 type dataSourceGitRemoteSchema struct {
-	Directory types.String   `tfsdk:"directory"`
-	Id        types.String   `tfsdk:"id"`
-	Remote    types.String   `tfsdk:"remote"`
-	URLs      []types.String `tfsdk:"urls"`
+	Directory types.String `tfsdk:"directory"`
+	Id        types.String `tfsdk:"id"`
+	Name      types.String `tfsdk:"name"`
+	URLs      types.List   `tfsdk:"urls"`
 }
 
 func (r *dataSourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
@@ -42,12 +42,12 @@ func (r *dataSourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, di
 				},
 			},
 			"id": {
-				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
+				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The name of the remote to gather information about.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
-			"remote": { // TODO: rename to name
-				Description: "The remote to gather information about.",
+			"name": {
+				Description: "The name of the remote to gather information about.",
 				Type:        types.StringType,
 				Required:    true,
 				Validators: []tfsdk.AttributeValidator{
@@ -84,7 +84,7 @@ func (r *dataSourceGitRemote) Read(ctx context.Context, req tfsdk.ReadDataSource
 	}
 
 	directory := inputs.Directory.Value
-	remoteName := inputs.Remote.Value
+	remoteName := inputs.Name.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -96,10 +96,10 @@ func (r *dataSourceGitRemote) Read(ctx context.Context, req tfsdk.ReadDataSource
 		return
 	}
 
-	outputs.Directory = types.String{Value: directory}
-	outputs.Id = types.String{Value: directory}
-	outputs.Remote = types.String{Value: remote.Config().Name}
-	outputs.URLs = extractGitRemoteUrls(remote)
+	outputs.Directory = inputs.Directory
+	outputs.Id = inputs.Name
+	outputs.Name = inputs.Name
+	outputs.URLs = stringsToList(remote.Config().URLs)
 
 	diags = resp.State.Set(ctx, &outputs)
 	resp.Diagnostics.Append(diags...)
