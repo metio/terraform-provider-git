@@ -49,7 +49,7 @@ func (c *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 				},
 			},
 			"id": {
-				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
+				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The name of the Git tag to add.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
@@ -139,7 +139,7 @@ func (r *resourceGitTag) Create(ctx context.Context, req tfsdk.CreateResourceReq
 	})
 
 	output.Directory = types.String{Value: directory}
-	output.Id = types.String{Value: directory}
+	output.Id = types.String{Value: tag.Name().Short()}
 	output.Name = types.String{Value: tag.Name().Short()}
 	output.Message = inputs.Message
 	output.SHA1 = types.String{Value: reference.Hash().String()}

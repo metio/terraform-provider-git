@@ -36,7 +36,7 @@ func TestResourceGitTag(t *testing.T) {
 				`, directory, tag),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_tag.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_tag.test", "id", directory),
+					resource.TestCheckResourceAttr("git_tag.test", "id", tag),
 					resource.TestCheckResourceAttr("git_tag.test", "name", tag),
 				),
 			},
@@ -46,7 +46,7 @@ func TestResourceGitTag(t *testing.T) {
 
 func TestResourceGitTag_InvalidRepository(t *testing.T) {
 	t.Parallel()
-	name := "some-name"
+	tag := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
@@ -57,7 +57,7 @@ func TestResourceGitTag_InvalidRepository(t *testing.T) {
 						directory = "/some/random/path"
 						name      = "%s"
 					}
-				`, name),
+				`, tag),
 				ExpectError: regexp.MustCompile(`Cannot open repository`),
 			},
 		},
@@ -66,7 +66,7 @@ func TestResourceGitTag_InvalidRepository(t *testing.T) {
 
 func TestResourceGitTag_MissingRepository(t *testing.T) {
 	t.Parallel()
-	name := "some-name"
+	tag := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
@@ -76,7 +76,7 @@ func TestResourceGitTag_MissingRepository(t *testing.T) {
 					resource "git_tag" "test" {
 						name      = "%s"
 					}
-				`, name),
+				`, tag),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 		},
@@ -98,6 +98,34 @@ func TestResourceGitTag_MissingName(t *testing.T) {
 					}
 				`, directory),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+		},
+	})
+}
+
+func TestResourceGitTag_Import(t *testing.T) {
+	t.Parallel()
+	directory := temporaryDirectory(t)
+	defer os.RemoveAll(directory)
+	tag := "some-name"
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					resource "git_tag" "test" {
+						directory = "%s"
+						name      = "%s"
+					}
+				`, directory, tag),
+				ImportState:   true,
+				ResourceName:  "git_tag.test",
+				ImportStateId: tag,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("git_tag.test", "directory", directory),
+					resource.TestCheckResourceAttr("git_tag.test", "id", tag),
+				),
 			},
 		},
 	})
