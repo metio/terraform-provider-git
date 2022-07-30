@@ -25,11 +25,11 @@ data "git_remote" "remote" {
 ### Required
 
 - `directory` (String) The path to the local Git repository.
-- `remote` (String) The remote to gather information about.
+- `name` (String) The name of the remote to gather information about.
 
 ### Read-Only
 
-- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.
+- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The name of the remote to gather information about.
 - `urls` (List of String) The configured URLs of the given remote.
 
 

@@ -41,7 +41,7 @@ jobs:
         name: Verify Documentation
         run: |
           git diff --compact-summary --exit-code || \
-            (echo "*** Unexpected differences after code generation. Run 'make generate' and commit."; exit 1)
+            (echo "*** Unexpected differences after code generation. Run 'make docs' and commit."; exit 1)
       - id: build
         name: Build Provider
         run: go build -v ./...
