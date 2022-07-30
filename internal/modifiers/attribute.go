@@ -41,11 +41,5 @@ func (d *defaultValueAttributePlanModifier) Modify(ctx context.Context, req tfsd
 		return
 	}
 
-	// If the attribute plan is "known" and "not null", then a previous plan modifier in the sequence
-	// has already been applied, and we don't want to interfere.
-	if !req.AttributePlan.IsUnknown() && !req.AttributePlan.IsNull() {
-		return
-	}
-
 	resp.AttributePlan = d.defaultValue
 }
