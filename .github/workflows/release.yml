@@ -3,7 +3,7 @@ on:
   schedule:
     - cron: 47 2 * * FRI
 jobs:
-  goreleaser:
+  release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -16,10 +16,16 @@ jobs:
       - id: commits
         name: Count Commits
         run: echo "::set-output name=count::$(git rev-list --count HEAD --since='last Friday' -- internal)"
-      - id: tags
-        name: Fetch all tags
-        run: git fetch --force --tags
+      - id: release
+        name: Create Release Version
         if: steps.commits.outputs.count > 0
+        run: echo "::set-output name=version::$(date +'%Y.%-m.%-d')"
+      - id: tag
+        name: Create Release Tag
+        if: steps.commits.outputs.count > 0
+        uses: EndBug/latest-tag@latest
+        with:
+          ref: ${{ steps.release.outputs.version }}
       - id: setup_go
         name: Set up Go
         uses: actions/setup-go@v3
@@ -34,7 +40,7 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_SECRET_KEY_BASE64 }}
           passphrase: ${{ secrets.GPG_SECRET_KEY_PASSWORD }}
-      - id: release
+      - id: goreleaser
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v3.0.0
         if: steps.commits.outputs.count > 0
