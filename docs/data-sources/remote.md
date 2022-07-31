@@ -15,7 +15,7 @@ Reads information about a specific remote of a Git repository.
 ```terraform
 data "git_remote" "remote" {
   directory = "/path/to/git/repository"
-  remote    = "origin"
+  name      = "origin"
 }
 ```
 
