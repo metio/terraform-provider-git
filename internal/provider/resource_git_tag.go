@@ -9,8 +9,6 @@ package provider
 
 import (
 	"context"
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -68,12 +66,18 @@ func (c *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 				Description: "The tag message to use. Note that by specifying a message, an annotated tag will be created.",
 				Type:        types.StringType,
 				Optional:    true,
+				PlanModifiers: []tfsdk.AttributePlanModifier{
+					tfsdk.RequiresReplace(),
+				},
 			},
 			"commit_sha1": {
 				Description: "The SHA1 checksum of the commit to tag.",
 				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []tfsdk.AttributePlanModifier{
+					tfsdk.RequiresReplace(),
+				},
 			},
 		},
 	}, nil
@@ -124,7 +128,7 @@ func (r *resourceGitTag) Create(ctx context.Context, req tfsdk.CreateResourceReq
 		"reference": reference.Hash(),
 	})
 
-	tag, err := repository.CreateTag(name, reference.Hash(), createOptions(inputs))
+	_, err = repository.CreateTag(name, reference.Hash(), createOptions(inputs))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Cannot create tag",
@@ -135,12 +139,12 @@ func (r *resourceGitTag) Create(ctx context.Context, req tfsdk.CreateResourceReq
 
 	tflog.Trace(ctx, "created tag", map[string]interface{}{
 		"directory": directory,
-		"tag":       tag.Name().Short(),
+		"tag":       name,
 	})
 
-	output.Directory = types.String{Value: directory}
-	output.Id = types.String{Value: tag.Name().Short()}
-	output.Name = types.String{Value: tag.Name().Short()}
+	output.Directory = inputs.Directory
+	output.Id = inputs.Name
+	output.Name = inputs.Name
 	output.Message = inputs.Message
 	output.SHA1 = types.String{Value: reference.Hash().String()}
 
@@ -151,27 +155,6 @@ func (r *resourceGitTag) Create(ctx context.Context, req tfsdk.CreateResourceReq
 	}
 }
 
-func createTagReference(repository *git.Repository, inputs resourceGitTagSchema) (*plumbing.Reference, error) {
-	if inputs.SHA1.IsNull() || inputs.SHA1.IsUnknown() {
-		head, err := repository.Head()
-		if err != nil {
-			return nil, err
-		}
-		return head, nil
-	}
-
-	return plumbing.NewHashReference("tag", plumbing.NewHash(inputs.SHA1.Value)), nil
-}
-
-func createOptions(inputs resourceGitTagSchema) *git.CreateTagOptions {
-	if inputs.Message.IsNull() || inputs.Message.IsUnknown() {
-		return nil
-	}
-	return &git.CreateTagOptions{
-		Message: inputs.Message.Value,
-	}
-}
-
 func (r *resourceGitTag) Read(ctx context.Context, _ tfsdk.ReadResourceRequest, _ *tfsdk.ReadResourceResponse) {
 	// NO-OP: all there is to read is in the State, and response is already populated with that.
 	tflog.Debug(ctx, "Reading Git tag from state")
@@ -179,7 +162,7 @@ func (r *resourceGitTag) Read(ctx context.Context, _ tfsdk.ReadResourceRequest, 
 
 func (r *resourceGitTag) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
 	tflog.Debug(ctx, "Updating Git tag")
-	updatedUsingPlan(ctx, &req, resp, &resourceGitTagSchema{})
+	// NO-OP: all attributes require replace, thus Delete and Create methods will be called
 }
 
 func (r *resourceGitTag) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
