@@ -25,13 +25,14 @@ data "git_tag" "tag" {
 ### Required
 
 - `directory` (String) The path to the local Git repository.
-- `tag` (String) The tag to gather information about.
+- `name` (String) The name of the tag to gather information about.
 
 ### Read-Only
 
 - `annotated` (Boolean) Whether the given tag is an annotated tag.
-- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.
+- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The name of the tag to gather information about.
 - `lightweight` (Boolean) Whether the given tag is a lightweight tag.
+- `message` (String) The associated message of an annotated tag.
 - `sha1` (String) The SHA1 checksum of the commit the given tag is pointing at.
 
 

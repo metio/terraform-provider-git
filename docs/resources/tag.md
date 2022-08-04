@@ -41,8 +41,8 @@ resource "git_tag" "specific_commit" {
 
 ### Optional
 
-- `commit_sha1` (String) The SHA1 checksum of the commit to tag.
 - `message` (String) The tag message to use. Note that by specifying a message, an annotated tag will be created.
+- `sha1` (String) The SHA1 checksum of the commit to tag.
 
 ### Read-Only
 
