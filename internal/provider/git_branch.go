@@ -9,12 +9,6 @@ package provider
 
 import "github.com/hashicorp/terraform-plugin-framework/types"
 
-type GitTag struct {
-	Annotated   types.Bool   `tfsdk:"annotated"`
-	Lightweight types.Bool   `tfsdk:"lightweight"`
-	SHA1        types.String `tfsdk:"sha1"`
-}
-
 type GitBranch struct {
 	SHA1   types.String `tfsdk:"sha1"`
 	Remote types.String `tfsdk:"remote"`

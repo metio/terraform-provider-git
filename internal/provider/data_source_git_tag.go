@@ -26,10 +26,11 @@ type dataSourceGitTag struct {
 type dataSourceGitTagSchema struct {
 	Directory   types.String `tfsdk:"directory"`
 	Id          types.String `tfsdk:"id"`
-	Tag         types.String `tfsdk:"tag"`
+	Name        types.String `tfsdk:"name"`
 	Lightweight types.Bool   `tfsdk:"lightweight"`
 	Annotated   types.Bool   `tfsdk:"annotated"`
 	SHA1        types.String `tfsdk:"sha1"`
+	Message     types.String `tfsdk:"message"`
 }
 
 func (r *dataSourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
@@ -45,12 +46,12 @@ func (r *dataSourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.
 				},
 			},
 			"id": {
-				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
+				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The name of the tag to gather information about.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
-			"tag": {
-				Description: "The tag to gather information about.",
+			"name": {
+				Description: "The name of the tag to gather information about.",
 				Type:        types.StringType,
 				Required:    true,
 				Validators: []tfsdk.AttributeValidator{
@@ -72,6 +73,11 @@ func (r *dataSourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.
 				Type:        types.StringType,
 				Computed:    true,
 			},
+			"message": {
+				Description: "The associated message of an annotated tag.",
+				Type:        types.StringType,
+				Computed:    true,
+			},
 		},
 	}, nil
 }
@@ -85,51 +91,44 @@ func (r *dataSourceGitTagType) NewDataSource(_ context.Context, p tfsdk.Provider
 func (r *dataSourceGitTag) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
 	tflog.Debug(ctx, "Reading Git repository tag")
 
-	var inputs dataSourceGitTagSchema
-	var outputs dataSourceGitTagSchema
+	var config dataSourceGitTagSchema
 
-	diags := req.Config.Get(ctx, &inputs)
+	diags := req.Config.Get(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := inputs.Directory.Value
-	tag := inputs.Tag.Value
+	directory := config.Directory.Value
+	tagName := config.Name.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
 		return
 	}
 
-	reference, err := repository.Tag(tag)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Cannot read tag",
-			"Could not read tag ["+tag+"] of ["+directory+"] because of: "+err.Error(),
-		)
+	tagReference := getTagReference(ctx, repository, tagName, &resp.Diagnostics)
+	if tagReference == nil {
 		return
 	}
 
-	tflog.Trace(ctx, "read tag", map[string]interface{}{
-		"directory": directory,
-		"tag":       tag,
-	})
-
-	outputs.Directory = types.String{Value: directory}
-	outputs.Id = types.String{Value: directory}
-	outputs.Tag = types.String{Value: reference.Name().Short()}
-	outputs.SHA1 = types.String{Value: reference.Hash().String()}
-	_, err = repository.TagObject(reference.Hash())
+	var state dataSourceGitTagSchema
+	state.Directory = config.Directory
+	state.Id = config.Name
+	state.Name = config.Name
+	state.SHA1 = types.String{Value: tagReference.Hash().String()}
+	tag, err := repository.TagObject(tagReference.Hash())
 	if err == plumbing.ErrObjectNotFound {
-		outputs.Annotated = types.Bool{Value: false}
-		outputs.Lightweight = types.Bool{Value: true}
+		state.Annotated = types.Bool{Value: false}
+		state.Lightweight = types.Bool{Value: true}
+		state.Message = types.String{Null: true}
 	} else {
-		outputs.Annotated = types.Bool{Value: true}
-		outputs.Lightweight = types.Bool{Value: false}
+		state.Annotated = types.Bool{Value: true}
+		state.Lightweight = types.Bool{Value: false}
+		state.Message = types.String{Value: tag.Message}
 	}
 
-	diags = resp.State.Set(ctx, &outputs)
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

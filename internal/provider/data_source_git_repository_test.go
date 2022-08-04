@@ -20,7 +20,7 @@ func TestDataSourceGitRepository(t *testing.T) {
 	directory, repository := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree)
+	addAndCommitNewFile(t, worktree, "some-file")
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),

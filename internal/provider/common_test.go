@@ -59,13 +59,13 @@ func createWorktree(t *testing.T, repository *git.Repository) *git.Worktree {
 	return worktree
 }
 
-func addAndCommitNewFile(t *testing.T, worktree *git.Worktree) {
-	filename := filepath.Join(worktree.Filesystem.Root(), "example-git-file")
+func addAndCommitNewFile(t *testing.T, worktree *git.Worktree, name string) {
+	filename := filepath.Join(worktree.Filesystem.Root(), name)
 	err := ioutil.WriteFile(filename, []byte("hello world!"), 0644)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = worktree.Add("example-git-file")
+	_, err = worktree.Add(name)
 	if err != nil {
 		t.Fatal(err)
 	}

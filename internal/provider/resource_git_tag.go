@@ -9,12 +9,14 @@ package provider
 
 import (
 	"context"
+	"fmt"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"strings"
 )
 
 type resourceGitTagType struct{}
@@ -28,7 +30,7 @@ type resourceGitTagSchema struct {
 	Id        types.String `tfsdk:"id"`
 	Name      types.String `tfsdk:"name"`
 	Message   types.String `tfsdk:"message"`
-	SHA1      types.String `tfsdk:"commit_sha1"`
+	SHA1      types.String `tfsdk:"sha1"`
 }
 
 func (c *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
@@ -62,19 +64,19 @@ func (c *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 					tfsdk.RequiresReplace(),
 				},
 			},
-			"message": {
-				Description: "The tag message to use. Note that by specifying a message, an annotated tag will be created.",
-				Type:        types.StringType,
-				Optional:    true,
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					tfsdk.RequiresReplace(),
-				},
-			},
-			"commit_sha1": {
+			"sha1": {
 				Description: "The SHA1 checksum of the commit to tag.",
 				Type:        types.StringType,
 				Optional:    true,
 				Computed:    true,
+				PlanModifiers: []tfsdk.AttributePlanModifier{
+					tfsdk.RequiresReplace(),
+				},
+			},
+			"message": {
+				Description: "The tag message to use. Note that by specifying a message, an annotated tag will be created.",
+				Type:        types.StringType,
+				Optional:    true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
 					tfsdk.RequiresReplace(),
 				},
@@ -92,28 +94,22 @@ func (r *resourceGitTagType) NewResource(_ context.Context, p tfsdk.Provider) (t
 func (r *resourceGitTag) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
 	tflog.Debug(ctx, "Creating Git tag")
 
-	var inputs resourceGitTagSchema
-	var output resourceGitTagSchema
-
-	diags := req.Config.Get(ctx, &inputs)
+	var config resourceGitTagSchema
+	diags := req.Config.Get(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := inputs.Directory.Value
-	name := inputs.Name.Value
+	directory := config.Directory.Value
+	tagName := config.Name.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
 		return
 	}
 
-	tflog.Trace(ctx, "opened repository", map[string]interface{}{
-		"directory": directory,
-	})
-
-	reference, err := createTagReference(repository, inputs)
+	reference, err := createTagReference(repository, config)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Cannot create tag reference",
@@ -124,40 +120,80 @@ func (r *resourceGitTag) Create(ctx context.Context, req tfsdk.CreateResourceReq
 
 	tflog.Trace(ctx, "created tag reference", map[string]interface{}{
 		"directory": directory,
-		"tag":       name,
+		"tag":       tagName,
 		"reference": reference.Hash(),
 	})
 
-	_, err = repository.CreateTag(name, reference.Hash(), createOptions(inputs))
+	_, err = repository.CreateTag(tagName, reference.Hash(), createOptions(config))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Cannot create tag",
-			"Could not create tag ["+name+"] in git repository ["+directory+"] because of: "+err.Error(),
+			"Could not create tag ["+tagName+"] in git repository ["+directory+"] because of: "+err.Error(),
 		)
 		return
 	}
 
 	tflog.Trace(ctx, "created tag", map[string]interface{}{
 		"directory": directory,
-		"tag":       name,
+		"tag":       tagName,
 	})
 
-	output.Directory = inputs.Directory
-	output.Id = inputs.Name
-	output.Name = inputs.Name
-	output.Message = inputs.Message
-	output.SHA1 = types.String{Value: reference.Hash().String()}
+	var state resourceGitTagSchema
+	state.Directory = config.Directory
+	state.Id = config.Name
+	state.Name = config.Name
+	state.Message = config.Message
+	state.SHA1 = types.String{Value: reference.Hash().String()}
 
-	diags = resp.State.Set(ctx, &output)
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 }
 
-func (r *resourceGitTag) Read(ctx context.Context, _ tfsdk.ReadResourceRequest, _ *tfsdk.ReadResourceResponse) {
-	// NO-OP: all there is to read is in the State, and response is already populated with that.
-	tflog.Debug(ctx, "Reading Git tag from state")
+func (r *resourceGitTag) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
+	tflog.Debug(ctx, "Reading Git tag")
+
+	var state resourceGitTagSchema
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	directory := state.Directory.Value
+	tagName := state.Name.Value
+
+	repository := openRepository(ctx, directory, &resp.Diagnostics)
+	if repository == nil {
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
+	tagReference := getTagReference(ctx, repository, tagName, &resp.Diagnostics)
+	if tagReference == nil {
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
+	var newState resourceGitTagSchema
+	newState.Directory = state.Directory
+	newState.Id = state.Name
+	newState.Name = state.Name
+	newState.SHA1 = types.String{Value: tagReference.Hash().String()}
+	tag, err := repository.TagObject(tagReference.Hash())
+	if err == plumbing.ErrObjectNotFound {
+		newState.Message = types.String{Null: true}
+	} else {
+		newState.Message = types.String{Value: strings.TrimSpace(tag.Message)}
+	}
+
+	diags = resp.State.Set(ctx, &newState)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
 func (r *resourceGitTag) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
@@ -168,28 +204,48 @@ func (r *resourceGitTag) Update(ctx context.Context, req tfsdk.UpdateResourceReq
 func (r *resourceGitTag) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
 	tflog.Debug(ctx, "Removing Git tag")
 
-	var inputs resourceGitTagSchema
-
-	diags := req.State.Get(ctx, &inputs)
+	var state resourceGitTagSchema
+	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := inputs.Directory.Value
-	name := inputs.Name.Value
+	directory := state.Directory.Value
+	tagName := state.Name.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
-	err := repository.DeleteTag(name)
+	err := repository.DeleteTag(tagName)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Cannot delete tag",
-			"Could not delete tag ["+name+"] in git repository ["+directory+"] because of: "+err.Error(),
+			"Could not delete tag ["+tagName+"] in git repository ["+directory+"] because of: "+err.Error(),
 		)
 		return
 	}
 }
 
 func (r *resourceGitTag) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
-	tfsdk.ResourceImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	id := req.ID
+	idParts := strings.Split(id, "|")
+
+	if len(idParts) < 2 || idParts[0] == "" || idParts[1] == "" {
+		resp.Diagnostics.AddError(
+			"Unexpected import identifier",
+			fmt.Sprintf("Expected import identifier with format: 'directory|tag-name|sha1|message' Got: %q", id),
+		)
+		return
+	}
+
+	var state resourceGitTagSchema
+
+	state.Directory = types.String{Value: idParts[0]}
+	state.Id = types.String{Value: idParts[1]}
+	state.Name = types.String{Value: idParts[1]}
+
+	diags := resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }

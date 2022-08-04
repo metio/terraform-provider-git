@@ -8,9 +8,19 @@
 package provider
 
 import (
+	"context"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
+
+type GitTag struct {
+	Annotated   types.Bool   `tfsdk:"annotated"`
+	Lightweight types.Bool   `tfsdk:"lightweight"`
+	SHA1        types.String `tfsdk:"sha1"`
+}
 
 func createTagReference(repository *git.Repository, inputs resourceGitTagSchema) (*plumbing.Reference, error) {
 	if inputs.SHA1.IsNull() || inputs.SHA1.IsUnknown() {
@@ -31,4 +41,19 @@ func createOptions(inputs resourceGitTagSchema) *git.CreateTagOptions {
 	return &git.CreateTagOptions{
 		Message: inputs.Message.Value,
 	}
+}
+
+func getTagReference(ctx context.Context, repository *git.Repository, tagName string, diag *diag.Diagnostics) *plumbing.Reference {
+	tag, err := repository.Tag(tagName)
+	if err != nil {
+		diag.AddError(
+			"Cannot read tag",
+			"Could not read tag ["+tagName+"] because of: "+err.Error(),
+		)
+		return nil
+	}
+	tflog.Trace(ctx, "read tag", map[string]interface{}{
+		"tag": tag,
+	})
+	return tag
 }

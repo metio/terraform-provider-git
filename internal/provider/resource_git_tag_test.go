@@ -21,7 +21,7 @@ func TestResourceGitTag(t *testing.T) {
 	defer os.RemoveAll(directory)
 	initTestConfig(t, repository)
 	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree)
+	addAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
@@ -50,8 +50,9 @@ func TestResourceGitTag_Annotated(t *testing.T) {
 	defer os.RemoveAll(directory)
 	initTestConfig(t, repository)
 	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree)
+	addAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-name"
+	message := "some message for the tag"
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
@@ -68,6 +69,7 @@ func TestResourceGitTag_Annotated(t *testing.T) {
 					resource.TestCheckResourceAttr("git_tag.test", "directory", directory),
 					resource.TestCheckResourceAttr("git_tag.test", "id", tag),
 					resource.TestCheckResourceAttr("git_tag.test", "name", tag),
+					resource.TestCheckResourceAttr("git_tag.test", "message", message),
 				),
 			},
 		},
@@ -80,7 +82,7 @@ func TestResourceGitTag_Commitish(t *testing.T) {
 	defer os.RemoveAll(directory)
 	initTestConfig(t, repository)
 	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree)
+	addAndCommitNewFile(t, worktree, "some-file")
 	head, err := repository.Head()
 	if err != nil {
 		t.Fatal(err)
@@ -93,9 +95,9 @@ func TestResourceGitTag_Commitish(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 					resource "git_tag" "test" {
-						directory   = "%s"
-						name        = "%s"
-						commit_sha1 = "%s"
+						directory = "%s"
+						name      = "%s"
+						sha1      = "%s"
 					}
 				`, directory, tag, head.Hash().String()),
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -169,8 +171,11 @@ func TestResourceGitTag_MissingName(t *testing.T) {
 
 func TestResourceGitTag_Import(t *testing.T) {
 	t.Parallel()
-	directory := temporaryDirectory(t)
+	directory, repository := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
+	initTestConfig(t, repository)
+	worktree := createWorktree(t, repository)
+	addAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
@@ -183,13 +188,17 @@ func TestResourceGitTag_Import(t *testing.T) {
 						name      = "%s"
 					}
 				`, directory, tag),
-				ImportState:   true,
-				ResourceName:  "git_tag.test",
-				ImportStateId: tag,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_tag.test", "directory", directory),
 					resource.TestCheckResourceAttr("git_tag.test", "id", tag),
+					resource.TestCheckResourceAttr("git_tag.test", "name", tag),
 				),
+			},
+			{
+				ResourceName:      "git_tag.test",
+				ImportState:       true,
+				ImportStateId:     fmt.Sprintf("%s|%s", directory, tag),
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -201,7 +210,7 @@ func TestResourceGitTag_Update_Name(t *testing.T) {
 	defer os.RemoveAll(directory)
 	initTestConfig(t, repository)
 	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree)
+	addAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-name"
 	newTag := "other-name"
 
@@ -244,12 +253,12 @@ func TestResourceGitTag_Update_Directory(t *testing.T) {
 	defer os.RemoveAll(directory)
 	initTestConfig(t, repository)
 	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree)
+	addAndCommitNewFile(t, worktree, "some-file")
 	newDirectory, newRepository := initializeGitRepository(t)
 	defer os.RemoveAll(newDirectory)
 	initTestConfig(t, newRepository)
 	newWorktree := createWorktree(t, newRepository)
-	addAndCommitNewFile(t, newWorktree)
+	addAndCommitNewFile(t, newWorktree, "other-file")
 	tag := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{

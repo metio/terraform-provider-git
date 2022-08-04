@@ -20,7 +20,7 @@ func TestDataSourceGitTags(t *testing.T) {
 	directory, repository := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree)
+	addAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-tag"
 	createTag(t, repository, tag)
 
@@ -50,7 +50,7 @@ func TestDataSourceGitTags_NoAnnotated(t *testing.T) {
 	directory, repository := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree)
+	addAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-tag"
 	createTag(t, repository, tag)
 
@@ -81,7 +81,7 @@ func TestDataSourceGitTags_NoLightweight(t *testing.T) {
 	directory, repository := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree)
+	addAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-tag"
 	createTag(t, repository, tag)
 

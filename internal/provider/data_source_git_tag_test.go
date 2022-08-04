@@ -20,7 +20,7 @@ func TestDataSourceGitTag(t *testing.T) {
 	directory, repository := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
 	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree)
+	addAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-tag"
 	createTag(t, repository, tag)
 
@@ -31,13 +31,13 @@ func TestDataSourceGitTag(t *testing.T) {
 				Config: fmt.Sprintf(`
 					data "git_tag" "test" {
 						directory = "%s"
-						tag       = "%s"
+						name      = "%s"
 					}
 				`, directory, tag),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.git_tag.test", "directory", directory),
-					resource.TestCheckResourceAttr("data.git_tag.test", "id", directory),
-					resource.TestCheckResourceAttr("data.git_tag.test", "tag", tag),
+					resource.TestCheckResourceAttr("data.git_tag.test", "id", tag),
+					resource.TestCheckResourceAttr("data.git_tag.test", "name", tag),
 					resource.TestCheckResourceAttr("data.git_tag.test", "annotated", "true"),
 					resource.TestCheckResourceAttr("data.git_tag.test", "lightweight", "false"),
 					resource.TestCheckResourceAttrWith("data.git_tag.test", "sha1", testCheckLen(40)),
@@ -56,7 +56,7 @@ func TestDataSourceGitTag_InvalidRepository(t *testing.T) {
 				Config: `
 					data "git_tag" "test" {
 						directory = "/some/random/path"
-						tag       = "does-not-exist"
+						name      = "does-not-exist"
 					}
 				`,
 				ExpectError: regexp.MustCompile(`Cannot open repository`),
@@ -77,7 +77,7 @@ func TestDataSourceGitTag_InvalidTag(t *testing.T) {
 				Config: fmt.Sprintf(`
 					data "git_tag" "test" {
 						directory = "%s"
-						tag       = "does-not-exist"
+						name      = "does-not-exist"
 					}
 				`, directory),
 				ExpectError: regexp.MustCompile(`Cannot read tag`),
@@ -86,7 +86,7 @@ func TestDataSourceGitTag_InvalidTag(t *testing.T) {
 	})
 }
 
-func TestDataSourceGitTag_MissingTag(t *testing.T) {
+func TestDataSourceGitTag_MissingName(t *testing.T) {
 	t.Parallel()
 	directory, _ := initializeGitRepository(t)
 	defer os.RemoveAll(directory)
@@ -106,14 +106,16 @@ func TestDataSourceGitTag_MissingTag(t *testing.T) {
 	})
 }
 
-func TestDataSourceGitTag_MissingRepository(t *testing.T) {
+func TestDataSourceGitTag_MissingDirectory(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `
-					data "git_tag" "test" {}
+					data "git_tag" "test" {
+						name = "some-tag"
+					}
 				`,
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
