@@ -10,6 +10,10 @@ install:
 test:
 	go test -v -cover -timeout=120s -parallel=4 ./internal/provider
 
+.PHONY: single
+single:
+	go test -v -timeout=120s -run $(filter-out $@,$(MAKECMDGOALS)) ./internal/provider
+
 .PHONY: docs
 docs:
 	go generate ./...
