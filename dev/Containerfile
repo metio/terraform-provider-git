@@ -1,0 +1,4 @@
+FROM metio/devcontainers-go:latest
+
+RUN go mod tidy
+RUN go install github.com/hashicorp/terraform@main
