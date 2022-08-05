@@ -63,16 +63,16 @@ func (r *dataSourceGitRepositoryType) NewDataSource(_ context.Context, p tfsdk.P
 func (r *dataSourceGitRepository) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
 	tflog.Debug(ctx, "Reading Git repository")
 
-	var inputs dataSourceGitRepositorySchema
-	var outputs dataSourceGitRepositorySchema
+	var config dataSourceGitRepositorySchema
+	var state dataSourceGitRepositorySchema
 
-	diags := req.Config.Get(ctx, &inputs)
+	diags := req.Config.Get(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := inputs.Directory.Value
+	directory := config.Directory.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -93,11 +93,11 @@ func (r *dataSourceGitRepository) Read(ctx context.Context, req tfsdk.ReadDataSo
 		"head":      head.Name().String(),
 	})
 
-	outputs.Directory = types.String{Value: directory}
-	outputs.Id = types.String{Value: directory}
-	outputs.Branch = types.String{Value: head.Name().Short()}
+	state.Directory = types.String{Value: directory}
+	state.Id = types.String{Value: directory}
+	state.Branch = types.String{Value: head.Name().Short()}
 
-	diags = resp.State.Set(ctx, &outputs)
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

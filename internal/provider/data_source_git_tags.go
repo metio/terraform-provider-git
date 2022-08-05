@@ -100,16 +100,16 @@ func (r *dataSourceGitTagsType) NewDataSource(_ context.Context, p tfsdk.Provide
 func (r *dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
 	tflog.Debug(ctx, "Reading Git repository tags")
 
-	var inputs dataSourceGitTagsSchema
-	var outputs dataSourceGitTagsSchema
+	var config dataSourceGitTagsSchema
+	var state dataSourceGitTagsSchema
 
-	diags := req.Config.Get(ctx, &inputs)
+	diags := req.Config.Get(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := inputs.Directory.Value
+	directory := config.Directory.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -130,11 +130,11 @@ func (r *dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceRe
 	})
 
 	// NOTE: It seems default values for data sources are not working?
-	if inputs.Annotated.IsNull() {
-		inputs.Annotated = types.Bool{Value: true}
+	if config.Annotated.IsNull() {
+		config.Annotated = types.Bool{Value: true}
 	}
-	if inputs.Lightweight.IsNull() {
-		inputs.Lightweight = types.Bool{Value: true}
+	if config.Lightweight.IsNull() {
+		config.Lightweight = types.Bool{Value: true}
 	}
 
 	allTags := make(map[string]GitTag)
@@ -143,7 +143,7 @@ func (r *dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceRe
 
 		switch err {
 		case nil:
-			if inputs.Annotated.Value {
+			if config.Annotated.Value {
 				allTags[ref.Name().Short()] = GitTag{
 					Lightweight: types.Bool{Value: false},
 					Annotated:   types.Bool{Value: true},
@@ -152,7 +152,7 @@ func (r *dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceRe
 			}
 			return nil
 		case plumbing.ErrObjectNotFound:
-			if inputs.Lightweight.Value {
+			if config.Lightweight.Value {
 				allTags[ref.Name().Short()] = GitTag{
 					Lightweight: types.Bool{Value: true},
 					Annotated:   types.Bool{Value: false},
@@ -171,13 +171,13 @@ func (r *dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceRe
 		return
 	}
 
-	outputs.Directory = types.String{Value: directory}
-	outputs.Id = types.String{Value: directory}
-	outputs.Annotated = types.Bool{Value: inputs.Annotated.Value}
-	outputs.Lightweight = types.Bool{Value: inputs.Lightweight.Value}
-	outputs.Tags = allTags
+	state.Directory = types.String{Value: directory}
+	state.Id = types.String{Value: directory}
+	state.Annotated = types.Bool{Value: config.Annotated.Value}
+	state.Lightweight = types.Bool{Value: config.Lightweight.Value}
+	state.Tags = allTags
 
-	diags = resp.State.Set(ctx, &outputs)
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

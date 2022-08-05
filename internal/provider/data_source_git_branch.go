@@ -85,17 +85,17 @@ func (r *dataSourceGitBranchType) NewDataSource(_ context.Context, p tfsdk.Provi
 func (r *dataSourceGitBranch) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
 	tflog.Debug(ctx, "Reading Git repository branch")
 
-	var inputs dataSourceGitBranchSchema
-	var outputs dataSourceGitBranchSchema
+	var config dataSourceGitBranchSchema
+	var state dataSourceGitBranchSchema
 
-	diags := req.Config.Get(ctx, &inputs)
+	diags := req.Config.Get(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := inputs.Directory.Value
-	requestedBranch := inputs.Branch.Value
+	directory := config.Directory.Value
+	requestedBranch := config.Branch.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -126,7 +126,7 @@ func (r *dataSourceGitBranch) Read(ctx context.Context, req tfsdk.ReadDataSource
 	}
 	if err := branches.ForEach(func(ref *plumbing.Reference) error {
 		if ref.Name().Short() == branch.Name {
-			outputs.SHA1 = types.String{Value: ref.Hash().String()}
+			state.SHA1 = types.String{Value: ref.Hash().String()}
 		}
 		return nil
 	}); err != nil {
@@ -137,13 +137,13 @@ func (r *dataSourceGitBranch) Read(ctx context.Context, req tfsdk.ReadDataSource
 		return
 	}
 
-	outputs.Directory = types.String{Value: directory}
-	outputs.Id = types.String{Value: directory}
-	outputs.Branch = types.String{Value: branch.Name}
-	outputs.Remote = types.String{Value: branch.Remote}
-	outputs.Rebase = types.String{Value: branch.Rebase}
+	state.Directory = types.String{Value: directory}
+	state.Id = types.String{Value: directory}
+	state.Branch = types.String{Value: branch.Name}
+	state.Remote = types.String{Value: branch.Remote}
+	state.Rebase = types.String{Value: branch.Rebase}
 
-	diags = resp.State.Set(ctx, &outputs)
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

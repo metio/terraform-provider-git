@@ -9,7 +9,6 @@ package provider
 
 import (
 	"context"
-	"github.com/go-git/go-git/v5/config"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -112,22 +111,22 @@ func (r *dataSourceGitConfigType) NewDataSource(_ context.Context, p tfsdk.Provi
 func (r *dataSourceGitConfig) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
 	tflog.Debug(ctx, "Reading Git repository configuration")
 
-	var inputs dataSourceGitConfigSchema
-	var outputs dataSourceGitConfigSchema
+	var config dataSourceGitConfigSchema
+	var state dataSourceGitConfigSchema
 
-	diags := req.Config.Get(ctx, &inputs)
+	diags := req.Config.Get(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// NOTE: It seems default values for data sources are not working?
-	if inputs.Scope.IsNull() {
-		inputs.Scope = types.String{Value: "global"}
+	if config.Scope.IsNull() {
+		config.Scope = types.String{Value: "global"}
 	}
 
-	directory := inputs.Directory.Value
-	scope := inputs.Scope.Value
+	directory := config.Directory.Value
+	scope := config.Scope.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -148,30 +147,19 @@ func (r *dataSourceGitConfig) Read(ctx context.Context, req tfsdk.ReadDataSource
 		"scope":     scope,
 	})
 
-	outputs.Directory = types.String{Value: directory}
-	outputs.Id = types.String{Value: directory}
-	outputs.Scope = types.String{Value: scope}
-	outputs.UserName = types.String{Value: cfg.User.Name}
-	outputs.UserEmail = types.String{Value: cfg.User.Email}
-	outputs.AuthorName = types.String{Value: cfg.Author.Name}
-	outputs.AuthorEmail = types.String{Value: cfg.Author.Email}
-	outputs.CommitterName = types.String{Value: cfg.Committer.Name}
-	outputs.CommitterEmail = types.String{Value: cfg.Committer.Email}
+	state.Directory = types.String{Value: directory}
+	state.Id = types.String{Value: directory}
+	state.Scope = types.String{Value: scope}
+	state.UserName = types.String{Value: cfg.User.Name}
+	state.UserEmail = types.String{Value: cfg.User.Email}
+	state.AuthorName = types.String{Value: cfg.Author.Name}
+	state.AuthorEmail = types.String{Value: cfg.Author.Email}
+	state.CommitterName = types.String{Value: cfg.Committer.Name}
+	state.CommitterEmail = types.String{Value: cfg.Committer.Email}
 
-	diags = resp.State.Set(ctx, &outputs)
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
-	}
-}
-
-func mapScope(userInput string) config.Scope {
-	switch userInput {
-	case "local":
-		return config.LocalScope
-	case "system":
-		return config.SystemScope
-	default:
-		return config.GlobalScope
 	}
 }
