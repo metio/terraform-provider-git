@@ -139,9 +139,42 @@ func (r *resourceGitRemote) Create(ctx context.Context, req tfsdk.CreateResource
 	}
 }
 
-func (r *resourceGitRemote) Read(ctx context.Context, _ tfsdk.ReadResourceRequest, _ *tfsdk.ReadResourceResponse) {
-	tflog.Debug(ctx, "Reading Git remote from state")
-	// NO-OP: all there is to read is in the State, and response is already populated with that.
+func (r *resourceGitRemote) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
+	tflog.Debug(ctx, "Reading Git remote")
+
+	var state resourceGitRemoteSchema
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	directory := state.Directory.Value
+	remoteName := state.Name.Value
+
+	repository := openRepository(ctx, directory, &resp.Diagnostics)
+	if repository == nil {
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
+	remote := getRemote(ctx, repository, remoteName, &resp.Diagnostics)
+	if remote == nil {
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
+	var newState resourceGitRemoteSchema
+	newState.Directory = state.Directory
+	newState.Id = state.Name
+	newState.Name = state.Name
+	newState.Urls = stringsToList(remote.Config().URLs)
+
+	diags = resp.State.Set(ctx, &newState)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
 func (r *resourceGitRemote) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
