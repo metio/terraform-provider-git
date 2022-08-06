@@ -169,7 +169,8 @@ func (r *resourceGitInit) ImportState(ctx context.Context, req tfsdk.ImportResou
 	}
 
 	var state resourceGitInitSchema
-
+	state.Directory = types.String{Value: req.ID}
+	state.Id = types.String{Value: req.ID}
 	_, err := repository.Worktree()
 	if err == git.ErrIsBareRepository {
 		state.Bare = types.Bool{Value: true}
@@ -182,9 +183,6 @@ func (r *resourceGitInit) ImportState(ctx context.Context, req tfsdk.ImportResou
 	} else {
 		state.Bare = types.Bool{Value: false}
 	}
-
-	state.Directory = types.String{Value: req.ID}
-	state.Id = types.String{Value: req.ID}
 
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

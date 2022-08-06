@@ -229,19 +229,38 @@ func (r *resourceGitTag) ImportState(ctx context.Context, req tfsdk.ImportResour
 	id := req.ID
 	idParts := strings.Split(id, "|")
 
-	if len(idParts) < 2 || idParts[0] == "" || idParts[1] == "" {
+	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected import identifier",
-			fmt.Sprintf("Expected import identifier with format: 'directory|tag-name|sha1|message' Got: %q", id),
+			fmt.Sprintf("Expected import identifier with format: 'path/to/your/git/repository|name-of-your-tag' Got: %q", id),
 		)
 		return
 	}
 
-	var state resourceGitTagSchema
+	directory := idParts[0]
+	tagName := idParts[1]
 
-	state.Directory = types.String{Value: idParts[0]}
-	state.Id = types.String{Value: idParts[1]}
-	state.Name = types.String{Value: idParts[1]}
+	repository := openRepository(ctx, directory, &resp.Diagnostics)
+	if repository == nil {
+		return
+	}
+
+	tagReference := getTagReference(ctx, repository, tagName, &resp.Diagnostics)
+	if tagReference == nil {
+		return
+	}
+
+	var state resourceGitTagSchema
+	state.Directory = types.String{Value: directory}
+	state.Id = types.String{Value: tagName}
+	state.Name = types.String{Value: tagName}
+	state.SHA1 = types.String{Value: tagReference.Hash().String()}
+	tag, err := repository.TagObject(tagReference.Hash())
+	if err == plumbing.ErrObjectNotFound {
+		state.Message = types.String{Null: true}
+	} else {
+		state.Message = types.String{Value: strings.TrimSpace(tag.Message)}
+	}
 
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
