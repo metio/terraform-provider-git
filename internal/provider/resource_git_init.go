@@ -9,11 +9,11 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/storage/filesystem"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -76,17 +76,17 @@ func (r *resourceGitInitType) NewResource(_ context.Context, p tfsdk.Provider) (
 func (r *resourceGitInit) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
 	tflog.Debug(ctx, "Creating Git repository")
 
-	var inputs resourceGitInitSchema
-	var output resourceGitInitSchema
+	var config resourceGitInitSchema
+	var state resourceGitInitSchema
 
-	diags := req.Config.Get(ctx, &inputs)
+	diags := req.Config.Get(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := inputs.Directory.Value
-	bare := inputs.Bare.Value
+	directory := config.Directory.Value
+	bare := config.Bare.Value
 
 	_, err := git.PlainInit(directory, bare)
 	if err != nil {
@@ -101,11 +101,11 @@ func (r *resourceGitInit) Create(ctx context.Context, req tfsdk.CreateResourceRe
 		"bare":      bare,
 	})
 
-	output.Directory = types.String{Value: directory}
-	output.Id = types.String{Value: directory}
-	output.Bare = types.Bool{Value: bare}
+	state.Directory = types.String{Value: directory}
+	state.Id = types.String{Value: directory}
+	state.Bare = types.Bool{Value: bare}
 
-	diags = resp.State.Set(ctx, &output)
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -113,8 +113,7 @@ func (r *resourceGitInit) Create(ctx context.Context, req tfsdk.CreateResourceRe
 }
 
 func (r *resourceGitInit) Read(ctx context.Context, _ tfsdk.ReadResourceRequest, _ *tfsdk.ReadResourceResponse) {
-	// NO-OP: all there is to read is in the State, and response is already populated with that.
-	tflog.Debug(ctx, "Reading Git repository from state")
+	tflog.Debug(ctx, "Reading Git repository")
 }
 
 func (r *resourceGitInit) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
@@ -125,16 +124,15 @@ func (r *resourceGitInit) Update(ctx context.Context, req tfsdk.UpdateResourceRe
 func (r *resourceGitInit) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
 	tflog.Debug(ctx, "Removing Git repository")
 
-	var inputs resourceGitInitSchema
-
-	diags := req.State.Get(ctx, &inputs)
+	var state resourceGitInitSchema
+	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := inputs.Directory.Value
-	bare := inputs.Bare.Value
+	directory := state.Directory.Value
+	bare := state.Bare.Value
 
 	if !bare {
 		repository := openRepository(ctx, directory, &resp.Diagnostics)
@@ -157,5 +155,40 @@ func (r *resourceGitInit) Delete(ctx context.Context, req tfsdk.DeleteResourceRe
 }
 
 func (r *resourceGitInit) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
-	tfsdk.ResourceImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	if req.ID == "" {
+		resp.Diagnostics.AddError(
+			"Unexpected import identifier",
+			fmt.Sprintf("Expected import identifier with format: 'path/to/git/repository' Got: '%q'", req.ID),
+		)
+		return
+	}
+
+	repository := openRepository(ctx, req.ID, &resp.Diagnostics)
+	if repository == nil {
+		return
+	}
+
+	var state resourceGitInitSchema
+
+	_, err := repository.Worktree()
+	if err == git.ErrIsBareRepository {
+		state.Bare = types.Bool{Value: true}
+	} else if err != nil {
+		resp.Diagnostics.AddError(
+			"Cannot read worktree",
+			"Could not read worktree because of: "+err.Error(),
+		)
+		return
+	} else {
+		state.Bare = types.Bool{Value: false}
+	}
+
+	state.Directory = types.String{Value: req.ID}
+	state.Id = types.String{Value: req.ID}
+
+	diags := resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }

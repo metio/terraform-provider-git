@@ -100,17 +100,19 @@ func TestResourceGitInit_Import(t *testing.T) {
 				Config: fmt.Sprintf(`
 					resource "git_init" "test" {
 						directory = "%s"
-						bare      = true
 					}
 				`, directory),
-				ImportState:   true,
-				ResourceName:  "git_init.test",
-				ImportStateId: directory,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_init.test", "directory", directory),
 					resource.TestCheckResourceAttr("git_init.test", "id", directory),
-					resource.TestCheckResourceAttr("git_init.test", "bare", "true"),
+					resource.TestCheckResourceAttr("git_init.test", "bare", "false"),
 				),
+			},
+			{
+				ResourceName:      "git_init.test",
+				ImportState:       true,
+				ImportStateId:     fmt.Sprintf("%s", directory),
+				ImportStateVerify: true,
 			},
 		},
 	})

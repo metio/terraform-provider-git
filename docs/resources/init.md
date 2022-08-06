@@ -38,4 +38,11 @@ resource "git_init" "bare" {
 
 - `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.
 
+## Import
 
+Import is supported using the following syntax:
+
+```shell
+# git_init resources can be imported by specifying the path to the Git repository.
+terraform import git_init.init path/to/your/git/repository
+```
