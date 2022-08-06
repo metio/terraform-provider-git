@@ -38,7 +38,7 @@ resource "git_remote" "remote" {
 Import is supported using the following syntax:
 
 ```shell
-# git_remote resources can be imported by specifying the directory of the Git repository, the name of the remote and a
-# list of its URLs separated by comma.
-terraform import git_remote.remote directory|remote-name|first-url,second-url,...
+# git_remote resources can be imported by specifying the directory of the Git repository and the name of the remote to
+# import. Both values are separated by a single '|'.
+terraform import git_remote.remote 'path/to/your/git/repository|name-of-your-remote'
 ```

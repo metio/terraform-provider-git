@@ -180,17 +180,17 @@ func (r *resourceGitRemote) Read(ctx context.Context, req tfsdk.ReadResourceRequ
 func (r *resourceGitRemote) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
 	tflog.Debug(ctx, "Updating Git remote")
 
-	var inputs resourceGitRemoteSchema
+	var config resourceGitRemoteSchema
 	var state resourceGitRemoteSchema
 
-	diags := req.Config.Get(ctx, &inputs)
+	diags := req.Config.Get(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := inputs.Directory.Value
-	remoteName := inputs.Name.Value
+	directory := config.Directory.Value
+	remoteName := config.Name.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -211,8 +211,8 @@ func (r *resourceGitRemote) Update(ctx context.Context, req tfsdk.UpdateResource
 		return
 	}
 
-	urls := make([]string, len(inputs.Urls.Elems))
-	resp.Diagnostics.Append(inputs.Urls.ElementsAs(ctx, &urls, false)...)
+	urls := make([]string, len(config.Urls.Elems))
+	resp.Diagnostics.Append(config.Urls.ElementsAs(ctx, &urls, false)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -230,10 +230,10 @@ func (r *resourceGitRemote) Update(ctx context.Context, req tfsdk.UpdateResource
 		return
 	}
 
-	state.Directory = inputs.Directory
-	state.Id = inputs.Name
-	state.Name = inputs.Name
-	state.Urls = inputs.Urls
+	state.Directory = config.Directory
+	state.Id = config.Name
+	state.Name = config.Name
+	state.Urls = config.Urls
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -271,20 +271,32 @@ func (r *resourceGitRemote) ImportState(ctx context.Context, req tfsdk.ImportRes
 	id := req.ID
 	idParts := strings.Split(id, "|")
 
-	if len(idParts) < 2 || idParts[0] == "" || idParts[1] == "" {
+	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected import identifier",
-			fmt.Sprintf("Expected import identifier with format: 'directory|remote-name|first-url,second-url,...' Got: %q", id),
+			fmt.Sprintf("Expected import identifier with format: 'path/to/your/git/repository|name-of-your-remote' Got: '%q'", id),
 		)
 		return
 	}
 
-	var state resourceGitRemoteSchema
+	directory := idParts[0]
+	remoteName := idParts[1]
 
-	state.Directory = types.String{Value: idParts[0]}
-	state.Id = types.String{Value: idParts[1]}
-	state.Name = types.String{Value: idParts[1]}
-	state.Urls = stringsToList(strings.Split(idParts[2], ","))
+	repository := openRepository(ctx, directory, &resp.Diagnostics)
+	if repository == nil {
+		return
+	}
+
+	remote := getRemote(ctx, repository, remoteName, &resp.Diagnostics)
+	if remote == nil {
+		return
+	}
+
+	var state resourceGitRemoteSchema
+	state.Directory = types.String{Value: directory}
+	state.Id = types.String{Value: remoteName}
+	state.Name = types.String{Value: remoteName}
+	state.Urls = stringsToList(remote.Config().URLs)
 
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

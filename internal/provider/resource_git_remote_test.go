@@ -190,7 +190,7 @@ func TestResourceGitRemote_Import(t *testing.T) {
 			{
 				ResourceName:      "git_remote.test",
 				ImportState:       true,
-				ImportStateId:     fmt.Sprintf("%s|%s|%s", directory, remote, url),
+				ImportStateId:     fmt.Sprintf("%s|%s", directory, remote),
 				ImportStateVerify: true,
 			},
 		},
@@ -228,7 +228,7 @@ func TestResourceGitRemote_ImportMultipleUrls(t *testing.T) {
 			{
 				ResourceName:      "git_remote.test",
 				ImportState:       true,
-				ImportStateId:     fmt.Sprintf("%s|%s|%s,%s", directory, remote, url1, url2),
+				ImportStateId:     fmt.Sprintf("%s|%s", directory, remote),
 				ImportStateVerify: true,
 			},
 		},
