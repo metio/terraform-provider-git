@@ -78,7 +78,7 @@ func (r *dataSourceGitStatusesType) NewDataSource(_ context.Context, p tfsdk.Pro
 }
 
 func (r *dataSourceGitStatuses) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
-	tflog.Debug(ctx, "Reading Git repository branch")
+	tflog.Debug(ctx, "Reading Git repository status")
 
 	var inputs dataSourceGitStatusesSchema
 	var state dataSourceGitStatusesSchema
