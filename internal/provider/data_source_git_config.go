@@ -111,22 +111,22 @@ func (r *dataSourceGitConfigType) NewDataSource(_ context.Context, p tfsdk.Provi
 func (r *dataSourceGitConfig) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
 	tflog.Debug(ctx, "Reading Git repository configuration")
 
-	var config dataSourceGitConfigSchema
+	var inputs dataSourceGitConfigSchema
 	var state dataSourceGitConfigSchema
 
-	diags := req.Config.Get(ctx, &config)
+	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// NOTE: It seems default values for data sources are not working?
-	if config.Scope.IsNull() {
-		config.Scope = types.String{Value: "global"}
+	if inputs.Scope.IsNull() {
+		inputs.Scope = types.String{Value: "global"}
 	}
 
-	directory := config.Directory.Value
-	scope := config.Scope.Value
+	directory := inputs.Directory.Value
+	scope := inputs.Scope.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {

@@ -180,17 +180,17 @@ func (r *resourceGitRemote) Read(ctx context.Context, req tfsdk.ReadResourceRequ
 func (r *resourceGitRemote) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
 	tflog.Debug(ctx, "Updating Git remote")
 
-	var config resourceGitRemoteSchema
+	var inputs resourceGitRemoteSchema
 	var state resourceGitRemoteSchema
 
-	diags := req.Config.Get(ctx, &config)
+	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := config.Directory.Value
-	remoteName := config.Name.Value
+	directory := inputs.Directory.Value
+	remoteName := inputs.Name.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -210,9 +210,12 @@ func (r *resourceGitRemote) Update(ctx context.Context, req tfsdk.UpdateResource
 		)
 		return
 	}
+	tflog.Trace(ctx, "read repository config", map[string]interface{}{
+		"directory": directory,
+	})
 
-	urls := make([]string, len(config.Urls.Elems))
-	resp.Diagnostics.Append(config.Urls.ElementsAs(ctx, &urls, false)...)
+	urls := make([]string, len(inputs.Urls.Elems))
+	resp.Diagnostics.Append(inputs.Urls.ElementsAs(ctx, &urls, false)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -229,11 +232,14 @@ func (r *resourceGitRemote) Update(ctx context.Context, req tfsdk.UpdateResource
 		)
 		return
 	}
+	tflog.Trace(ctx, "wrote repository config", map[string]interface{}{
+		"directory": directory,
+	})
 
-	state.Directory = config.Directory
-	state.Id = config.Name
-	state.Name = config.Name
-	state.Urls = config.Urls
+	state.Directory = inputs.Directory
+	state.Id = inputs.Name
+	state.Name = inputs.Name
+	state.Urls = inputs.Urls
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -254,17 +260,21 @@ func (r *resourceGitRemote) Delete(ctx context.Context, req tfsdk.DeleteResource
 	}
 
 	directory := state.Directory.Value
-	name := state.Name.Value
+	remoteName := state.Name.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
-	err := repository.DeleteRemote(name)
+	err := repository.DeleteRemote(remoteName)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Cannot delete remote",
-			"Could not delete remote ["+name+"] in git repository ["+directory+"] because of: "+err.Error(),
+			"Could not delete remote ["+remoteName+"] in git repository ["+directory+"] because of: "+err.Error(),
 		)
 		return
 	}
+	tflog.Trace(ctx, "deleted remote", map[string]interface{}{
+		"directory": directory,
+		"remote":    remoteName,
+	})
 }
 
 func (r *resourceGitRemote) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
@@ -281,6 +291,10 @@ func (r *resourceGitRemote) ImportState(ctx context.Context, req tfsdk.ImportRes
 
 	directory := idParts[0]
 	remoteName := idParts[1]
+	tflog.Trace(ctx, "parsed import ID", map[string]interface{}{
+		"directory": directory,
+		"remote":    remoteName,
+	})
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {

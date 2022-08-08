@@ -63,16 +63,16 @@ func (r *dataSourceGitRepositoryType) NewDataSource(_ context.Context, p tfsdk.P
 func (r *dataSourceGitRepository) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
 	tflog.Debug(ctx, "Reading Git repository")
 
-	var config dataSourceGitRepositorySchema
+	var inputs dataSourceGitRepositorySchema
 	var state dataSourceGitRepositorySchema
 
-	diags := req.Config.Get(ctx, &config)
+	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := config.Directory.Value
+	directory := inputs.Directory.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {

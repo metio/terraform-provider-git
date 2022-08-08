@@ -91,16 +91,15 @@ func (r *dataSourceGitTagType) NewDataSource(_ context.Context, p tfsdk.Provider
 func (r *dataSourceGitTag) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
 	tflog.Debug(ctx, "Reading Git repository tag")
 
-	var config dataSourceGitTagSchema
-
-	diags := req.Config.Get(ctx, &config)
+	var inputs dataSourceGitTagSchema
+	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := config.Directory.Value
-	tagName := config.Name.Value
+	directory := inputs.Directory.Value
+	tagName := inputs.Name.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -113,9 +112,9 @@ func (r *dataSourceGitTag) Read(ctx context.Context, req tfsdk.ReadDataSourceReq
 	}
 
 	var state dataSourceGitTagSchema
-	state.Directory = config.Directory
-	state.Id = config.Name
-	state.Name = config.Name
+	state.Directory = inputs.Directory
+	state.Id = inputs.Name
+	state.Name = inputs.Name
 	state.SHA1 = types.String{Value: tagReference.Hash().String()}
 	tag, err := repository.TagObject(tagReference.Hash())
 	if err == plumbing.ErrObjectNotFound {

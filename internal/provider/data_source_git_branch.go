@@ -85,17 +85,17 @@ func (r *dataSourceGitBranchType) NewDataSource(_ context.Context, p tfsdk.Provi
 func (r *dataSourceGitBranch) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
 	tflog.Debug(ctx, "Reading Git repository branch")
 
-	var config dataSourceGitBranchSchema
+	var inputs dataSourceGitBranchSchema
 	var state dataSourceGitBranchSchema
 
-	diags := req.Config.Get(ctx, &config)
+	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := config.Directory.Value
-	requestedBranch := config.Branch.Value
+	directory := inputs.Directory.Value
+	requestedBranch := inputs.Branch.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {

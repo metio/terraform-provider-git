@@ -76,17 +76,17 @@ func (r *resourceGitInitType) NewResource(_ context.Context, p tfsdk.Provider) (
 func (r *resourceGitInit) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
 	tflog.Debug(ctx, "Creating Git repository")
 
-	var config resourceGitInitSchema
+	var inputs resourceGitInitSchema
 	var state resourceGitInitSchema
 
-	diags := req.Config.Get(ctx, &config)
+	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := config.Directory.Value
-	bare := config.Bare.Value
+	directory := inputs.Directory.Value
+	bare := inputs.Bare.Value
 
 	_, err := git.PlainInit(directory, bare)
 	if err != nil {

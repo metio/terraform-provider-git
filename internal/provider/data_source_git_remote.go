@@ -74,17 +74,17 @@ func (r *dataSourceGitRemoteType) NewDataSource(_ context.Context, p tfsdk.Provi
 func (r *dataSourceGitRemote) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
 	tflog.Debug(ctx, "Reading Git repository remote")
 
-	var config dataSourceGitRemoteSchema
+	var inputs dataSourceGitRemoteSchema
 	var state dataSourceGitRemoteSchema
 
-	diags := req.Config.Get(ctx, &config)
+	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := config.Directory.Value
-	remoteName := config.Name.Value
+	directory := inputs.Directory.Value
+	remoteName := inputs.Name.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -96,9 +96,9 @@ func (r *dataSourceGitRemote) Read(ctx context.Context, req tfsdk.ReadDataSource
 		return
 	}
 
-	state.Directory = config.Directory
-	state.Id = config.Name
-	state.Name = config.Name
+	state.Directory = inputs.Directory
+	state.Id = inputs.Name
+	state.Name = inputs.Name
 	state.URLs = stringsToList(remote.Config().URLs)
 
 	diags = resp.State.Set(ctx, &state)

@@ -94,22 +94,22 @@ func (r *resourceGitTagType) NewResource(_ context.Context, p tfsdk.Provider) (t
 func (r *resourceGitTag) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
 	tflog.Debug(ctx, "Creating Git tag")
 
-	var config resourceGitTagSchema
-	diags := req.Config.Get(ctx, &config)
+	var inputs resourceGitTagSchema
+	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := config.Directory.Value
-	tagName := config.Name.Value
+	directory := inputs.Directory.Value
+	tagName := inputs.Name.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
 		return
 	}
 
-	reference, err := createTagReference(repository, config)
+	reference, err := createTagReference(repository, inputs)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Cannot create tag reference",
@@ -124,7 +124,7 @@ func (r *resourceGitTag) Create(ctx context.Context, req tfsdk.CreateResourceReq
 		"reference": reference.Hash(),
 	})
 
-	_, err = repository.CreateTag(tagName, reference.Hash(), createOptions(config))
+	_, err = repository.CreateTag(tagName, reference.Hash(), createOptions(inputs))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Cannot create tag",
@@ -139,10 +139,10 @@ func (r *resourceGitTag) Create(ctx context.Context, req tfsdk.CreateResourceReq
 	})
 
 	var state resourceGitTagSchema
-	state.Directory = config.Directory
-	state.Id = config.Name
-	state.Name = config.Name
-	state.Message = config.Message
+	state.Directory = inputs.Directory
+	state.Id = inputs.Name
+	state.Name = inputs.Name
+	state.Message = inputs.Message
 	state.SHA1 = types.String{Value: reference.Hash().String()}
 
 	diags = resp.State.Set(ctx, &state)

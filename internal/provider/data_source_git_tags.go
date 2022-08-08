@@ -100,16 +100,16 @@ func (r *dataSourceGitTagsType) NewDataSource(_ context.Context, p tfsdk.Provide
 func (r *dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
 	tflog.Debug(ctx, "Reading Git repository tags")
 
-	var config dataSourceGitTagsSchema
+	var inputs dataSourceGitTagsSchema
 	var state dataSourceGitTagsSchema
 
-	diags := req.Config.Get(ctx, &config)
+	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	directory := config.Directory.Value
+	directory := inputs.Directory.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -130,11 +130,11 @@ func (r *dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceRe
 	})
 
 	// NOTE: It seems default values for data sources are not working?
-	if config.Annotated.IsNull() {
-		config.Annotated = types.Bool{Value: true}
+	if inputs.Annotated.IsNull() {
+		inputs.Annotated = types.Bool{Value: true}
 	}
-	if config.Lightweight.IsNull() {
-		config.Lightweight = types.Bool{Value: true}
+	if inputs.Lightweight.IsNull() {
+		inputs.Lightweight = types.Bool{Value: true}
 	}
 
 	allTags := make(map[string]GitTag)
@@ -143,7 +143,7 @@ func (r *dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceRe
 
 		switch err {
 		case nil:
-			if config.Annotated.Value {
+			if inputs.Annotated.Value {
 				allTags[ref.Name().Short()] = GitTag{
 					Lightweight: types.Bool{Value: false},
 					Annotated:   types.Bool{Value: true},
@@ -152,7 +152,7 @@ func (r *dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceRe
 			}
 			return nil
 		case plumbing.ErrObjectNotFound:
-			if config.Lightweight.Value {
+			if inputs.Lightweight.Value {
 				allTags[ref.Name().Short()] = GitTag{
 					Lightweight: types.Bool{Value: true},
 					Annotated:   types.Bool{Value: false},
@@ -173,8 +173,8 @@ func (r *dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceRe
 
 	state.Directory = types.String{Value: directory}
 	state.Id = types.String{Value: directory}
-	state.Annotated = types.Bool{Value: config.Annotated.Value}
-	state.Lightweight = types.Bool{Value: config.Lightweight.Value}
+	state.Annotated = types.Bool{Value: inputs.Annotated.Value}
+	state.Lightweight = types.Bool{Value: inputs.Lightweight.Value}
 	state.Tags = allTags
 
 	diags = resp.State.Set(ctx, &state)
