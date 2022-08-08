@@ -59,7 +59,7 @@ func createWorktree(t *testing.T, repository *git.Repository) *git.Worktree {
 	return worktree
 }
 
-func addAndCommitNewFile(t *testing.T, worktree *git.Worktree, name string) {
+func addFile(t *testing.T, worktree *git.Worktree, name string) {
 	filename := filepath.Join(worktree.Filesystem.Root(), name)
 	err := ioutil.WriteFile(filename, []byte("hello world!"), 0644)
 	if err != nil {
@@ -69,12 +69,20 @@ func addAndCommitNewFile(t *testing.T, worktree *git.Worktree, name string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = worktree.Commit("example go-git commit", &git.CommitOptions{
+}
+
+func commitStaged(t *testing.T, worktree *git.Worktree) {
+	_, err := worktree.Commit("example go-git commit", &git.CommitOptions{
 		Author: signature(),
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+func addAndCommitNewFile(t *testing.T, worktree *git.Worktree, name string) {
+	addFile(t, worktree, name)
+	commitStaged(t, worktree)
 }
 
 func initTestConfig(t *testing.T, repository *git.Repository) *config.Config {
