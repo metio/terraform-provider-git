@@ -15,10 +15,7 @@ import (
 )
 
 func openRepository(ctx context.Context, directory string, diag *diag.Diagnostics) *git.Repository {
-	repository, err := git.PlainOpenWithOptions(directory, &git.PlainOpenOptions{
-		DetectDotGit:          true,
-		EnableDotGitCommonDir: true,
-	})
+	repository, err := git.PlainOpen(directory)
 	if err != nil {
 		diag.AddError(
 			"Cannot open repository",

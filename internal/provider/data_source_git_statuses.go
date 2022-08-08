@@ -115,30 +115,30 @@ func (r *dataSourceGitStatuses) Read(ctx context.Context, req tfsdk.ReadDataSour
 		tflog.Trace(ctx, "read worktree", map[string]interface{}{
 			"directory": directory,
 		})
-	}
 
-	status, err := worktree.Status()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Cannot read status",
-			"Could not read status because of: "+err.Error(),
-		)
-		return
-	}
-	tflog.Trace(ctx, "read status", map[string]interface{}{
-		"directory": directory,
-		"status":    status.String(),
-	})
-	state.IsClean = types.Bool{Value: status.IsClean()}
-
-	allFiles := make(map[string]GitStatus)
-	for key, val := range status {
-		allFiles[key] = GitStatus{
-			Staging:  types.String{Value: string(val.Staging)},
-			Worktree: types.String{Value: string(val.Worktree)},
+		status, err := worktree.Status()
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Cannot read status",
+				"Could not read status because of: "+err.Error(),
+			)
+			return
 		}
+		tflog.Trace(ctx, "read status", map[string]interface{}{
+			"directory": directory,
+			"status":    status.String(),
+		})
+		state.IsClean = types.Bool{Value: status.IsClean()}
+
+		allFiles := make(map[string]GitStatus)
+		for key, val := range status {
+			allFiles[key] = GitStatus{
+				Staging:  types.String{Value: string(val.Staging)},
+				Worktree: types.String{Value: string(val.Worktree)},
+			}
+		}
+		state.Files = allFiles
 	}
-	state.Files = allFiles
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

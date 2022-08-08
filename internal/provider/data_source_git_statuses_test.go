@@ -68,3 +68,29 @@ func TestDataSourceGitStatuses_Clean(t *testing.T) {
 		},
 	})
 }
+
+func TestDataSourceGitStatuses_BareRepository(t *testing.T) {
+	t.Parallel()
+	directory := temporaryDirectory(t)
+	gitInit(t, directory, true)
+	defer os.RemoveAll(directory)
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "git_statuses" "test" {
+						directory = "%s"
+					}
+				`, directory),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.git_statuses.test", "directory", directory),
+					resource.TestCheckResourceAttr("data.git_statuses.test", "id", directory),
+					resource.TestCheckResourceAttr("data.git_statuses.test", "is_clean", "true"),
+					resource.TestCheckResourceAttr("data.git_statuses.test", "files.%", "0"),
+				),
+			},
+		},
+	})
+}

@@ -29,11 +29,16 @@ func protoV6ProviderFactories() map[string]func() (tfprotov6.ProviderServer, err
 
 func initializeGitRepository(t *testing.T) (string, *git.Repository) {
 	directory := temporaryDirectory(t)
-	repository, err := git.PlainInit(directory, false)
+	repository := gitInit(t, directory, false)
+	return directory, repository
+}
+
+func gitInit(t *testing.T, directory string, bare bool) *git.Repository {
+	repository, err := git.PlainInit(directory, bare)
 	if err != nil {
 		t.Fatal(err)
 	}
-	return directory, repository
+	return repository
 }
 
 func temporaryDirectory(t *testing.T) string {
