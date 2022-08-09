@@ -94,6 +94,7 @@ func (r *resourceGitInit) Create(ctx context.Context, req tfsdk.CreateResourceRe
 			"Cannot create repository",
 			"Could not create repository ["+directory+"] because of: "+err.Error(),
 		)
+		return
 	}
 
 	tflog.Trace(ctx, "created repository", map[string]interface{}{
