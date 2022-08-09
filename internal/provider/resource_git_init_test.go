@@ -16,7 +16,7 @@ import (
 
 func TestResourceGitInit(t *testing.T) {
 	t.Parallel()
-	directory := temporaryDirectory(t)
+	directory := testTemporaryDirectory(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
@@ -40,7 +40,7 @@ func TestResourceGitInit(t *testing.T) {
 
 func TestResourceGitInit_Bare(t *testing.T) {
 	t.Parallel()
-	directory := temporaryDirectory(t)
+	directory := testTemporaryDirectory(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
@@ -65,7 +65,7 @@ func TestResourceGitInit_Bare(t *testing.T) {
 
 func TestResourceGitInit_NonBare(t *testing.T) {
 	t.Parallel()
-	directory := temporaryDirectory(t)
+	directory := testTemporaryDirectory(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
@@ -90,7 +90,7 @@ func TestResourceGitInit_NonBare(t *testing.T) {
 
 func TestResourceGitInit_Import(t *testing.T) {
 	t.Parallel()
-	directory := temporaryDirectory(t)
+	directory := testTemporaryDirectory(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
@@ -120,7 +120,7 @@ func TestResourceGitInit_Import(t *testing.T) {
 
 func TestResourceGitInit_Delete(t *testing.T) {
 	t.Parallel()
-	directory := temporaryDirectory(t)
+	directory := testTemporaryDirectory(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{

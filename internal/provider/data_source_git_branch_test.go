@@ -18,12 +18,12 @@ import (
 
 func TestDataSourceGitBranch(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
 	branch := "name-of-branch"
 	remote := "origin"
 	rebase := "true"
-	createBranch(t, repository, &config.Branch{
+	testCreateBranch(t, repository, &config.Branch{
 		Name:   branch,
 		Remote: remote,
 		Rebase: rebase,
@@ -71,7 +71,7 @@ func TestDataSourceGitBranch_InvalidRepository(t *testing.T) {
 
 func TestDataSourceGitBranch_InvalidBranch(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
@@ -92,7 +92,7 @@ func TestDataSourceGitBranch_InvalidBranch(t *testing.T) {
 
 func TestDataSourceGitBranch_MissingBranch(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{

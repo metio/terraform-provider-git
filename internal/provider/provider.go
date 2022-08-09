@@ -46,6 +46,7 @@ func (p *gitProvider) GetDataSources(_ context.Context) (map[string]tfsdk.DataSo
 	return map[string]tfsdk.DataSourceType{
 		"git_branch":     &dataSourceGitBranchType{},
 		"git_branches":   &dataSourceGitBranchesType{},
+		"git_commit":     &dataSourceGitCommitType{},
 		"git_config":     &dataSourceGitConfigType{},
 		"git_repository": &dataSourceGitRepositoryType{},
 		"git_status":     &dataSourceGitStatusType{},

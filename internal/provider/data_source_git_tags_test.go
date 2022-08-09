@@ -17,12 +17,12 @@ import (
 
 func TestDataSourceGitTags(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree, "some-file")
+	worktree := testWorktree(t, repository)
+	testAddAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-tag"
-	createTag(t, repository, tag)
+	testCreateTag(t, repository, tag)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
@@ -47,12 +47,12 @@ func TestDataSourceGitTags(t *testing.T) {
 
 func TestDataSourceGitTags_NoAnnotated(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree, "some-file")
+	worktree := testWorktree(t, repository)
+	testAddAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-tag"
-	createTag(t, repository, tag)
+	testCreateTag(t, repository, tag)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
@@ -78,12 +78,12 @@ func TestDataSourceGitTags_NoAnnotated(t *testing.T) {
 
 func TestDataSourceGitTags_NoLightweight(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree, "some-file")
+	worktree := testWorktree(t, repository)
+	testAddAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-tag"
-	createTag(t, repository, tag)
+	testCreateTag(t, repository, tag)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),

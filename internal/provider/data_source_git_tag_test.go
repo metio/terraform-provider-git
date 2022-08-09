@@ -17,12 +17,12 @@ import (
 
 func TestDataSourceGitTag(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree, "some-file")
+	worktree := testWorktree(t, repository)
+	testAddAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-tag"
-	createTag(t, repository, tag)
+	testCreateTag(t, repository, tag)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
@@ -40,7 +40,7 @@ func TestDataSourceGitTag(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_tag.test", "name", tag),
 					resource.TestCheckResourceAttr("data.git_tag.test", "annotated", "true"),
 					resource.TestCheckResourceAttr("data.git_tag.test", "lightweight", "false"),
-					resource.TestCheckResourceAttrWith("data.git_tag.test", "sha1", testCheckLen(40)),
+					resource.TestCheckResourceAttrWith("data.git_tag.test", "sha1", testCheckExactLength(40)),
 				),
 			},
 		},
@@ -67,7 +67,7 @@ func TestDataSourceGitTag_InvalidRepository(t *testing.T) {
 
 func TestDataSourceGitTag_InvalidTag(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
@@ -88,7 +88,7 @@ func TestDataSourceGitTag_InvalidTag(t *testing.T) {
 
 func TestDataSourceGitTag_MissingName(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{

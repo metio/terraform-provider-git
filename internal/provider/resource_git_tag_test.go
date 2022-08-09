@@ -17,11 +17,11 @@ import (
 
 func TestResourceGitTag(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	initTestConfig(t, repository)
-	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree, "some-file")
+	testConfig(t, repository)
+	worktree := testWorktree(t, repository)
+	testAddAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
@@ -46,11 +46,11 @@ func TestResourceGitTag(t *testing.T) {
 
 func TestResourceGitTag_Annotated(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	initTestConfig(t, repository)
-	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree, "some-file")
+	testConfig(t, repository)
+	worktree := testWorktree(t, repository)
+	testAddAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-name"
 	message := "some message for the tag"
 
@@ -78,11 +78,11 @@ func TestResourceGitTag_Annotated(t *testing.T) {
 
 func TestResourceGitTag_Commitish(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	initTestConfig(t, repository)
-	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree, "some-file")
+	testConfig(t, repository)
+	worktree := testWorktree(t, repository)
+	testAddAndCommitNewFile(t, worktree, "some-file")
 	head, err := repository.Head()
 	if err != nil {
 		t.Fatal(err)
@@ -151,7 +151,7 @@ func TestResourceGitTag_MissingRepository(t *testing.T) {
 
 func TestResourceGitTag_MissingName(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
@@ -171,11 +171,11 @@ func TestResourceGitTag_MissingName(t *testing.T) {
 
 func TestResourceGitTag_Import(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	initTestConfig(t, repository)
-	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree, "some-file")
+	testConfig(t, repository)
+	worktree := testWorktree(t, repository)
+	testAddAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
@@ -206,11 +206,11 @@ func TestResourceGitTag_Import(t *testing.T) {
 
 func TestResourceGitTag_Update_Name(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	initTestConfig(t, repository)
-	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree, "some-file")
+	testConfig(t, repository)
+	worktree := testWorktree(t, repository)
+	testAddAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-name"
 	newTag := "other-name"
 
@@ -249,16 +249,16 @@ func TestResourceGitTag_Update_Name(t *testing.T) {
 
 func TestResourceGitTag_Update_Directory(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	initTestConfig(t, repository)
-	worktree := createWorktree(t, repository)
-	addAndCommitNewFile(t, worktree, "some-file")
-	newDirectory, newRepository := initializeGitRepository(t)
+	testConfig(t, repository)
+	worktree := testWorktree(t, repository)
+	testAddAndCommitNewFile(t, worktree, "some-file")
+	newDirectory, newRepository := testRepository(t)
 	defer os.RemoveAll(newDirectory)
-	initTestConfig(t, newRepository)
-	newWorktree := createWorktree(t, newRepository)
-	addAndCommitNewFile(t, newWorktree, "other-file")
+	testConfig(t, newRepository)
+	newWorktree := testWorktree(t, newRepository)
+	testAddAndCommitNewFile(t, newWorktree, "other-file")
 	tag := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{

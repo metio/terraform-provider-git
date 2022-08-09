@@ -17,7 +17,7 @@ import (
 
 func TestResourceGitRemote(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
@@ -47,7 +47,7 @@ func TestResourceGitRemote(t *testing.T) {
 
 func TestResourceGitRemote_MultipleUrls(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
@@ -120,7 +120,7 @@ func TestResourceGitRemote_MissingRepository(t *testing.T) {
 
 func TestResourceGitRemote_MissingName(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
@@ -141,7 +141,7 @@ func TestResourceGitRemote_MissingName(t *testing.T) {
 
 func TestResourceGitRemote_MissingUrls(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 	name := "some-name"
 
@@ -163,7 +163,7 @@ func TestResourceGitRemote_MissingUrls(t *testing.T) {
 
 func TestResourceGitRemote_Import(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 	remote := "some-name"
 	url := "https://github.com/some-org/some-repo.git"
@@ -199,7 +199,7 @@ func TestResourceGitRemote_Import(t *testing.T) {
 
 func TestResourceGitRemote_ImportMultipleUrls(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 	remote := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
@@ -237,7 +237,7 @@ func TestResourceGitRemote_ImportMultipleUrls(t *testing.T) {
 
 func TestResourceGitRemote_Update_Urls(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 	remote := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
@@ -301,7 +301,7 @@ func TestResourceGitRemote_Update_Urls(t *testing.T) {
 
 func TestResourceGitRemote_Update_Name(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 	remote := "some-name"
 	newRemote := "other-name"
@@ -348,8 +348,8 @@ func TestResourceGitRemote_Update_Name(t *testing.T) {
 
 func TestResourceGitRemote_Update_Directory(t *testing.T) {
 	t.Parallel()
-	directory1, _ := initializeGitRepository(t)
-	directory2, _ := initializeGitRepository(t)
+	directory1, _ := testRepository(t)
+	directory2, _ := testRepository(t)
 	defer os.RemoveAll(directory1)
 	defer os.RemoveAll(directory2)
 	remote := "some-name"

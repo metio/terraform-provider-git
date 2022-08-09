@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
@@ -27,13 +28,13 @@ func protoV6ProviderFactories() map[string]func() (tfprotov6.ProviderServer, err
 	}
 }
 
-func initializeGitRepository(t *testing.T) (string, *git.Repository) {
-	directory := temporaryDirectory(t)
-	repository := gitInit(t, directory, false)
+func testRepository(t *testing.T) (string, *git.Repository) {
+	directory := testTemporaryDirectory(t)
+	repository := testGitInit(t, directory, false)
 	return directory, repository
 }
 
-func gitInit(t *testing.T, directory string, bare bool) *git.Repository {
+func testGitInit(t *testing.T, directory string, bare bool) *git.Repository {
 	repository, err := git.PlainInit(directory, bare)
 	if err != nil {
 		t.Fatal(err)
@@ -41,7 +42,7 @@ func gitInit(t *testing.T, directory string, bare bool) *git.Repository {
 	return repository
 }
 
-func temporaryDirectory(t *testing.T) string {
+func testTemporaryDirectory(t *testing.T) string {
 	directory, err := ioutil.TempDir("", "terraform-provider-git")
 	if err != nil {
 		t.Fatal(err)
@@ -49,14 +50,14 @@ func temporaryDirectory(t *testing.T) string {
 	return filepath.ToSlash(directory)
 }
 
-func createBranch(t *testing.T, repository *git.Repository, branch *config.Branch) {
+func testCreateBranch(t *testing.T, repository *git.Repository, branch *config.Branch) {
 	err := repository.CreateBranch(branch)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func createWorktree(t *testing.T, repository *git.Repository) *git.Worktree {
+func testWorktree(t *testing.T, repository *git.Repository) *git.Worktree {
 	worktree, err := repository.Worktree()
 	if err != nil {
 		t.Fatal(err)
@@ -64,45 +65,51 @@ func createWorktree(t *testing.T, repository *git.Repository) *git.Worktree {
 	return worktree
 }
 
-func addFile(t *testing.T, worktree *git.Worktree, name string) {
+func testWriteFile(t *testing.T, worktree *git.Worktree, name string) {
 	filename := filepath.Join(worktree.Filesystem.Root(), name)
 	err := ioutil.WriteFile(filename, []byte("hello world!"), 0644)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = worktree.Add(name)
+}
+
+func testGitAdd(t *testing.T, worktree *git.Worktree, name string) {
+	_, err := worktree.Add(name)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func commitStaged(t *testing.T, worktree *git.Worktree) {
-	_, err := worktree.Commit("example go-git commit", &git.CommitOptions{
-		Author: signature(),
+func testGitCommit(t *testing.T, worktree *git.Worktree) plumbing.Hash {
+	commit, err := worktree.Commit("example go-git commit", &git.CommitOptions{
+		Author:    testSignature(),
+		Committer: testSignature(),
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
+	return commit
 }
 
-func addAndCommitNewFile(t *testing.T, worktree *git.Worktree, name string) {
-	addFile(t, worktree, name)
-	commitStaged(t, worktree)
+func testAddAndCommitNewFile(t *testing.T, worktree *git.Worktree, name string) {
+	testWriteFile(t, worktree, name)
+	testGitAdd(t, worktree, name)
+	testGitCommit(t, worktree)
 }
 
-func initTestConfig(t *testing.T, repository *git.Repository) *config.Config {
-	cfg := readConfig(t, repository)
+func testConfig(t *testing.T, repository *git.Repository) *config.Config {
+	cfg := testReadConfig(t, repository)
 	cfg.User.Name = "user name"
 	cfg.User.Email = "user@example.com"
 	cfg.Author.Name = "author name"
 	cfg.Author.Email = "author@example.com"
 	cfg.Committer.Name = "committer name"
 	cfg.Committer.Email = "committer@example.com"
-	writeConfig(t, repository, cfg)
+	testWriteConfig(t, repository, cfg)
 	return cfg
 }
 
-func readConfig(t *testing.T, repository *git.Repository) *config.Config {
+func testReadConfig(t *testing.T, repository *git.Repository) *config.Config {
 	cfg, err := repository.Config()
 	if err != nil {
 		t.Fatal(err)
@@ -110,14 +117,14 @@ func readConfig(t *testing.T, repository *git.Repository) *config.Config {
 	return cfg
 }
 
-func writeConfig(t *testing.T, repository *git.Repository, cfg *config.Config) {
+func testWriteConfig(t *testing.T, repository *git.Repository, cfg *config.Config) {
 	err := repository.SetConfig(cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func createRemote(t *testing.T, repository *git.Repository, remote string) {
+func testCreateRemote(t *testing.T, repository *git.Repository, remote string) {
 	_, err := repository.CreateRemote(&config.RemoteConfig{
 		Name: remote,
 		URLs: []string{"https://example.com/metio/terraform-provider-git.git"},
@@ -127,21 +134,26 @@ func createRemote(t *testing.T, repository *git.Repository, remote string) {
 	}
 }
 
-func createTag(t *testing.T, repository *git.Repository, tag string) {
-	head, err := repository.Head()
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = repository.CreateTag(tag, head.Hash(), &git.CreateTagOptions{
+func testCreateTag(t *testing.T, repository *git.Repository, tag string) {
+	head := testReadHead(t, repository)
+	_, err := repository.CreateTag(tag, head.Hash(), &git.CreateTagOptions{
 		Message: tag,
-		Tagger:  signature(),
+		Tagger:  testSignature(),
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func signature() *object.Signature {
+func testReadHead(t *testing.T, repository *git.Repository) *plumbing.Reference {
+	head, err := repository.Head()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return head
+}
+
+func testSignature() *object.Signature {
 	return &object.Signature{
 		Name:  "Some Person",
 		Email: "person@example.com",
@@ -149,10 +161,20 @@ func signature() *object.Signature {
 	}
 }
 
-func testCheckLen(expectedLength int) func(input string) error {
+func testCheckExactLength(expectedLength int) func(input string) error {
 	return func(input string) error {
 		if len(input) != expectedLength {
 			return fmt.Errorf("expected length %d, actual length %d", expectedLength, len(input))
+		}
+
+		return nil
+	}
+}
+
+func testCheckMinLength(minimumLength int) func(input string) error {
+	return func(input string) error {
+		if len(input) < minimumLength {
+			return fmt.Errorf("minimum length %d, actual length %d", minimumLength, len(input))
 		}
 
 		return nil

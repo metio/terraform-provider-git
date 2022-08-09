@@ -17,10 +17,10 @@ import (
 
 func TestDataSourceGitRemote(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
 	remote := "example"
-	createRemote(t, repository, remote)
+	testCreateRemote(t, repository, remote)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
@@ -63,7 +63,7 @@ func TestDataSourceGitRemote_InvalidRepository(t *testing.T) {
 
 func TestDataSourceGitRemote_InvalidRemote(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
@@ -84,7 +84,7 @@ func TestDataSourceGitRemote_InvalidRemote(t *testing.T) {
 
 func TestDataSourceGitRemote_MissingRemote(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{

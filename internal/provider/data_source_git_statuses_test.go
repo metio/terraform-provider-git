@@ -16,10 +16,12 @@ import (
 
 func TestDataSourceGitStatuses_Unclean(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := createWorktree(t, repository)
-	addFile(t, worktree, "some-file")
+	worktree := testWorktree(t, repository)
+	fileName := "some-file"
+	testWriteFile(t, worktree, fileName)
+	testGitAdd(t, worktree, fileName)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
@@ -43,11 +45,13 @@ func TestDataSourceGitStatuses_Unclean(t *testing.T) {
 
 func TestDataSourceGitStatuses_Clean(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := createWorktree(t, repository)
-	addFile(t, worktree, "some-file")
-	commitStaged(t, worktree)
+	worktree := testWorktree(t, repository)
+	fileName := "some-file"
+	testWriteFile(t, worktree, fileName)
+	testGitAdd(t, worktree, fileName)
+	testGitCommit(t, worktree)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
@@ -71,8 +75,8 @@ func TestDataSourceGitStatuses_Clean(t *testing.T) {
 
 func TestDataSourceGitStatuses_BareRepository(t *testing.T) {
 	t.Parallel()
-	directory := temporaryDirectory(t)
-	gitInit(t, directory, true)
+	directory := testTemporaryDirectory(t)
+	testGitInit(t, directory, true)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{

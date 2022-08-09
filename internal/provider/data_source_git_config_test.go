@@ -17,9 +17,9 @@ import (
 
 func TestDataSourceGitConfig(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	cfg := initTestConfig(t, repository)
+	cfg := testConfig(t, repository)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
@@ -65,7 +65,7 @@ func TestDataSourceGitConfig_InvalidRepository(t *testing.T) {
 
 func TestDataSourceGitConfig_InvalidScope(t *testing.T) {
 	t.Parallel()
-	directory, _ := initializeGitRepository(t)
+	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
@@ -86,9 +86,9 @@ func TestDataSourceGitConfig_InvalidScope(t *testing.T) {
 
 func TestDataSourceGitConfig_ScopeLocal(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	cfg := initTestConfig(t, repository)
+	cfg := testConfig(t, repository)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
@@ -118,9 +118,9 @@ func TestDataSourceGitConfig_ScopeLocal(t *testing.T) {
 
 func TestDataSourceGitConfig_ScopeGlobal(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	cfg := initTestConfig(t, repository)
+	cfg := testConfig(t, repository)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
@@ -150,9 +150,9 @@ func TestDataSourceGitConfig_ScopeGlobal(t *testing.T) {
 
 func TestDataSourceGitConfig_ScopeSystem(t *testing.T) {
 	t.Parallel()
-	directory, repository := initializeGitRepository(t)
+	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	cfg := initTestConfig(t, repository)
+	cfg := testConfig(t, repository)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: protoV6ProviderFactories(),
