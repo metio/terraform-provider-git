@@ -16,13 +16,10 @@ import (
 )
 
 func updatedUsingPlan(ctx context.Context, req *tfsdk.UpdateResourceRequest, res *tfsdk.UpdateResourceResponse, model interface{}) {
-	// Read the plan
 	res.Diagnostics.Append(req.Plan.Get(ctx, model)...)
 	if res.Diagnostics.HasError() {
 		return
 	}
-
-	// Set it as the new state
 	res.Diagnostics.Append(res.State.Set(ctx, model)...)
 }
 
