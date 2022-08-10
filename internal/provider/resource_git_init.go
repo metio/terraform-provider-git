@@ -134,18 +134,11 @@ func (r *resourceGitInit) Read(ctx context.Context, req tfsdk.ReadResourceReques
 	var newState resourceGitInitSchema
 	newState.Directory = state.Directory
 
-	_, err := repository.Worktree()
-	if err == git.ErrIsBareRepository {
-		newState.Bare = types.Bool{Value: true}
-	} else if err == nil {
-		newState.Bare = types.Bool{Value: false}
-	} else {
-		resp.Diagnostics.AddError(
-			"Cannot read worktree",
-			"Could not read worktree because of: "+err.Error(),
-		)
+	worktree, err := getWorktree(repository, &resp.Diagnostics)
+	if err != nil {
 		return
 	}
+	newState.Bare = types.Bool{Value: worktree == nil}
 
 	diags = resp.State.Set(ctx, &newState)
 	resp.Diagnostics.Append(diags...)
@@ -209,18 +202,11 @@ func (r *resourceGitInit) ImportState(ctx context.Context, req tfsdk.ImportResou
 	var state resourceGitInitSchema
 	state.Directory = types.String{Value: req.ID}
 	state.Id = types.String{Value: req.ID}
-	_, err := repository.Worktree()
-	if err == git.ErrIsBareRepository {
-		state.Bare = types.Bool{Value: true}
-	} else if err != nil {
-		resp.Diagnostics.AddError(
-			"Cannot read worktree",
-			"Could not read worktree because of: "+err.Error(),
-		)
+	worktree, err := getWorktree(repository, &resp.Diagnostics)
+	if err != nil {
 		return
-	} else {
-		state.Bare = types.Bool{Value: false}
 	}
+	state.Bare = types.Bool{Value: worktree == nil}
 
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

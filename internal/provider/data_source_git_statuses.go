@@ -9,7 +9,6 @@ package provider
 
 import (
 	"context"
-	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -105,8 +104,10 @@ func (r *dataSourceGitStatuses) Read(ctx context.Context, req tfsdk.ReadDataSour
 		"worktree": types.StringType,
 	}
 
-	worktree, err := repository.Worktree()
-	if err == git.ErrIsBareRepository {
+	worktree, err := getWorktree(repository, &resp.Diagnostics)
+	if err != nil {
+		return
+	} else if worktree == nil {
 		tflog.Trace(ctx, "read worktree of bare repository", map[string]interface{}{
 			"directory": directory,
 		})
@@ -117,12 +118,6 @@ func (r *dataSourceGitStatuses) Read(ctx context.Context, req tfsdk.ReadDataSour
 			},
 			Elems: map[string]attr.Value{},
 		}
-	} else if err != nil {
-		resp.Diagnostics.AddError(
-			"Cannot read worktree",
-			"Could not read worktree because of: "+err.Error(),
-		)
-		return
 	} else {
 		tflog.Trace(ctx, "read worktree", map[string]interface{}{
 			"directory": directory,
