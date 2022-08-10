@@ -12,6 +12,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -25,9 +26,9 @@ type dataSourceGitBranches struct {
 }
 
 type dataSourceGitBranchesSchema struct {
-	Directory types.String         `tfsdk:"directory"`
-	Id        types.String         `tfsdk:"id"`
-	Branches  map[string]GitBranch `tfsdk:"branches"`
+	Directory types.String `tfsdk:"directory"`
+	Id        types.String `tfsdk:"id"`
+	Branches  types.Map    `tfsdk:"branches"`
 }
 
 func (r *dataSourceGitBranchesType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
@@ -110,20 +111,34 @@ func (r *dataSourceGitBranches) Read(ctx context.Context, req tfsdk.ReadDataSour
 		"directory": directory,
 	})
 
-	allBranches := make(map[string]GitBranch)
+	branchType := map[string]attr.Type{
+		"sha1":   types.StringType,
+		"remote": types.StringType,
+		"rebase": types.StringType,
+	}
+
+	allBranches := make(map[string]attr.Value)
 	if err := branches.ForEach(func(reference *plumbing.Reference) error {
 		branch, err := repository.Branch(reference.Name().Short())
 
 		if branch != nil {
-			allBranches[reference.Name().Short()] = GitBranch{
-				SHA1:   types.String{Value: reference.Hash().String()},
-				Remote: types.String{Value: branch.Remote},
-				Rebase: types.String{Value: branch.Rebase},
+			allBranches[reference.Name().Short()] = types.Object{
+				AttrTypes: branchType,
+				Attrs: map[string]attr.Value{
+					"sha1":   types.String{Value: reference.Hash().String()},
+					"remote": types.String{Value: branch.Remote},
+					"rebase": types.String{Value: branch.Rebase},
+				},
 			}
 		}
 		if err == git.ErrBranchNotFound {
-			allBranches[reference.Name().Short()] = GitBranch{
-				SHA1: types.String{Value: reference.Hash().String()},
+			allBranches[reference.Name().Short()] = types.Object{
+				AttrTypes: branchType,
+				Attrs: map[string]attr.Value{
+					"sha1":   types.String{Value: reference.Hash().String()},
+					"remote": types.String{Null: true},
+					"rebase": types.String{Null: true},
+				},
 			}
 			return nil
 		} else {
@@ -139,7 +154,12 @@ func (r *dataSourceGitBranches) Read(ctx context.Context, req tfsdk.ReadDataSour
 
 	state.Directory = types.String{Value: directory}
 	state.Id = types.String{Value: directory}
-	state.Branches = allBranches
+	state.Branches = types.Map{
+		ElemType: types.ObjectType{
+			AttrTypes: branchType,
+		},
+		Elems: allBranches,
+	}
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
