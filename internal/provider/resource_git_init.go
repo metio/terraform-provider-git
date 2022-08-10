@@ -85,6 +85,11 @@ func (r *resourceGitInit) Create(ctx context.Context, req tfsdk.CreateResourceRe
 		return
 	}
 
+	// NOTE: It seems default values are not working?
+	if inputs.Bare.IsNull() {
+		inputs.Bare = types.Bool{Value: false}
+	}
+
 	directory := inputs.Directory.Value
 	bare := inputs.Bare.Value
 
@@ -102,9 +107,9 @@ func (r *resourceGitInit) Create(ctx context.Context, req tfsdk.CreateResourceRe
 		"bare":      bare,
 	})
 
-	state.Directory = types.String{Value: directory}
-	state.Id = types.String{Value: directory}
-	state.Bare = types.Bool{Value: bare}
+	state.Directory = inputs.Directory
+	state.Id = inputs.Directory
+	state.Bare = inputs.Bare
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

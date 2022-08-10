@@ -96,8 +96,8 @@ func (r *dataSourceGitStatuses) Read(ctx context.Context, req tfsdk.ReadDataSour
 		return
 	}
 
-	state.Directory = types.String{Value: directory}
-	state.Id = types.String{Value: directory}
+	state.Directory = inputs.Directory
+	state.Id = inputs.Directory
 
 	statusType := map[string]attr.Type{
 		"staging":  types.StringType,

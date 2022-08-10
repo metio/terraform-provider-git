@@ -115,8 +115,8 @@ func (r *dataSourceGitRemotes) Read(ctx context.Context, req tfsdk.ReadDataSourc
 		}
 	}
 
-	state.Directory = types.String{Value: directory}
-	state.Id = types.String{Value: directory}
+	state.Directory = inputs.Directory
+	state.Id = inputs.Directory
 	state.Remotes = types.Map{
 		ElemType: types.ObjectType{
 			AttrTypes: remoteType,

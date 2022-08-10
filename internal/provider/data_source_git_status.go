@@ -96,9 +96,9 @@ func (r *dataSourceGitStatus) Read(ctx context.Context, req tfsdk.ReadDataSource
 		return
 	}
 
-	state.Directory = types.String{Value: directory}
-	state.Id = types.String{Value: fileName}
-	state.File = types.String{Value: fileName}
+	state.Directory = inputs.Directory
+	state.Id = inputs.File
+	state.File = inputs.File
 
 	worktree, err := repository.Worktree()
 	if err == git.ErrIsBareRepository {

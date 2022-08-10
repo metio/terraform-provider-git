@@ -147,9 +147,9 @@ func (r *dataSourceGitConfig) Read(ctx context.Context, req tfsdk.ReadDataSource
 		"scope":     scope,
 	})
 
-	state.Directory = types.String{Value: directory}
-	state.Id = types.String{Value: directory}
-	state.Scope = types.String{Value: scope}
+	state.Directory = inputs.Directory
+	state.Id = inputs.Directory
+	state.Scope = inputs.Scope
 	state.UserName = types.String{Value: cfg.User.Name}
 	state.UserEmail = types.String{Value: cfg.User.Email}
 	state.AuthorName = types.String{Value: cfg.Author.Name}

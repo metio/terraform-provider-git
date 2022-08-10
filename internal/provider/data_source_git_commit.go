@@ -146,9 +146,9 @@ func (r *dataSourceGitCommit) Read(ctx context.Context, req tfsdk.ReadDataSource
 		return
 	}
 
-	state.Directory = types.String{Value: directory}
-	state.Id = types.String{Value: sha1}
-	state.SHA1 = types.String{Value: sha1}
+	state.Directory = inputs.Directory
+	state.Id = inputs.SHA1
+	state.SHA1 = inputs.SHA1
 
 	commit, err := repository.CommitObject(plumbing.NewHash(sha1))
 	if err != nil {
