@@ -124,7 +124,7 @@ func (r *resourceGitTag) Create(ctx context.Context, req tfsdk.CreateResourceReq
 		"reference": reference.Hash(),
 	})
 
-	_, err = repository.CreateTag(tagName, reference.Hash(), createOptions(inputs))
+	_, err = repository.CreateTag(tagName, reference.Hash(), createTagOptions(inputs))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Cannot create tag",

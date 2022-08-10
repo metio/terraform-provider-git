@@ -133,7 +133,7 @@ func (r *dataSourceGitConfig) Read(ctx context.Context, req tfsdk.ReadDataSource
 		return
 	}
 
-	cfg, err := repository.ConfigScoped(mapScope(scope))
+	cfg, err := repository.ConfigScoped(mapConfigScope(scope))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error reading config",

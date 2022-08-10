@@ -9,7 +9,7 @@ package provider
 
 import "github.com/go-git/go-git/v5/config"
 
-func mapScope(userInput string) config.Scope {
+func mapConfigScope(userInput string) config.Scope {
 	switch userInput {
 	case "local":
 		return config.LocalScope

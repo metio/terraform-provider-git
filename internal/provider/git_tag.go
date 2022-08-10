@@ -27,7 +27,7 @@ func createTagReference(repository *git.Repository, inputs resourceGitTagSchema)
 	return plumbing.NewHashReference("tag", plumbing.NewHash(inputs.SHA1.Value)), nil
 }
 
-func createOptions(inputs resourceGitTagSchema) *git.CreateTagOptions {
+func createTagOptions(inputs resourceGitTagSchema) *git.CreateTagOptions {
 	if inputs.Message.IsNull() || inputs.Message.IsUnknown() {
 		return nil
 	}
