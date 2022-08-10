@@ -9,7 +9,6 @@ package provider
 
 import (
 	"context"
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -111,20 +110,24 @@ func (r *dataSourceGitTag) Read(ctx context.Context, req tfsdk.ReadDataSourceReq
 		return
 	}
 
+	tagObject, err := getTagObject(ctx, repository, tagReference.Hash(), &resp.Diagnostics)
+	if err != nil {
+		return
+	}
+
 	var state dataSourceGitTagSchema
 	state.Directory = inputs.Directory
 	state.Id = inputs.Name
 	state.Name = inputs.Name
 	state.SHA1 = types.String{Value: tagReference.Hash().String()}
-	tag, err := repository.TagObject(tagReference.Hash())
-	if err == plumbing.ErrObjectNotFound {
+	if tagObject == nil {
 		state.Annotated = types.Bool{Value: false}
 		state.Lightweight = types.Bool{Value: true}
 		state.Message = types.String{Null: true}
 	} else {
 		state.Annotated = types.Bool{Value: true}
 		state.Lightweight = types.Bool{Value: false}
-		state.Message = types.String{Value: tag.Message}
+		state.Message = types.String{Value: tagObject.Message}
 	}
 
 	diags = resp.State.Set(ctx, &state)

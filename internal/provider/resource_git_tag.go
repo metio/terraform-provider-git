@@ -10,7 +10,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -177,16 +176,20 @@ func (r *resourceGitTag) Read(ctx context.Context, req tfsdk.ReadResourceRequest
 		return
 	}
 
+	tagObject, err := getTagObject(ctx, repository, tagReference.Hash(), &resp.Diagnostics)
+	if err != nil {
+		return
+	}
+
 	var newState resourceGitTagSchema
 	newState.Directory = state.Directory
 	newState.Id = state.Name
 	newState.Name = state.Name
 	newState.SHA1 = types.String{Value: tagReference.Hash().String()}
-	tag, err := repository.TagObject(tagReference.Hash())
-	if err == plumbing.ErrObjectNotFound {
+	if tagObject == nil {
 		newState.Message = types.String{Null: true}
 	} else {
-		newState.Message = types.String{Value: strings.TrimSpace(tag.Message)}
+		newState.Message = types.String{Value: strings.TrimSpace(tagObject.Message)}
 	}
 
 	diags = resp.State.Set(ctx, &newState)
@@ -250,16 +253,20 @@ func (r *resourceGitTag) ImportState(ctx context.Context, req tfsdk.ImportResour
 		return
 	}
 
+	tagObject, err := getTagObject(ctx, repository, tagReference.Hash(), &resp.Diagnostics)
+	if err != nil {
+		return
+	}
+
 	var state resourceGitTagSchema
 	state.Directory = types.String{Value: directory}
 	state.Id = types.String{Value: tagName}
 	state.Name = types.String{Value: tagName}
 	state.SHA1 = types.String{Value: tagReference.Hash().String()}
-	tag, err := repository.TagObject(tagReference.Hash())
-	if err == plumbing.ErrObjectNotFound {
+	if tagObject == nil {
 		state.Message = types.String{Null: true}
 	} else {
-		state.Message = types.String{Value: strings.TrimSpace(tag.Message)}
+		state.Message = types.String{Value: strings.TrimSpace(tagObject.Message)}
 	}
 
 	diags := resp.State.Set(ctx, &state)

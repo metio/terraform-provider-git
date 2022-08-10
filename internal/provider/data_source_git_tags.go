@@ -146,36 +146,33 @@ func (r *dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceRe
 
 	allTags := make(map[string]attr.Value)
 	if err := tags.ForEach(func(ref *plumbing.Reference) error {
-		_, err := repository.TagObject(ref.Hash())
-
-		switch err {
-		case nil:
-			if inputs.Annotated.Value {
-				allTags[ref.Name().Short()] = types.Object{
-					AttrTypes: tagType,
-					Attrs: map[string]attr.Value{
-						"annotated":   types.Bool{Value: true},
-						"lightweight": types.Bool{Value: false},
-						"sha1":        types.String{Value: ref.Hash().String()},
-					},
-				}
-			}
-			return nil
-		case plumbing.ErrObjectNotFound:
-			if inputs.Lightweight.Value {
-				allTags[ref.Name().Short()] = types.Object{
-					AttrTypes: tagType,
-					Attrs: map[string]attr.Value{
-						"annotated":   types.Bool{Value: false},
-						"lightweight": types.Bool{Value: true},
-						"sha1":        types.String{Value: ref.Hash().String()},
-					},
-				}
-			}
-			return nil
-		default:
+		tagObject, err := getTagObject(ctx, repository, ref.Hash(), &resp.Diagnostics)
+		if err != nil {
 			return err
 		}
+
+		if inputs.Annotated.Value && tagObject != nil {
+			allTags[ref.Name().Short()] = types.Object{
+				AttrTypes: tagType,
+				Attrs: map[string]attr.Value{
+					"annotated":   types.Bool{Value: true},
+					"lightweight": types.Bool{Value: false},
+					"sha1":        types.String{Value: ref.Hash().String()},
+				},
+			}
+		}
+		if inputs.Lightweight.Value && tagObject == nil {
+			allTags[ref.Name().Short()] = types.Object{
+				AttrTypes: tagType,
+				Attrs: map[string]attr.Value{
+					"annotated":   types.Bool{Value: false},
+					"lightweight": types.Bool{Value: true},
+					"sha1":        types.String{Value: ref.Hash().String()},
+				},
+			}
+		}
+
+		return nil
 	}); err != nil {
 		resp.Diagnostics.AddError(
 			"Error reading tags",
