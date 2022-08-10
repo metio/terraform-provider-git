@@ -113,8 +113,45 @@ func (r *resourceGitInit) Create(ctx context.Context, req tfsdk.CreateResourceRe
 	}
 }
 
-func (r *resourceGitInit) Read(ctx context.Context, _ tfsdk.ReadResourceRequest, _ *tfsdk.ReadResourceResponse) {
+func (r *resourceGitInit) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
 	tflog.Debug(ctx, "Reading Git repository")
+
+	var state resourceGitInitSchema
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	directory := state.Directory.Value
+
+	repository := openRepository(ctx, directory, &resp.Diagnostics)
+	if repository == nil {
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
+	var newState resourceGitInitSchema
+	newState.Directory = state.Directory
+
+	_, err := repository.Worktree()
+	if err == git.ErrIsBareRepository {
+		newState.Bare = types.Bool{Value: true}
+	} else if err == nil {
+		newState.Bare = types.Bool{Value: false}
+	} else {
+		resp.Diagnostics.AddError(
+			"Cannot read worktree",
+			"Could not read worktree because of: "+err.Error(),
+		)
+		return
+	}
+
+	diags = resp.State.Set(ctx, &newState)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
 func (r *resourceGitInit) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
