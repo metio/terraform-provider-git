@@ -11,6 +11,7 @@ import (
 	"context"
 	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -24,10 +25,10 @@ type dataSourceGitStatuses struct {
 }
 
 type dataSourceGitStatusesSchema struct {
-	Directory types.String         `tfsdk:"directory"`
-	Id        types.String         `tfsdk:"id"`
-	IsClean   types.Bool           `tfsdk:"is_clean"`
-	Files     map[string]GitStatus `tfsdk:"files"`
+	Directory types.String `tfsdk:"directory"`
+	Id        types.String `tfsdk:"id"`
+	IsClean   types.Bool   `tfsdk:"is_clean"`
+	Files     types.Map    `tfsdk:"files"`
 }
 
 func (r *dataSourceGitStatusesType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
@@ -99,12 +100,23 @@ func (r *dataSourceGitStatuses) Read(ctx context.Context, req tfsdk.ReadDataSour
 	state.Directory = types.String{Value: directory}
 	state.Id = types.String{Value: directory}
 
+	statusType := map[string]attr.Type{
+		"staging":  types.StringType,
+		"worktree": types.StringType,
+	}
+
 	worktree, err := repository.Worktree()
 	if err == git.ErrIsBareRepository {
 		tflog.Trace(ctx, "read worktree of bare repository", map[string]interface{}{
 			"directory": directory,
 		})
 		state.IsClean = types.Bool{Value: true}
+		state.Files = types.Map{
+			ElemType: types.ObjectType{
+				AttrTypes: statusType,
+			},
+			Elems: map[string]attr.Value{},
+		}
 	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Cannot read worktree",
@@ -130,14 +142,22 @@ func (r *dataSourceGitStatuses) Read(ctx context.Context, req tfsdk.ReadDataSour
 		})
 		state.IsClean = types.Bool{Value: status.IsClean()}
 
-		allFiles := make(map[string]GitStatus)
+		allFiles := make(map[string]attr.Value)
 		for key, val := range status {
-			allFiles[key] = GitStatus{
-				Staging:  types.String{Value: string(val.Staging)},
-				Worktree: types.String{Value: string(val.Worktree)},
+			allFiles[key] = types.Object{
+				AttrTypes: statusType,
+				Attrs: map[string]attr.Value{
+					"staging":  types.String{Value: string(val.Staging)},
+					"worktree": types.String{Value: string(val.Worktree)},
+				},
 			}
 		}
-		state.Files = allFiles
+		state.Files = types.Map{
+			ElemType: types.ObjectType{
+				AttrTypes: statusType,
+			},
+			Elems: allFiles,
+		}
 	}
 
 	diags = resp.State.Set(ctx, &state)

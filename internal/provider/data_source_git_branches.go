@@ -152,8 +152,8 @@ func (r *dataSourceGitBranches) Read(ctx context.Context, req tfsdk.ReadDataSour
 		return
 	}
 
-	state.Directory = types.String{Value: directory}
-	state.Id = types.String{Value: directory}
+	state.Directory = inputs.Directory
+	state.Id = inputs.Directory
 	state.Branches = types.Map{
 		ElemType: types.ObjectType{
 			AttrTypes: branchType,

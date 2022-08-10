@@ -11,6 +11,7 @@ import (
 	"context"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -25,11 +26,11 @@ type dataSourceGitTags struct {
 }
 
 type dataSourceGitTagsSchema struct {
-	Directory   types.String      `tfsdk:"directory"`
-	Id          types.String      `tfsdk:"id"`
-	Lightweight types.Bool        `tfsdk:"lightweight"`
-	Annotated   types.Bool        `tfsdk:"annotated"`
-	Tags        map[string]GitTag `tfsdk:"tags"`
+	Directory   types.String `tfsdk:"directory"`
+	Id          types.String `tfsdk:"id"`
+	Lightweight types.Bool   `tfsdk:"lightweight"`
+	Annotated   types.Bool   `tfsdk:"annotated"`
+	Tags        types.Map    `tfsdk:"tags"`
 }
 
 func (r *dataSourceGitTagsType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
@@ -137,26 +138,38 @@ func (r *dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceRe
 		inputs.Lightweight = types.Bool{Value: true}
 	}
 
-	allTags := make(map[string]GitTag)
+	tagType := map[string]attr.Type{
+		"annotated":   types.BoolType,
+		"lightweight": types.BoolType,
+		"sha1":        types.StringType,
+	}
+
+	allTags := make(map[string]attr.Value)
 	if err := tags.ForEach(func(ref *plumbing.Reference) error {
 		_, err := repository.TagObject(ref.Hash())
 
 		switch err {
 		case nil:
 			if inputs.Annotated.Value {
-				allTags[ref.Name().Short()] = GitTag{
-					Lightweight: types.Bool{Value: false},
-					Annotated:   types.Bool{Value: true},
-					SHA1:        types.String{Value: ref.Hash().String()},
+				allTags[ref.Name().Short()] = types.Object{
+					AttrTypes: tagType,
+					Attrs: map[string]attr.Value{
+						"annotated":   types.Bool{Value: true},
+						"lightweight": types.Bool{Value: false},
+						"sha1":        types.String{Value: ref.Hash().String()},
+					},
 				}
 			}
 			return nil
 		case plumbing.ErrObjectNotFound:
 			if inputs.Lightweight.Value {
-				allTags[ref.Name().Short()] = GitTag{
-					Lightweight: types.Bool{Value: true},
-					Annotated:   types.Bool{Value: false},
-					SHA1:        types.String{Value: ref.Hash().String()},
+				allTags[ref.Name().Short()] = types.Object{
+					AttrTypes: tagType,
+					Attrs: map[string]attr.Value{
+						"annotated":   types.Bool{Value: false},
+						"lightweight": types.Bool{Value: true},
+						"sha1":        types.String{Value: ref.Hash().String()},
+					},
 				}
 			}
 			return nil
@@ -171,11 +184,16 @@ func (r *dataSourceGitTags) Read(ctx context.Context, req tfsdk.ReadDataSourceRe
 		return
 	}
 
-	state.Directory = types.String{Value: directory}
-	state.Id = types.String{Value: directory}
-	state.Annotated = types.Bool{Value: inputs.Annotated.Value}
-	state.Lightweight = types.Bool{Value: inputs.Lightweight.Value}
-	state.Tags = allTags
+	state.Directory = inputs.Directory
+	state.Id = inputs.Directory
+	state.Annotated = inputs.Annotated
+	state.Lightweight = inputs.Lightweight
+	state.Tags = types.Map{
+		ElemType: types.ObjectType{
+			AttrTypes: tagType,
+		},
+		Elems: allTags,
+	}
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

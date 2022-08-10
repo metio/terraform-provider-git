@@ -10,6 +10,7 @@ package provider
 import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -23,9 +24,9 @@ type dataSourceGitRemotes struct {
 }
 
 type dataSourceGitRemotesSchema struct {
-	Directory types.String         `tfsdk:"directory"`
-	Id        types.String         `tfsdk:"id"`
-	Remotes   map[string]GitRemote `tfsdk:"remotes"`
+	Directory types.String `tfsdk:"directory"`
+	Id        types.String `tfsdk:"id"`
+	Remotes   types.Map    `tfsdk:"remotes"`
 }
 
 func (r *dataSourceGitRemotesType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
@@ -100,16 +101,28 @@ func (r *dataSourceGitRemotes) Read(ctx context.Context, req tfsdk.ReadDataSourc
 		"directory": directory,
 	})
 
-	allRemotes := make(map[string]GitRemote)
+	remoteType := map[string]attr.Type{
+		"urls": types.ListType{ElemType: types.StringType},
+	}
+
+	allRemotes := make(map[string]attr.Value)
 	for _, remote := range remotes {
-		allRemotes[remote.Config().Name] = GitRemote{
-			URLs: stringsToList(remote.Config().URLs),
+		allRemotes[remote.Config().Name] = types.Object{
+			AttrTypes: remoteType,
+			Attrs: map[string]attr.Value{
+				"urls": stringsToList(remote.Config().URLs),
+			},
 		}
 	}
 
 	state.Directory = types.String{Value: directory}
 	state.Id = types.String{Value: directory}
-	state.Remotes = allRemotes
+	state.Remotes = types.Map{
+		ElemType: types.ObjectType{
+			AttrTypes: remoteType,
+		},
+		Elems: allRemotes,
+	}
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

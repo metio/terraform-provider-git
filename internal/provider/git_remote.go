@@ -11,13 +11,8 @@ import (
 	"context"
 	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
-
-type GitRemote struct {
-	URLs types.List `tfsdk:"urls"`
-}
 
 func getRemote(ctx context.Context, repository *git.Repository, remoteName string, diag *diag.Diagnostics) *git.Remote {
 	remote, err := repository.Remote(remoteName)
