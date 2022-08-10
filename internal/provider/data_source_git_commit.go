@@ -162,8 +162,8 @@ func (r *dataSourceGitCommit) Read(ctx context.Context, req tfsdk.ReadDataSource
 	state.Message = types.String{Value: commit.Message}
 	state.Signature = types.String{Value: commit.PGPSignature}
 	state.TreeSHA1 = types.String{Value: commit.TreeHash.String()}
-	state.Author = signatureAsMap(&commit.Author)
-	state.Committer = signatureAsMap(&commit.Committer)
+	state.Author = signatureToObject(&commit.Author)
+	state.Committer = signatureToObject(&commit.Committer)
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

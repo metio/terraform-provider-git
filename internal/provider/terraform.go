@@ -9,6 +9,7 @@ package provider
 
 import (
 	"context"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -33,5 +34,21 @@ func stringsToList(strings []string) types.List {
 	return types.List{
 		Elems:    values,
 		ElemType: types.StringType,
+	}
+}
+
+func signatureToObject(signature *object.Signature) types.Object {
+	data := make(map[string]attr.Value)
+	data["name"] = types.String{Value: signature.Name}
+	data["email"] = types.String{Value: signature.Email}
+	data["timestamp"] = types.String{Value: signature.When.String()}
+
+	return types.Object{
+		AttrTypes: map[string]attr.Type{
+			"name":      types.StringType,
+			"email":     types.StringType,
+			"timestamp": types.StringType,
+		},
+		Attrs: data,
 	}
 }
