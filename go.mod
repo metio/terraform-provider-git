@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Sebastian Hoß <seb@hoß.de>
+// SPDX-License-Identifier: 0BSD
+
 module github.com/metio/terraform-provider-git
 
 go 1.19
