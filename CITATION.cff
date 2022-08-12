@@ -10,7 +10,7 @@ authors:
   given-names: Sebastian
   email: seb@hoß.de
 url: https://github.com/metio/terraform-provider-git
-license: BSD0
+license: 0BSD
 keywords:
   - go
   - make
