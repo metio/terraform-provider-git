@@ -1,6 +1,6 @@
 #
 # SPDX-FileCopyrightText: Sebastian Hoß <seb@hoß.de>
-# SPDX-License-Identifier: BSD0
+# SPDX-License-Identifier: 0BSD
 #
 
 # git_init resources can be imported by specifying the path to the Git repository.

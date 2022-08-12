@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Sebastian Hoß <seb@hoß.de>
+# SPDX-License-Identifier: 0BSD
+
 .PHONY: build
 build:
 	go build -o out/terraform-provider-git

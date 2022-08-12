@@ -3,7 +3,7 @@
 
 /*
  * SPDX-FileCopyrightText: Sebastian Hoß <seb@hoß.de>
- * SPDX-License-Identifier: BSD0
+ * SPDX-License-Identifier: 0BSD
  */
 
 package tools
