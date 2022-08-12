@@ -12,6 +12,8 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -44,7 +46,7 @@ func (c *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 					stringvalidator.LengthAtLeast(1),
 				},
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					tfsdk.RequiresReplace(),
+					resource.RequiresReplace(),
 				},
 			},
 			"id": {
@@ -60,7 +62,7 @@ func (c *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 					stringvalidator.LengthAtLeast(1),
 				},
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					tfsdk.RequiresReplace(),
+					resource.RequiresReplace(),
 				},
 			},
 			"sha1": {
@@ -69,7 +71,7 @@ func (c *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 				Optional:    true,
 				Computed:    true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					tfsdk.RequiresReplace(),
+					resource.RequiresReplace(),
 				},
 			},
 			"message": {
@@ -77,20 +79,20 @@ func (c *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 				Type:        types.StringType,
 				Optional:    true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					tfsdk.RequiresReplace(),
+					resource.RequiresReplace(),
 				},
 			},
 		},
 	}, nil
 }
 
-func (r *resourceGitTagType) NewResource(_ context.Context, p tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
+func (r *resourceGitTagType) NewResource(_ context.Context, p provider.Provider) (resource.Resource, diag.Diagnostics) {
 	return &resourceGitTag{
 		p: *(p.(*gitProvider)),
 	}, nil
 }
 
-func (r *resourceGitTag) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
+func (r *resourceGitTag) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "Creating Git tag")
 
 	var inputs resourceGitTagSchema
@@ -151,7 +153,7 @@ func (r *resourceGitTag) Create(ctx context.Context, req tfsdk.CreateResourceReq
 	}
 }
 
-func (r *resourceGitTag) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
+func (r *resourceGitTag) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	tflog.Debug(ctx, "Reading Git tag")
 
 	var state resourceGitTagSchema
@@ -199,12 +201,12 @@ func (r *resourceGitTag) Read(ctx context.Context, req tfsdk.ReadResourceRequest
 	}
 }
 
-func (r *resourceGitTag) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
+func (r *resourceGitTag) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	tflog.Debug(ctx, "Updating Git tag")
 	// NO-OP: all attributes require replace, thus Delete and Create methods will be called
 }
 
-func (r *resourceGitTag) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
+func (r *resourceGitTag) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	tflog.Debug(ctx, "Removing Git tag")
 
 	var state resourceGitTagSchema
@@ -228,7 +230,7 @@ func (r *resourceGitTag) Delete(ctx context.Context, req tfsdk.DeleteResourceReq
 	}
 }
 
-func (r *resourceGitTag) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
+func (r *resourceGitTag) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	id := req.ID
 	idParts := strings.Split(id, "|")
 

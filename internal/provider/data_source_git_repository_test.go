@@ -23,7 +23,7 @@ func TestDataSourceGitRepository(t *testing.T) {
 	testAddAndCommitNewFile(t, worktree, "some-file")
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -44,7 +44,7 @@ func TestDataSourceGitRepository(t *testing.T) {
 func TestDataSourceGitRepository_InvalidRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `
@@ -61,7 +61,7 @@ func TestDataSourceGitRepository_InvalidRepository(t *testing.T) {
 func TestDataSourceGitRepository_MissingRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `

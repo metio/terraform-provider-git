@@ -10,10 +10,11 @@ package provider
 import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 )
 
-func New() tfsdk.Provider {
+func New() provider.Provider {
 	return &gitProvider{}
 }
 
@@ -28,13 +29,13 @@ func (p *gitProvider) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnosti
 	}, nil
 }
 
-func (p *gitProvider) Configure(_ context.Context, _ tfsdk.ConfigureProviderRequest, _ *tfsdk.ConfigureProviderResponse) {
+func (p *gitProvider) Configure(_ context.Context, _ provider.ConfigureRequest, _ *provider.ConfigureResponse) {
 	p.configured = true
 }
 
 // GetResources - Defines gitProvider resources
-func (p *gitProvider) GetResources(_ context.Context) (map[string]tfsdk.ResourceType, diag.Diagnostics) {
-	return map[string]tfsdk.ResourceType{
+func (p *gitProvider) GetResources(_ context.Context) (map[string]provider.ResourceType, diag.Diagnostics) {
+	return map[string]provider.ResourceType{
 		"git_init":   &resourceGitInitType{},
 		"git_remote": &resourceGitRemoteType{},
 		"git_tag":    &resourceGitTagType{},
@@ -42,8 +43,8 @@ func (p *gitProvider) GetResources(_ context.Context) (map[string]tfsdk.Resource
 }
 
 // GetDataSources - Defines gitProvider data sources
-func (p *gitProvider) GetDataSources(_ context.Context) (map[string]tfsdk.DataSourceType, diag.Diagnostics) {
-	return map[string]tfsdk.DataSourceType{
+func (p *gitProvider) GetDataSources(_ context.Context) (map[string]provider.DataSourceType, diag.Diagnostics) {
+	return map[string]provider.DataSourceType{
 		"git_branch":     &dataSourceGitBranchType{},
 		"git_branches":   &dataSourceGitBranchesType{},
 		"git_commit":     &dataSourceGitCommitType{},

@@ -13,6 +13,8 @@ import (
 	"github.com/go-git/go-git/v5/config"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -44,7 +46,7 @@ func (c *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 					stringvalidator.LengthAtLeast(1),
 				},
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					tfsdk.RequiresReplace(),
+					resource.RequiresReplace(),
 				},
 			},
 			"id": {
@@ -60,7 +62,7 @@ func (c *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 					stringvalidator.LengthAtLeast(1),
 				},
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					tfsdk.RequiresReplace(),
+					resource.RequiresReplace(),
 				},
 			},
 			"urls": {
@@ -74,13 +76,13 @@ func (c *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 	}, nil
 }
 
-func (r *resourceGitRemoteType) NewResource(_ context.Context, p tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
+func (r *resourceGitRemoteType) NewResource(_ context.Context, p provider.Provider) (resource.Resource, diag.Diagnostics) {
 	return &resourceGitRemote{
 		p: *(p.(*gitProvider)),
 	}, nil
 }
 
-func (r *resourceGitRemote) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
+func (r *resourceGitRemote) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "Creating Git remote")
 
 	var inputs resourceGitRemoteSchema
@@ -139,7 +141,7 @@ func (r *resourceGitRemote) Create(ctx context.Context, req tfsdk.CreateResource
 	}
 }
 
-func (r *resourceGitRemote) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
+func (r *resourceGitRemote) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	tflog.Debug(ctx, "Reading Git remote")
 
 	var state resourceGitRemoteSchema
@@ -177,7 +179,7 @@ func (r *resourceGitRemote) Read(ctx context.Context, req tfsdk.ReadResourceRequ
 	}
 }
 
-func (r *resourceGitRemote) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
+func (r *resourceGitRemote) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	tflog.Debug(ctx, "Updating Git remote")
 
 	var inputs resourceGitRemoteSchema
@@ -248,7 +250,7 @@ func (r *resourceGitRemote) Update(ctx context.Context, req tfsdk.UpdateResource
 	}
 }
 
-func (r *resourceGitRemote) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
+func (r *resourceGitRemote) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	tflog.Debug(ctx, "Removing Git remote")
 
 	var state resourceGitRemoteSchema
@@ -277,7 +279,7 @@ func (r *resourceGitRemote) Delete(ctx context.Context, req tfsdk.DeleteResource
 	})
 }
 
-func (r *resourceGitRemote) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
+func (r *resourceGitRemote) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	id := req.ID
 	idParts := strings.Split(id, "|")
 

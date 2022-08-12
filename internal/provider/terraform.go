@@ -11,11 +11,11 @@ import (
 	"context"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func updatedUsingPlan(ctx context.Context, req *tfsdk.UpdateResourceRequest, res *tfsdk.UpdateResourceResponse, model interface{}) {
+func updatedUsingPlan(ctx context.Context, req *resource.UpdateRequest, res *resource.UpdateResponse, model interface{}) {
 	res.Diagnostics.Append(req.Plan.Get(ctx, model)...)
 	if res.Diagnostics.HasError() {
 		return

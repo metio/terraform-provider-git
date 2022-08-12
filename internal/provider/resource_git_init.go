@@ -14,6 +14,8 @@ import (
 	"github.com/go-git/go-git/v5/storage/filesystem"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -45,7 +47,7 @@ func (c *resourceGitInitType) GetSchema(_ context.Context) (tfsdk.Schema, diag.D
 					stringvalidator.LengthAtLeast(1),
 				},
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					tfsdk.RequiresReplace(),
+					resource.RequiresReplace(),
 				},
 			},
 			"id": {
@@ -60,20 +62,20 @@ func (c *resourceGitInitType) GetSchema(_ context.Context) (tfsdk.Schema, diag.D
 				Optional:    true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
 					modifiers.DefaultValue(types.Bool{Value: false}),
-					tfsdk.RequiresReplace(),
+					resource.RequiresReplace(),
 				},
 			},
 		},
 	}, nil
 }
 
-func (r *resourceGitInitType) NewResource(_ context.Context, p tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
+func (r *resourceGitInitType) NewResource(_ context.Context, p provider.Provider) (resource.Resource, diag.Diagnostics) {
 	return &resourceGitInit{
 		p: *(p.(*gitProvider)),
 	}, nil
 }
 
-func (r *resourceGitInit) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
+func (r *resourceGitInit) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "Creating Git repository")
 
 	var inputs resourceGitInitSchema
@@ -118,7 +120,7 @@ func (r *resourceGitInit) Create(ctx context.Context, req tfsdk.CreateResourceRe
 	}
 }
 
-func (r *resourceGitInit) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
+func (r *resourceGitInit) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	tflog.Debug(ctx, "Reading Git repository")
 
 	var state resourceGitInitSchema
@@ -152,12 +154,12 @@ func (r *resourceGitInit) Read(ctx context.Context, req tfsdk.ReadResourceReques
 	}
 }
 
-func (r *resourceGitInit) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
+func (r *resourceGitInit) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	tflog.Debug(ctx, "Updating Git repository")
 	updatedUsingPlan(ctx, &req, resp, &resourceGitInitSchema{})
 }
 
-func (r *resourceGitInit) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
+func (r *resourceGitInit) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	tflog.Debug(ctx, "Removing Git repository")
 
 	var state resourceGitInitSchema
@@ -190,7 +192,7 @@ func (r *resourceGitInit) Delete(ctx context.Context, req tfsdk.DeleteResourceRe
 	}
 }
 
-func (r *resourceGitInit) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
+func (r *resourceGitInit) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	if req.ID == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected import identifier",

@@ -20,7 +20,7 @@ func TestResourceGitInit(t *testing.T) {
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -44,7 +44,7 @@ func TestResourceGitInit_Bare(t *testing.T) {
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -69,7 +69,7 @@ func TestResourceGitInit_NonBare(t *testing.T) {
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -94,7 +94,7 @@ func TestResourceGitInit_Import(t *testing.T) {
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -124,7 +124,7 @@ func TestResourceGitInit_Delete(t *testing.T) {
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

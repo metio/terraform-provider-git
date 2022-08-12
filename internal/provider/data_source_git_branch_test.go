@@ -30,7 +30,7 @@ func TestDataSourceGitBranch(t *testing.T) {
 	})
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -54,7 +54,7 @@ func TestDataSourceGitBranch(t *testing.T) {
 func TestDataSourceGitBranch_InvalidRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `
@@ -75,7 +75,7 @@ func TestDataSourceGitBranch_InvalidBranch(t *testing.T) {
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -96,7 +96,7 @@ func TestDataSourceGitBranch_MissingBranch(t *testing.T) {
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -113,7 +113,7 @@ func TestDataSourceGitBranch_MissingBranch(t *testing.T) {
 func TestDataSourceGitBranch_MissingRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `

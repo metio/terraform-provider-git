@@ -24,7 +24,7 @@ func TestDataSourceGitStatuses_Unclean(t *testing.T) {
 	testGitAdd(t, worktree, fileName)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -54,7 +54,7 @@ func TestDataSourceGitStatuses_Clean(t *testing.T) {
 	testGitCommit(t, worktree)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -80,7 +80,7 @@ func TestDataSourceGitStatuses_BareRepository(t *testing.T) {
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

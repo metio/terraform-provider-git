@@ -13,7 +13,9 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -73,13 +75,13 @@ func (r *dataSourceGitBranchesType) GetSchema(_ context.Context) (tfsdk.Schema, 
 	}, nil
 }
 
-func (r *dataSourceGitBranchesType) NewDataSource(_ context.Context, p tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
+func (r *dataSourceGitBranchesType) NewDataSource(_ context.Context, p provider.Provider) (datasource.DataSource, diag.Diagnostics) {
 	return &dataSourceGitBranches{
 		p: *(p.(*gitProvider)),
 	}, nil
 }
 
-func (r *dataSourceGitBranches) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
+func (r *dataSourceGitBranches) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Reading Git repository branches")
 
 	var inputs dataSourceGitBranchesSchema
