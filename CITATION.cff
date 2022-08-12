@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+title: terraform-provider-git
+message: If you use this software, please cite it as below.
+type: software
+authors:
+- family-names: Hoß
+  given-names: Sebastian
+  email: seb@hoß.de
+url: https://github.com/metio/terraform-provider-git
+license: BSD0
+keywords:
+  - go
+  - make
+  - terraform
