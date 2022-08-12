@@ -1,0 +1,40 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: terraform-provider-git
+Upstream-Contact: Sebastian Hoß <seb@hoß.de>
+Source: https://github.com/metio/terraform-provider-git
+
+Files: docs/*
+Copyright: Sebastian Hoß <seb@hoß.de>
+License: 0BSD
+
+Files: examples/*
+Copyright: Sebastian Hoß <seb@hoß.de>
+License: 0BSD
+
+Files: .mailmap
+Copyright: Sebastian Hoß <seb@hoß.de>
+License: 0BSD
+
+Files: go.sum
+Copyright: Sebastian Hoß <seb@hoß.de>
+License: 0BSD
+
+Files: CODE_OF_CONDUCT.md
+Copyright: Sebastian Hoß <seb@hoß.de>
+License: 0BSD
+
+Files: CONTRIBUTING.md
+Copyright: Sebastian Hoß <seb@hoß.de>
+License: 0BSD
+
+Files: README.md
+Copyright: Sebastian Hoß <seb@hoß.de>
+License: 0BSD
+
+Files: SECURITY.md
+Copyright: Sebastian Hoß <seb@hoß.de>
+License: 0BSD
+
+Files: terraform-registry-manifest.json
+Copyright: Sebastian Hoß <seb@hoß.de>
+License: 0BSD
