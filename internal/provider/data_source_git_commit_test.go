@@ -26,7 +26,7 @@ func TestDataSourceGitCommit(t *testing.T) {
 	commit := testGitCommit(t, worktree)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

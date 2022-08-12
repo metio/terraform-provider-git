@@ -25,7 +25,7 @@ func TestDataSourceGitTag(t *testing.T) {
 	testCreateTag(t, repository, tag)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -50,7 +50,7 @@ func TestDataSourceGitTag(t *testing.T) {
 func TestDataSourceGitTag_InvalidRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `
@@ -71,7 +71,7 @@ func TestDataSourceGitTag_InvalidTag(t *testing.T) {
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -92,7 +92,7 @@ func TestDataSourceGitTag_MissingName(t *testing.T) {
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -109,7 +109,7 @@ func TestDataSourceGitTag_MissingName(t *testing.T) {
 func TestDataSourceGitTag_MissingDirectory(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `

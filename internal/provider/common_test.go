@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-func protoV6ProviderFactories() map[string]func() (tfprotov6.ProviderServer, error) {
+func testProviderFactories() map[string]func() (tfprotov6.ProviderServer, error) {
 	return map[string]func() (tfprotov6.ProviderServer, error){
 		"git": providerserver.NewProtocol6WithError(provider.New()),
 	}

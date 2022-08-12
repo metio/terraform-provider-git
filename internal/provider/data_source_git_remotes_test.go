@@ -23,7 +23,7 @@ func TestDataSourceGitRemotes(t *testing.T) {
 	testCreateRemote(t, repository, remote)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -45,7 +45,7 @@ func TestDataSourceGitRemotes(t *testing.T) {
 func TestDataSourceGitRemotes_InvalidRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `
@@ -62,7 +62,7 @@ func TestDataSourceGitRemotes_InvalidRepository(t *testing.T) {
 func TestDataSourceGitRemotes_MissingRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `

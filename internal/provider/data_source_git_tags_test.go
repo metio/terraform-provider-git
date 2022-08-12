@@ -25,7 +25,7 @@ func TestDataSourceGitTags(t *testing.T) {
 	testCreateTag(t, repository, tag)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -55,7 +55,7 @@ func TestDataSourceGitTags_NoAnnotated(t *testing.T) {
 	testCreateTag(t, repository, tag)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -86,7 +86,7 @@ func TestDataSourceGitTags_NoLightweight(t *testing.T) {
 	testCreateTag(t, repository, tag)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -110,7 +110,7 @@ func TestDataSourceGitTags_NoLightweight(t *testing.T) {
 func TestDataSourceGitTags_InvalidRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `
@@ -127,7 +127,7 @@ func TestDataSourceGitTags_InvalidRepository(t *testing.T) {
 func TestDataSourceGitTags_MissingRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `

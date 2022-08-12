@@ -24,7 +24,7 @@ func TestDataSourceGitStatus_StagedFile(t *testing.T) {
 	testGitAdd(t, worktree, fileName)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -56,7 +56,7 @@ func TestDataSourceGitStatus_Clean(t *testing.T) {
 	testGitCommit(t, worktree)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -85,7 +85,7 @@ func TestDataSourceGitStatus_BareRepository(t *testing.T) {
 	fileName := "some-file"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: protoV6ProviderFactories(),
+		ProtoV6ProviderFactories: testProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
