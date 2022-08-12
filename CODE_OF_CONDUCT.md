@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: Sebastian Hoß <seb@hoß.de>
+SPDX-License-Identifier: 0BSD
+ -->
+
 # Contributor Covenant Code of Conduct
 
 ## Our Pledge
