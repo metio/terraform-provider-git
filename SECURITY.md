@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: Sebastian Hoß <seb@hoß.de>
+SPDX-License-Identifier: 0BSD
+ -->
+
 # Security Policy
 
 This project is using a continuous delivery mode and therefore only supports the latest released version.
