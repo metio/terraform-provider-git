@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Sebastian Hoß <seb@hoß.de>
+# SPDX-License-Identifier: 0BSD
+
 FROM metio/devcontainers-go:latest
 
 RUN go install github.com/hashicorp/terraform@main

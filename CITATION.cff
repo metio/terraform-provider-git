@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Sebastian Hoß <seb@hoß.de>
+# SPDX-License-Identifier: 0BSD
+
 cff-version: 1.2.0
 title: terraform-provider-git
 message: If you use this software, please cite it as below.
