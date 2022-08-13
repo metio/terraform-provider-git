@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: Sebastian Hoß <seb@hoß.de>
+SPDX-FileCopyrightText: The terraform-provider-git Authors
 SPDX-License-Identifier: 0BSD
  -->
 
