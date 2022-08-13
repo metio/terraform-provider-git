@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: The terraform-provider-git Authors
+# SPDX-License-Identifier: 0BSD
+
+blank_issues_enabled: true
+contact_links:
+  - name: Chat Room
+    url: https://matrix.to/#/#community.metio.wtf:matrix.org
+    about: Chat with the developers

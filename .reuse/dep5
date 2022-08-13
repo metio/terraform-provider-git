@@ -4,13 +4,13 @@ Upstream-Contact: Sebastian Hoß <seb@hoß.de>
 Source: https://github.com/metio/terraform-provider-git
 
 Files: .idea/*
-Copyright: Sebastian Hoß <seb@hoß.de>
+Copyright: The terraform-provider-git Authors
 License: 0BSD
 
 Files: docs/*
-Copyright: Sebastian Hoß <seb@hoß.de>
+Copyright: The terraform-provider-git Authors
 License: 0BSD
 
 Files: examples/*
-Copyright: Sebastian Hoß <seb@hoß.de>
+Copyright: The terraform-provider-git Authors
 License: 0BSD
