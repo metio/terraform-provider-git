@@ -9,7 +9,7 @@ authors:
 - family-names: Hoß
   given-names: Sebastian
   email: seb@hoß.de
-url: https://github.com/metio/terraform-provider-git
+url: https://registry.terraform.io/providers/metio/git/
 license: 0BSD
 keywords:
   - go
