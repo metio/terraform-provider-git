@@ -35,8 +35,8 @@ data "git_branches" "branches" {
 
 Read-Only:
 
-- `rebase` (String) The rebase configuration of this branch.
+- `rebase` (String) The rebase configuration for the specified Git branch. Possible values are `true`, `interactive`, and `false`.
 - `remote` (String) The name of remote this branch is tracking.
-- `sha1` (String) The SHA1 checksum of the HEAD of the branch.
+- `sha1` (String) The SHA1 checksum of the `HEAD` of the branch.
 
 
