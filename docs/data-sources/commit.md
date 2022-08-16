@@ -31,7 +31,7 @@ data "git_commit" "commit" {
 
 - `author` (Attributes) The original author of the commit. (see [below for nested schema](#nestedatt--author))
 - `committer` (Attributes) The person performing the commit. (see [below for nested schema](#nestedatt--committer))
-- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The SHA1 checksum of the commit.
+- `id` (String) The same value as the `sha1` attribute.
 - `message` (String) The message of the commit.
 - `signature` (String) The signature of the commit.
 - `tree_sha1` (String) The SHA1 checksum of the root tree of the commit.

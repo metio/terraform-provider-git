@@ -31,7 +31,7 @@ resource "git_remote" "remote" {
 
 ### Read-Only
 
-- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The name of the Git remote to add.
+- `id` (String) The import ID to import this resource which has the form `'directory|name'`
 
 ## Import
 

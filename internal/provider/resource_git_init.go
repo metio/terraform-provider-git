@@ -49,7 +49,7 @@ func (c *resourceGitInitType) GetSchema(_ context.Context) (tfsdk.Schema, diag.D
 				},
 			},
 			"id": {
-				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
+				MarkdownDescription: "The import ID to import this resource which is equal to the value of the `directory` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},

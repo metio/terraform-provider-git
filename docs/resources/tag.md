@@ -46,7 +46,7 @@ resource "git_tag" "specific_commit" {
 
 ### Read-Only
 
-- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The name of the Git tag to add.
+- `id` (String) The import ID to import this resource which has the form `'directory|name'`
 
 ## Import
 

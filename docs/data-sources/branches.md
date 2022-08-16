@@ -28,7 +28,7 @@ data "git_branches" "branches" {
 ### Read-Only
 
 - `branches` (Attributes Map) All branches in a Git repository and their configuration. (see [below for nested schema](#nestedatt--branches))
-- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.
+- `id` (String) The same value as the `directory` attribute.
 
 <a id="nestedatt--branches"></a>
 ### Nested Schema for `branches`

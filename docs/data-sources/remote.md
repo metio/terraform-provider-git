@@ -29,7 +29,7 @@ data "git_remote" "remote" {
 
 ### Read-Only
 
-- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The name of the remote to gather information about.
+- `id` (String) The same value as the `name` attribute.
 - `urls` (List of String) The configured URLs of the given remote.
 
 

@@ -44,7 +44,7 @@ func (r *dataSourceGitStatusType) GetSchema(_ context.Context) (tfsdk.Schema, di
 				},
 			},
 			"id": {
-				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The file to get status information about.",
+				MarkdownDescription: "The same value as the `file` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
