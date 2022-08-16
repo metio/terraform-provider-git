@@ -18,11 +18,11 @@ func TestDataSourceGitBranch(t *testing.T) {
 	t.Parallel()
 	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
-	branch := "name-of-branch"
+	name := "name-of-branch"
 	remote := "origin"
 	rebase := "true"
 	testCreateBranch(t, repository, &config.Branch{
-		Name:   branch,
+		Name:   name,
 		Remote: remote,
 		Rebase: rebase,
 	})
@@ -34,13 +34,13 @@ func TestDataSourceGitBranch(t *testing.T) {
 				Config: fmt.Sprintf(`
 					data "git_branch" "test" {
 						directory = "%s"
-						branch    = "%s"
+						name      = "%s"
 					}
-				`, directory, branch),
+				`, directory, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.git_branch.test", "directory", directory),
-					resource.TestCheckResourceAttr("data.git_branch.test", "id", directory),
-					resource.TestCheckResourceAttr("data.git_branch.test", "branch", branch),
+					resource.TestCheckResourceAttr("data.git_branch.test", "id", name),
+					resource.TestCheckResourceAttr("data.git_branch.test", "name", name),
 					resource.TestCheckResourceAttr("data.git_branch.test", "remote", remote),
 					resource.TestCheckResourceAttr("data.git_branch.test", "rebase", rebase),
 				),
@@ -58,7 +58,7 @@ func TestDataSourceGitBranch_InvalidRepository(t *testing.T) {
 				Config: `
 					data "git_branch" "test" {
 						directory = "/some/random/path"
-						branch    = "this-does-not-exist"
+						name      = "this-does-not-exist"
 					}
 				`,
 				ExpectError: regexp.MustCompile(`Cannot open repository`),
@@ -79,7 +79,7 @@ func TestDataSourceGitBranch_InvalidBranch(t *testing.T) {
 				Config: fmt.Sprintf(`
 					data "git_branch" "test" {
 						directory = "%s"
-						branch    = "does-not-exist"
+						name      = "does-not-exist"
 					}
 				`, directory),
 				ExpectError: regexp.MustCompile(`Cannot read branch`),

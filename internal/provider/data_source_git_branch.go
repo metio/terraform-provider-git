@@ -26,7 +26,7 @@ type dataSourceGitBranch struct {
 type dataSourceGitBranchSchema struct {
 	Directory types.String `tfsdk:"directory"`
 	Id        types.String `tfsdk:"id"`
-	Branch    types.String `tfsdk:"branch"`
+	Name      types.String `tfsdk:"name"`
 	SHA1      types.String `tfsdk:"sha1"`
 	Remote    types.String `tfsdk:"remote"`
 	Rebase    types.String `tfsdk:"rebase"`
@@ -44,7 +44,7 @@ func (r *dataSourceGitBranchType) GetSchema(_ context.Context) (tfsdk.Schema, di
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"branch": {
+			"name": {
 				Description: "The name of the Git branch.",
 				Type:        types.StringType,
 				Required:    true,
@@ -53,7 +53,7 @@ func (r *dataSourceGitBranchType) GetSchema(_ context.Context) (tfsdk.Schema, di
 				},
 			},
 			"id": {
-				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
+				MarkdownDescription: "The same value as the `name` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
@@ -95,18 +95,18 @@ func (r *dataSourceGitBranch) Read(ctx context.Context, req datasource.ReadReque
 	}
 
 	directory := inputs.Directory.Value
-	requestedBranch := inputs.Branch.Value
+	name := inputs.Name.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
 		return
 	}
 
-	branch, err := repository.Branch(requestedBranch)
+	branch, err := repository.Branch(name)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Cannot read branch",
-			"Could not read branch ["+requestedBranch+"] of ["+directory+"] because of: "+err.Error(),
+			"Could not read branch ["+name+"] of ["+directory+"] because of: "+err.Error(),
 		)
 		return
 	}
@@ -138,8 +138,8 @@ func (r *dataSourceGitBranch) Read(ctx context.Context, req datasource.ReadReque
 	}
 
 	state.Directory = inputs.Directory
-	state.Id = inputs.Directory
-	state.Branch = inputs.Branch
+	state.Id = inputs.Name
+	state.Name = inputs.Name
 	state.Remote = types.String{Value: branch.Remote}
 	state.Rebase = types.String{Value: branch.Rebase}
 
