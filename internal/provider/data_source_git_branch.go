@@ -58,9 +58,9 @@ func (r *dataSourceGitBranchType) GetSchema(_ context.Context) (tfsdk.Schema, di
 				Computed:            true,
 			},
 			"sha1": {
-				Description: "The SHA1 checksum of the HEAD commit in the specified Git branch.",
-				Type:        types.StringType,
-				Computed:    true,
+				MarkdownDescription: "The SHA1 checksum of the `HEAD` commit in the specified Git branch.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"remote": {
 				Description: "The configured remote for the specified Git branch.",
@@ -68,9 +68,9 @@ func (r *dataSourceGitBranchType) GetSchema(_ context.Context) (tfsdk.Schema, di
 				Computed:    true,
 			},
 			"rebase": {
-				Description: "The rebase configuration for the specified Git branch.",
-				Type:        types.StringType,
-				Computed:    true,
+				MarkdownDescription: "The rebase configuration for the specified Git branch. Possible values are `true`, `interactive`, and `false`.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 		},
 	}, nil
