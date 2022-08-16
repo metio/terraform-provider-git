@@ -28,6 +28,6 @@ data "git_repository" "repository" {
 ### Read-Only
 
 - `branch` (String) The current branch of the given Git repository.
-- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.
+- `id` (String) The same value as the `directory` attribute.
 
 

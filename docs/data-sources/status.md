@@ -29,7 +29,7 @@ data "git_status" "status" {
 
 ### Read-Only
 
-- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The file to get status information about.
+- `id` (String) The same value as the `file` attribute.
 - `staging` (String) The status of the file in the staging area.
 - `worktree` (String) The status of the file in the worktree
 

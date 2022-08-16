@@ -42,7 +42,7 @@ func (r *dataSourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, di
 				},
 			},
 			"id": {
-				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The name of the remote to gather information about.",
+				MarkdownDescription: "The same value as the `name` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},

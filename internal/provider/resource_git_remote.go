@@ -48,7 +48,7 @@ func (c *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 				},
 			},
 			"id": {
-				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The name of the Git remote to add.",
+				MarkdownDescription: "The import ID to import this resource which has the form `'directory|name'`",
 				Type:                types.StringType,
 				Computed:            true,
 			},

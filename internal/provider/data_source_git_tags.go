@@ -46,7 +46,7 @@ func (r *dataSourceGitTagsType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 				},
 			},
 			"id": {
-				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
+				MarkdownDescription: "The same value as the `directory` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},

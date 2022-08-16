@@ -30,7 +30,7 @@ data "git_tag" "tag" {
 ### Read-Only
 
 - `annotated` (Boolean) Whether the given tag is an annotated tag.
-- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The name of the tag to gather information about.
+- `id` (String) The same value as the `name` attribute.
 - `lightweight` (Boolean) Whether the given tag is a lightweight tag.
 - `message` (String) The associated message of an annotated tag.
 - `sha1` (String) The SHA1 checksum of the commit the given tag is pointing at.

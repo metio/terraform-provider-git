@@ -47,7 +47,7 @@ func (r *dataSourceGitCommitType) GetSchema(_ context.Context) (tfsdk.Schema, di
 				},
 			},
 			"id": {
-				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The SHA1 checksum of the commit.",
+				MarkdownDescription: "The same value as the `sha1` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},

@@ -36,7 +36,7 @@ data "git_config" "config" {
 - `author_name` (String) The name of the author of a commit.
 - `committer_email` (String) The email address of the committer of a commit.
 - `committer_name` (String) The name of the committer of a commit.
-- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.
+- `id` (String) The same value as the `directory` attribute.
 - `user_email` (String) The email address of the author and the committer of a commit.
 - `user_name` (String) The name of the author and the committer of a commit.
 
