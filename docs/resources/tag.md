@@ -42,7 +42,7 @@ resource "git_tag" "specific_commit" {
 ### Optional
 
 - `message` (String) The tag message to use. Note that by specifying a message, an annotated tag will be created.
-- `sha1` (String) The SHA1 checksum of the commit to tag.
+- `sha1` (String) The SHA1 checksum of the commit to tag. If none is specified, `HEAD` will be tagged.
 
 ### Read-Only
 
@@ -53,7 +53,8 @@ resource "git_tag" "specific_commit" {
 Import is supported using the following syntax:
 
 ```shell
-# git_tag resources can be imported by specifying the directory of the Git repository and the name of the tag to
-# import. Both values are separated by a single '|'.
+# git_tag resources can be imported by specifying the directory of the
+# Git repository and the name of the tag to import. Both values are
+# separated by a single '|'.
 terraform import git_remote.remote 'path/to/your/git/repository|name-of-your-tag'
 ```
