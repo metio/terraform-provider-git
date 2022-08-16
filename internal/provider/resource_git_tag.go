@@ -34,7 +34,7 @@ type resourceGitTagSchema struct {
 
 func (c *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		Description: "Adds a new Git tag to a repository.",
+		MarkdownDescription: "Manage Git tags with `git tag`.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
 				Description: "The path to the local Git repository.",
