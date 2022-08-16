@@ -52,7 +52,7 @@ func (r *dataSourceGitCommitType) GetSchema(_ context.Context) (tfsdk.Schema, di
 				Computed:            true,
 			},
 			"sha1": {
-				Description: "The SHA1 checksum of the commit.",
+				Description: "The SHA1 checksum of the commit. Can be the entire SHA1 hash or at least the first 4 letters of the hash.",
 				Type:        types.StringType,
 				Required:    true,
 				Validators: []tfsdk.AttributeValidator{
