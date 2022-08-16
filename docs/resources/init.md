@@ -3,12 +3,12 @@
 page_title: "git_init Resource - terraform-provider-git"
 subcategory: ""
 description: |-
-  Initializes a Git repository.
+  Initializes a Git repository using git init.
 ---
 
 # git_init (Resource)
 
-Initializes a Git repository.
+Initializes a Git repository using `git init`.
 
 ## Example Usage
 
@@ -43,6 +43,7 @@ resource "git_init" "bare" {
 Import is supported using the following syntax:
 
 ```shell
-# git_init resources can be imported by specifying the path to the Git repository.
+# git_init resources can be imported by specifying the path to the Git
+# repository. Bare repositories are automatically detected during import.
 terraform import git_init.init 'path/to/your/git/repository'
 ```

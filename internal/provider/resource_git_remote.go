@@ -34,7 +34,7 @@ type resourceGitRemoteSchema struct {
 
 func (c *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		Description: "Adds a new Git remote to a repository.",
+		MarkdownDescription: "Manages remotes in a Git repository with `git remote`.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
 				Description: "The path to the local Git repository.",
@@ -48,12 +48,12 @@ func (c *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 				},
 			},
 			"id": {
-				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.",
+				MarkdownDescription: "`DEPRECATED`: Only added in order to use the sdkv2 test framework. The name of the Git remote to add.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
 			"name": {
-				Description: "The name of the Git remote to add.",
+				Description: "The name of the Git remote to manage.",
 				Type:        types.StringType,
 				Required:    true,
 				Validators: []tfsdk.AttributeValidator{
@@ -64,7 +64,7 @@ func (c *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 				},
 			},
 			"urls": {
-				Description: "The URLs of the Git remote to add.",
+				Description: "The URLs of the Git remote to manage. The first URL will be a fetch/pull URL. All other URLs will be push only.",
 				Type: types.ListType{
 					ElemType: types.StringType,
 				},
