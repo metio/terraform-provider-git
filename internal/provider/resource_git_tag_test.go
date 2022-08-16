@@ -20,7 +20,7 @@ func TestResourceGitTag(t *testing.T) {
 	testConfig(t, repository)
 	worktree := testWorktree(t, repository)
 	testAddAndCommitNewFile(t, worktree, "some-file")
-	tag := "some-name"
+	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testProviderFactories(),
@@ -31,11 +31,11 @@ func TestResourceGitTag(t *testing.T) {
 						directory = "%s"
 						name      = "%s"
 					}
-				`, directory, tag),
+				`, directory, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_tag.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_tag.test", "id", tag),
-					resource.TestCheckResourceAttr("git_tag.test", "name", tag),
+					resource.TestCheckResourceAttr("git_tag.test", "id", fmt.Sprintf("%s|%s", directory, name)),
+					resource.TestCheckResourceAttr("git_tag.test", "name", name),
 				),
 			},
 		},
@@ -49,7 +49,7 @@ func TestResourceGitTag_Annotated(t *testing.T) {
 	testConfig(t, repository)
 	worktree := testWorktree(t, repository)
 	testAddAndCommitNewFile(t, worktree, "some-file")
-	tag := "some-name"
+	name := "some-name"
 	message := "some message for the tag"
 
 	resource.UnitTest(t, resource.TestCase{
@@ -62,11 +62,11 @@ func TestResourceGitTag_Annotated(t *testing.T) {
 						name      = "%s"
 						message   = "some message for the tag"
 					}
-				`, directory, tag),
+				`, directory, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_tag.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_tag.test", "id", tag),
-					resource.TestCheckResourceAttr("git_tag.test", "name", tag),
+					resource.TestCheckResourceAttr("git_tag.test", "id", fmt.Sprintf("%s|%s", directory, name)),
+					resource.TestCheckResourceAttr("git_tag.test", "name", name),
 					resource.TestCheckResourceAttr("git_tag.test", "message", message),
 				),
 			},
@@ -85,7 +85,7 @@ func TestResourceGitTag_Commitish(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	tag := "some-name"
+	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testProviderFactories(),
@@ -97,11 +97,11 @@ func TestResourceGitTag_Commitish(t *testing.T) {
 						name      = "%s"
 						sha1      = "%s"
 					}
-				`, directory, tag, head.Hash().String()),
+				`, directory, name, head.Hash().String()),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_tag.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_tag.test", "id", tag),
-					resource.TestCheckResourceAttr("git_tag.test", "name", tag),
+					resource.TestCheckResourceAttr("git_tag.test", "id", fmt.Sprintf("%s|%s", directory, name)),
+					resource.TestCheckResourceAttr("git_tag.test", "name", name),
 				),
 			},
 		},
@@ -110,7 +110,7 @@ func TestResourceGitTag_Commitish(t *testing.T) {
 
 func TestResourceGitTag_InvalidRepository(t *testing.T) {
 	t.Parallel()
-	tag := "some-name"
+	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testProviderFactories(),
@@ -121,7 +121,7 @@ func TestResourceGitTag_InvalidRepository(t *testing.T) {
 						directory = "/some/random/path"
 						name      = "%s"
 					}
-				`, tag),
+				`, name),
 				ExpectError: regexp.MustCompile(`Cannot open repository`),
 			},
 		},
@@ -130,7 +130,7 @@ func TestResourceGitTag_InvalidRepository(t *testing.T) {
 
 func TestResourceGitTag_MissingRepository(t *testing.T) {
 	t.Parallel()
-	tag := "some-name"
+	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testProviderFactories(),
@@ -140,7 +140,7 @@ func TestResourceGitTag_MissingRepository(t *testing.T) {
 					resource "git_tag" "test" {
 						name      = "%s"
 					}
-				`, tag),
+				`, name),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 		},
@@ -174,7 +174,7 @@ func TestResourceGitTag_Import(t *testing.T) {
 	testConfig(t, repository)
 	worktree := testWorktree(t, repository)
 	testAddAndCommitNewFile(t, worktree, "some-file")
-	tag := "some-name"
+	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testProviderFactories(),
@@ -185,17 +185,17 @@ func TestResourceGitTag_Import(t *testing.T) {
 						directory = "%s"
 						name      = "%s"
 					}
-				`, directory, tag),
+				`, directory, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_tag.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_tag.test", "id", tag),
-					resource.TestCheckResourceAttr("git_tag.test", "name", tag),
+					resource.TestCheckResourceAttr("git_tag.test", "id", fmt.Sprintf("%s|%s", directory, name)),
+					resource.TestCheckResourceAttr("git_tag.test", "name", name),
 				),
 			},
 			{
 				ResourceName:      "git_tag.test",
 				ImportState:       true,
-				ImportStateId:     fmt.Sprintf("%s|%s", directory, tag),
+				ImportStateId:     fmt.Sprintf("%s|%s", directory, name),
 				ImportStateVerify: true,
 			},
 		},
@@ -209,8 +209,8 @@ func TestResourceGitTag_Update_Name(t *testing.T) {
 	testConfig(t, repository)
 	worktree := testWorktree(t, repository)
 	testAddAndCommitNewFile(t, worktree, "some-file")
-	tag := "some-name"
-	newTag := "other-name"
+	name := "some-name"
+	newName := "other-name"
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testProviderFactories(),
@@ -221,11 +221,11 @@ func TestResourceGitTag_Update_Name(t *testing.T) {
 						directory = "%s"
 						name      = "%s"
 					}
-				`, directory, tag),
+				`, directory, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_tag.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_tag.test", "id", tag),
-					resource.TestCheckResourceAttr("git_tag.test", "name", tag),
+					resource.TestCheckResourceAttr("git_tag.test", "id", fmt.Sprintf("%s|%s", directory, name)),
+					resource.TestCheckResourceAttr("git_tag.test", "name", name),
 				),
 			},
 			{
@@ -234,11 +234,11 @@ func TestResourceGitTag_Update_Name(t *testing.T) {
 						directory = "%s"
 						name      = "%s"
 					}
-				`, directory, newTag),
+				`, directory, newName),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_tag.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_tag.test", "id", newTag),
-					resource.TestCheckResourceAttr("git_tag.test", "name", newTag),
+					resource.TestCheckResourceAttr("git_tag.test", "id", fmt.Sprintf("%s|%s", directory, newName)),
+					resource.TestCheckResourceAttr("git_tag.test", "name", newName),
 				),
 			},
 		},
@@ -257,7 +257,7 @@ func TestResourceGitTag_Update_Directory(t *testing.T) {
 	testConfig(t, newRepository)
 	newWorktree := testWorktree(t, newRepository)
 	testAddAndCommitNewFile(t, newWorktree, "other-file")
-	tag := "some-name"
+	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testProviderFactories(),
@@ -268,11 +268,11 @@ func TestResourceGitTag_Update_Directory(t *testing.T) {
 						directory = "%s"
 						name      = "%s"
 					}
-				`, directory, tag),
+				`, directory, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_tag.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_tag.test", "id", tag),
-					resource.TestCheckResourceAttr("git_tag.test", "name", tag),
+					resource.TestCheckResourceAttr("git_tag.test", "id", fmt.Sprintf("%s|%s", directory, name)),
+					resource.TestCheckResourceAttr("git_tag.test", "name", name),
 				),
 			},
 			{
@@ -281,11 +281,11 @@ func TestResourceGitTag_Update_Directory(t *testing.T) {
 						directory = "%s"
 						name      = "%s"
 					}
-				`, newDirectory, tag),
+				`, newDirectory, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_tag.test", "directory", newDirectory),
-					resource.TestCheckResourceAttr("git_tag.test", "id", tag),
-					resource.TestCheckResourceAttr("git_tag.test", "name", tag),
+					resource.TestCheckResourceAttr("git_tag.test", "id", fmt.Sprintf("%s|%s", newDirectory, name)),
+					resource.TestCheckResourceAttr("git_tag.test", "name", name),
 				),
 			},
 		},

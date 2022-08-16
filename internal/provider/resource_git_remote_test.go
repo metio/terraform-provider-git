@@ -33,7 +33,7 @@ func TestResourceGitRemote(t *testing.T) {
 				`, directory, name, url1),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_remote.test", "id", name),
+					resource.TestCheckResourceAttr("git_remote.test", "id", fmt.Sprintf("%s|%s", directory, name)),
 					resource.TestCheckResourceAttr("git_remote.test", "name", name),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
@@ -64,7 +64,7 @@ func TestResourceGitRemote_MultipleUrls(t *testing.T) {
 				`, directory, name, url1, url2),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_remote.test", "id", name),
+					resource.TestCheckResourceAttr("git_remote.test", "id", fmt.Sprintf("%s|%s", directory, name)),
 					resource.TestCheckResourceAttr("git_remote.test", "name", name),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "2"),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
@@ -163,7 +163,7 @@ func TestResourceGitRemote_Import(t *testing.T) {
 	t.Parallel()
 	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
-	remote := "some-name"
+	name := "some-name"
 	url := "https://github.com/some-org/some-repo.git"
 
 	resource.UnitTest(t, resource.TestCase{
@@ -176,11 +176,11 @@ func TestResourceGitRemote_Import(t *testing.T) {
 						name      = "%s"
 						urls      = ["%s"]
 					}
-				`, directory, remote, url),
+				`, directory, name, url),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
-					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "id", fmt.Sprintf("%s|%s", directory, name)),
+					resource.TestCheckResourceAttr("git_remote.test", "name", name),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url),
 				),
@@ -188,7 +188,7 @@ func TestResourceGitRemote_Import(t *testing.T) {
 			{
 				ResourceName:      "git_remote.test",
 				ImportState:       true,
-				ImportStateId:     fmt.Sprintf("%s|%s", directory, remote),
+				ImportStateId:     fmt.Sprintf("%s|%s", directory, name),
 				ImportStateVerify: true,
 			},
 		},
@@ -199,7 +199,7 @@ func TestResourceGitRemote_ImportMultipleUrls(t *testing.T) {
 	t.Parallel()
 	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
-	remote := "some-name"
+	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 	url2 := "https://codeberg.org/some-org/some-repo.git"
 
@@ -213,11 +213,11 @@ func TestResourceGitRemote_ImportMultipleUrls(t *testing.T) {
 						name      = "%s"
 						urls      = ["%s", "%s"]
 					}
-				`, directory, remote, url1, url2),
+				`, directory, name, url1, url2),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
-					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "id", fmt.Sprintf("%s|%s", directory, name)),
+					resource.TestCheckResourceAttr("git_remote.test", "name", name),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "2"),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.1", url2),
@@ -226,7 +226,7 @@ func TestResourceGitRemote_ImportMultipleUrls(t *testing.T) {
 			{
 				ResourceName:      "git_remote.test",
 				ImportState:       true,
-				ImportStateId:     fmt.Sprintf("%s|%s", directory, remote),
+				ImportStateId:     fmt.Sprintf("%s|%s", directory, name),
 				ImportStateVerify: true,
 			},
 		},
@@ -237,7 +237,7 @@ func TestResourceGitRemote_Update_Urls(t *testing.T) {
 	t.Parallel()
 	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
-	remote := "some-name"
+	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 	url2 := "https://codeberg.org/some-org/some-repo.git"
 
@@ -251,11 +251,11 @@ func TestResourceGitRemote_Update_Urls(t *testing.T) {
 						name      = "%s"
 						urls      = ["%s"]
 					}
-				`, directory, remote, url1),
+				`, directory, name, url1),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
-					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "id", fmt.Sprintf("%s|%s", directory, name)),
+					resource.TestCheckResourceAttr("git_remote.test", "name", name),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
 				),
@@ -267,11 +267,11 @@ func TestResourceGitRemote_Update_Urls(t *testing.T) {
 						name      = "%s"
 						urls      = ["%s", "%s"]
 					}
-				`, directory, remote, url1, url2),
+				`, directory, name, url1, url2),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
-					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "id", fmt.Sprintf("%s|%s", directory, name)),
+					resource.TestCheckResourceAttr("git_remote.test", "name", name),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "2"),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.1", url2),
@@ -284,11 +284,11 @@ func TestResourceGitRemote_Update_Urls(t *testing.T) {
 						name      = "%s"
 						urls      = ["%s"]
 					}
-				`, directory, remote, url1),
+				`, directory, name, url1),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
-					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "id", fmt.Sprintf("%s|%s", directory, name)),
+					resource.TestCheckResourceAttr("git_remote.test", "name", name),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
 				),
@@ -301,8 +301,8 @@ func TestResourceGitRemote_Update_Name(t *testing.T) {
 	t.Parallel()
 	directory, _ := testRepository(t)
 	defer os.RemoveAll(directory)
-	remote := "some-name"
-	newRemote := "other-name"
+	name := "some-name"
+	newName := "other-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 
 	resource.UnitTest(t, resource.TestCase{
@@ -315,11 +315,11 @@ func TestResourceGitRemote_Update_Name(t *testing.T) {
 						name      = "%s"
 						urls      = ["%s"]
 					}
-				`, directory, remote, url1),
+				`, directory, name, url1),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
-					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "id", fmt.Sprintf("%s|%s", directory, name)),
+					resource.TestCheckResourceAttr("git_remote.test", "name", name),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
 				),
@@ -331,11 +331,11 @@ func TestResourceGitRemote_Update_Name(t *testing.T) {
 						name      = "%s"
 						urls      = ["%s"]
 					}
-				`, directory, newRemote, url1),
+				`, directory, newName, url1),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_remote.test", "id", newRemote),
-					resource.TestCheckResourceAttr("git_remote.test", "name", newRemote),
+					resource.TestCheckResourceAttr("git_remote.test", "id", fmt.Sprintf("%s|%s", directory, newName)),
+					resource.TestCheckResourceAttr("git_remote.test", "name", newName),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
 				),
@@ -350,7 +350,7 @@ func TestResourceGitRemote_Update_Directory(t *testing.T) {
 	directory2, _ := testRepository(t)
 	defer os.RemoveAll(directory1)
 	defer os.RemoveAll(directory2)
-	remote := "some-name"
+	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 
 	resource.UnitTest(t, resource.TestCase{
@@ -363,11 +363,11 @@ func TestResourceGitRemote_Update_Directory(t *testing.T) {
 						name      = "%s"
 						urls      = ["%s"]
 					}
-				`, directory1, remote, url1),
+				`, directory1, name, url1),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_remote.test", "directory", directory1),
-					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
-					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "id", fmt.Sprintf("%s|%s", directory1, name)),
+					resource.TestCheckResourceAttr("git_remote.test", "name", name),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
 				),
@@ -379,11 +379,11 @@ func TestResourceGitRemote_Update_Directory(t *testing.T) {
 						name      = "%s"
 						urls      = ["%s"]
 					}
-				`, directory2, remote, url1),
+				`, directory2, name, url1),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_remote.test", "directory", directory2),
-					resource.TestCheckResourceAttr("git_remote.test", "id", remote),
-					resource.TestCheckResourceAttr("git_remote.test", "name", remote),
+					resource.TestCheckResourceAttr("git_remote.test", "id", fmt.Sprintf("%s|%s", directory2, name)),
+					resource.TestCheckResourceAttr("git_remote.test", "name", name),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
 				),
