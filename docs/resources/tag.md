@@ -3,12 +3,12 @@
 page_title: "git_tag Resource - terraform-provider-git"
 subcategory: ""
 description: |-
-  Adds a new Git tag to a repository.
+  Manage Git tags with git tag.
 ---
 
 # git_tag (Resource)
 
-Adds a new Git tag to a repository.
+Manage Git tags with `git tag`.
 
 ## Example Usage
 

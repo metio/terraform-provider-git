@@ -25,7 +25,7 @@ data "git_commit" "commit" {
 ### Required
 
 - `directory` (String) The path to the local Git repository.
-- `sha1` (String) The SHA1 checksum of the commit.
+- `sha1` (String) The SHA1 checksum of the commit. Can be the entire SHA1 hash or at least the first 4 letters of the hash.
 
 ### Read-Only
 
