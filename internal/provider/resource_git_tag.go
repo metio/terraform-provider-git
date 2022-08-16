@@ -64,10 +64,10 @@ func (c *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 				},
 			},
 			"sha1": {
-				Description: "The SHA1 checksum of the commit to tag.",
-				Type:        types.StringType,
-				Optional:    true,
-				Computed:    true,
+				MarkdownDescription: "The SHA1 checksum of the commit to tag. If none is specified, `HEAD` will be tagged.",
+				Type:                types.StringType,
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
 					resource.RequiresReplace(),
 				},
