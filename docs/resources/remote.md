@@ -3,12 +3,12 @@
 page_title: "git_remote Resource - terraform-provider-git"
 subcategory: ""
 description: |-
-  Adds a new Git remote to a repository.
+  Manages remotes in a Git repository with git remote.
 ---
 
 # git_remote (Resource)
 
-Adds a new Git remote to a repository.
+Manages remotes in a Git repository with `git remote`.
 
 ## Example Usage
 
@@ -26,19 +26,20 @@ resource "git_remote" "remote" {
 ### Required
 
 - `directory` (String) The path to the local Git repository.
-- `name` (String) The name of the Git remote to add.
-- `urls` (List of String) The URLs of the Git remote to add.
+- `name` (String) The name of the Git remote to manage.
+- `urls` (List of String) The URLs of the Git remote to manage. The first URL will be a fetch/pull URL. All other URLs will be push only.
 
 ### Read-Only
 
-- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The path to the local Git repository.
+- `id` (String) `DEPRECATED`: Only added in order to use the sdkv2 test framework. The name of the Git remote to add.
 
 ## Import
 
 Import is supported using the following syntax:
 
 ```shell
-# git_remote resources can be imported by specifying the directory of the Git repository and the name of the remote to
-# import. Both values are separated by a single '|'.
+# git_remote resources can be imported by specifying the directory of the
+# Git repository and the name of the remote to import. Both values are
+# separated by a single '|'.
 terraform import git_remote.remote 'path/to/your/git/repository|name-of-your-remote'
 ```
