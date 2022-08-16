@@ -84,7 +84,6 @@ func (r *resourceGitRemote) Create(ctx context.Context, req resource.CreateReque
 	tflog.Debug(ctx, "Creating Git remote")
 
 	var inputs resourceGitRemoteSchema
-	var output resourceGitRemoteSchema
 
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
@@ -127,12 +126,13 @@ func (r *resourceGitRemote) Create(ctx context.Context, req resource.CreateReque
 		"remote":    name,
 	})
 
-	output.Directory = inputs.Directory
-	output.Id = inputs.Name
-	output.Name = inputs.Name
-	output.Urls = inputs.Urls
+	var state resourceGitRemoteSchema
+	state.Directory = inputs.Directory
+	state.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, name)}
+	state.Name = inputs.Name
+	state.Urls = inputs.Urls
 
-	diags = resp.State.Set(ctx, &output)
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -150,7 +150,7 @@ func (r *resourceGitRemote) Read(ctx context.Context, req resource.ReadRequest, 
 	}
 
 	directory := state.Directory.Value
-	remoteName := state.Name.Value
+	name := state.Name.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -158,7 +158,7 @@ func (r *resourceGitRemote) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	remote := getRemote(ctx, repository, remoteName, &resp.Diagnostics)
+	remote := getRemote(ctx, repository, name, &resp.Diagnostics)
 	if remote == nil {
 		resp.State.RemoveResource(ctx)
 		return
@@ -166,7 +166,7 @@ func (r *resourceGitRemote) Read(ctx context.Context, req resource.ReadRequest, 
 
 	var newState resourceGitRemoteSchema
 	newState.Directory = state.Directory
-	newState.Id = state.Name
+	newState.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, name)}
 	newState.Name = state.Name
 	newState.Urls = stringsToList(remote.Config().URLs)
 
@@ -181,7 +181,6 @@ func (r *resourceGitRemote) Update(ctx context.Context, req resource.UpdateReque
 	tflog.Debug(ctx, "Updating Git remote")
 
 	var inputs resourceGitRemoteSchema
-	var state resourceGitRemoteSchema
 
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
@@ -190,14 +189,14 @@ func (r *resourceGitRemote) Update(ctx context.Context, req resource.UpdateReque
 	}
 
 	directory := inputs.Directory.Value
-	remoteName := inputs.Name.Value
+	name := inputs.Name.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
 		return
 	}
 
-	remote := getRemote(ctx, repository, remoteName, &resp.Diagnostics)
+	remote := getRemote(ctx, repository, name, &resp.Diagnostics)
 	if remote == nil {
 		return
 	}
@@ -222,7 +221,7 @@ func (r *resourceGitRemote) Update(ctx context.Context, req resource.UpdateReque
 
 	remoteConfig := remote.Config()
 	remoteConfig.URLs = urls
-	cfg.Remotes[remoteName] = remoteConfig
+	cfg.Remotes[name] = remoteConfig
 
 	err = repository.SetConfig(cfg)
 	if err != nil {
@@ -236,8 +235,9 @@ func (r *resourceGitRemote) Update(ctx context.Context, req resource.UpdateReque
 		"directory": directory,
 	})
 
+	var state resourceGitRemoteSchema
 	state.Directory = inputs.Directory
-	state.Id = inputs.Name
+	state.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, name)}
 	state.Name = inputs.Name
 	state.Urls = inputs.Urls
 
@@ -260,20 +260,20 @@ func (r *resourceGitRemote) Delete(ctx context.Context, req resource.DeleteReque
 	}
 
 	directory := state.Directory.Value
-	remoteName := state.Name.Value
+	name := state.Name.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
-	err := repository.DeleteRemote(remoteName)
+	err := repository.DeleteRemote(name)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Cannot delete remote",
-			"Could not delete remote ["+remoteName+"] in git repository ["+directory+"] because of: "+err.Error(),
+			"Could not delete remote ["+name+"] in git repository ["+directory+"] because of: "+err.Error(),
 		)
 		return
 	}
 	tflog.Trace(ctx, "deleted remote", map[string]interface{}{
 		"directory": directory,
-		"remote":    remoteName,
+		"remote":    name,
 	})
 }
 
@@ -290,10 +290,10 @@ func (r *resourceGitRemote) ImportState(ctx context.Context, req resource.Import
 	}
 
 	directory := idParts[0]
-	remoteName := idParts[1]
+	name := idParts[1]
 	tflog.Trace(ctx, "parsed import ID", map[string]interface{}{
 		"directory": directory,
-		"remote":    remoteName,
+		"remote":    name,
 	})
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
@@ -301,15 +301,15 @@ func (r *resourceGitRemote) ImportState(ctx context.Context, req resource.Import
 		return
 	}
 
-	remote := getRemote(ctx, repository, remoteName, &resp.Diagnostics)
+	remote := getRemote(ctx, repository, name, &resp.Diagnostics)
 	if remote == nil {
 		return
 	}
 
 	var state resourceGitRemoteSchema
 	state.Directory = types.String{Value: directory}
-	state.Id = types.String{Value: remoteName}
-	state.Name = types.String{Value: remoteName}
+	state.Id = types.String{Value: id}
+	state.Name = types.String{Value: name}
 	state.Urls = stringsToList(remote.Config().URLs)
 
 	diags := resp.State.Set(ctx, &state)

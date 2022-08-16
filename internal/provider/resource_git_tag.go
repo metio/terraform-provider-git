@@ -139,7 +139,7 @@ func (r *resourceGitTag) Create(ctx context.Context, req resource.CreateRequest,
 
 	var state resourceGitTagSchema
 	state.Directory = inputs.Directory
-	state.Id = inputs.Name
+	state.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, tagName)}
 	state.Name = inputs.Name
 	state.Message = inputs.Message
 	state.SHA1 = types.String{Value: reference.Hash().String()}
@@ -183,7 +183,7 @@ func (r *resourceGitTag) Read(ctx context.Context, req resource.ReadRequest, res
 
 	var newState resourceGitTagSchema
 	newState.Directory = state.Directory
-	newState.Id = state.Name
+	newState.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, tagName)}
 	newState.Name = state.Name
 	newState.SHA1 = types.String{Value: tagReference.Hash().String()}
 	if tagObject == nil {
@@ -260,7 +260,7 @@ func (r *resourceGitTag) ImportState(ctx context.Context, req resource.ImportSta
 
 	var state resourceGitTagSchema
 	state.Directory = types.String{Value: directory}
-	state.Id = types.String{Value: tagName}
+	state.Id = types.String{Value: id}
 	state.Name = types.String{Value: tagName}
 	state.SHA1 = types.String{Value: tagReference.Hash().String()}
 	if tagObject == nil {
