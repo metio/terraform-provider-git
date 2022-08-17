@@ -32,7 +32,7 @@ type resourceGitTagSchema struct {
 	SHA1      types.String `tfsdk:"sha1"`
 }
 
-func (c *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (r *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		MarkdownDescription: "Manage Git tags with `git tag`.",
 		Attributes: map[string]tfsdk.Attribute{
