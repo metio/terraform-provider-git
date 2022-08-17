@@ -99,10 +99,6 @@ func (r *resourceGitRemote) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	tflog.Trace(ctx, "opened repository", map[string]interface{}{
-		"directory": directory,
-	})
-
 	urls := make([]string, len(inputs.Urls.Elems))
 	resp.Diagnostics.Append(inputs.Urls.ElementsAs(ctx, &urls, false)...)
 	if resp.Diagnostics.HasError() {
