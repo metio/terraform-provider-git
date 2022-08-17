@@ -32,7 +32,7 @@ type resourceGitRemoteSchema struct {
 	Urls      types.List   `tfsdk:"urls"`
 }
 
-func (c *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (r *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		MarkdownDescription: "Manages remotes in a Git repository with `git remote`.",
 		Attributes: map[string]tfsdk.Attribute{

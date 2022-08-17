@@ -33,7 +33,7 @@ type resourceGitInitSchema struct {
 	Bare      types.Bool   `tfsdk:"bare"`
 }
 
-func (c *resourceGitInitType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (r *resourceGitInitType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		MarkdownDescription: "Initializes a Git repository using `git init`.",
 		Attributes: map[string]tfsdk.Attribute{
