@@ -34,9 +34,16 @@ func stringsToList(strings []string) types.List {
 
 func signatureToObject(signature *object.Signature) types.Object {
 	data := make(map[string]attr.Value)
-	data["name"] = types.String{Value: signature.Name}
-	data["email"] = types.String{Value: signature.Email}
-	data["timestamp"] = types.String{Value: signature.When.String()}
+
+	if signature != nil {
+		data["name"] = types.String{Value: signature.Name}
+		data["email"] = types.String{Value: signature.Email}
+		data["timestamp"] = types.String{Value: signature.When.String()}
+	} else {
+		data["name"] = types.String{Null: true}
+		data["email"] = types.String{Null: true}
+		data["timestamp"] = types.String{Null: true}
+	}
 
 	return types.Object{
 		AttrTypes: map[string]attr.Type{

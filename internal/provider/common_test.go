@@ -79,10 +79,14 @@ func testGitAdd(t *testing.T, worktree *git.Worktree, name string) {
 }
 
 func testGitCommit(t *testing.T, worktree *git.Worktree) plumbing.Hash {
-	commit, err := worktree.Commit("example go-git commit", &git.CommitOptions{
+	return testGitCommitWith(t, worktree, &git.CommitOptions{
 		Author:    testSignature(),
 		Committer: testSignature(),
 	})
+}
+
+func testGitCommitWith(t *testing.T, worktree *git.Worktree, options *git.CommitOptions) plumbing.Hash {
+	commit, err := worktree.Commit("example go-git commit", options)
 	if err != nil {
 		t.Fatal(err)
 	}
