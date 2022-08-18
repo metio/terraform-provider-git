@@ -91,7 +91,7 @@ func (r *resourceGitTagType) NewResource(_ context.Context, p provider.Provider)
 }
 
 func (r *resourceGitTag) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	tflog.Debug(ctx, "Creating Git tag")
+	tflog.Debug(ctx, "Create git_tag")
 
 	var inputs resourceGitTagSchema
 	diags := req.Config.Get(ctx, &inputs)
@@ -152,7 +152,7 @@ func (r *resourceGitTag) Create(ctx context.Context, req resource.CreateRequest,
 }
 
 func (r *resourceGitTag) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	tflog.Debug(ctx, "Reading Git tag")
+	tflog.Debug(ctx, "Read git_tag")
 
 	var state resourceGitTagSchema
 	diags := req.State.Get(ctx, &state)
@@ -200,12 +200,12 @@ func (r *resourceGitTag) Read(ctx context.Context, req resource.ReadRequest, res
 }
 
 func (r *resourceGitTag) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	tflog.Debug(ctx, "Updating Git tag")
+	tflog.Debug(ctx, "Update git_tag")
 	// NO-OP: all attributes require replace, thus Delete and Create methods will be called
 }
 
 func (r *resourceGitTag) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	tflog.Debug(ctx, "Removing Git tag")
+	tflog.Debug(ctx, "Delete git_tag")
 
 	var state resourceGitTagSchema
 	diags := req.State.Get(ctx, &state)
@@ -229,6 +229,8 @@ func (r *resourceGitTag) Delete(ctx context.Context, req resource.DeleteRequest,
 }
 
 func (r *resourceGitTag) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	tflog.Debug(ctx, "ImportState git_tag")
+
 	id := req.ID
 	idParts := strings.Split(id, "|")
 
