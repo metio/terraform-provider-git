@@ -81,7 +81,7 @@ func (r *resourceGitRemoteType) NewResource(_ context.Context, p provider.Provid
 }
 
 func (r *resourceGitRemote) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	tflog.Debug(ctx, "Creating Git remote")
+	tflog.Debug(ctx, "Create git_remote")
 
 	var inputs resourceGitRemoteSchema
 
@@ -136,7 +136,7 @@ func (r *resourceGitRemote) Create(ctx context.Context, req resource.CreateReque
 }
 
 func (r *resourceGitRemote) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	tflog.Debug(ctx, "Reading Git remote")
+	tflog.Debug(ctx, "Read git_remote")
 
 	var state resourceGitRemoteSchema
 	diags := req.State.Get(ctx, &state)
@@ -174,7 +174,7 @@ func (r *resourceGitRemote) Read(ctx context.Context, req resource.ReadRequest, 
 }
 
 func (r *resourceGitRemote) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	tflog.Debug(ctx, "Updating Git remote")
+	tflog.Debug(ctx, "Update git_remote")
 
 	var inputs resourceGitRemoteSchema
 
@@ -245,7 +245,7 @@ func (r *resourceGitRemote) Update(ctx context.Context, req resource.UpdateReque
 }
 
 func (r *resourceGitRemote) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	tflog.Debug(ctx, "Removing Git remote")
+	tflog.Debug(ctx, "Delete git_remote")
 
 	var state resourceGitRemoteSchema
 
@@ -274,6 +274,8 @@ func (r *resourceGitRemote) Delete(ctx context.Context, req resource.DeleteReque
 }
 
 func (r *resourceGitRemote) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	tflog.Debug(ctx, "ImportState git_remote")
+
 	id := req.ID
 	idParts := strings.Split(id, "|")
 

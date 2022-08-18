@@ -74,7 +74,7 @@ func (r *resourceGitInitType) NewResource(_ context.Context, p provider.Provider
 }
 
 func (r *resourceGitInit) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	tflog.Debug(ctx, "Creating Git repository")
+	tflog.Debug(ctx, "Create git_init")
 
 	var inputs resourceGitInitSchema
 	var state resourceGitInitSchema
@@ -119,7 +119,7 @@ func (r *resourceGitInit) Create(ctx context.Context, req resource.CreateRequest
 }
 
 func (r *resourceGitInit) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	tflog.Debug(ctx, "Reading Git repository")
+	tflog.Debug(ctx, "Read git_init")
 
 	var state resourceGitInitSchema
 	diags := req.State.Get(ctx, &state)
@@ -153,12 +153,12 @@ func (r *resourceGitInit) Read(ctx context.Context, req resource.ReadRequest, re
 }
 
 func (r *resourceGitInit) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	tflog.Debug(ctx, "Updating Git repository")
+	tflog.Debug(ctx, "Update git_init")
 	updatedUsingPlan(ctx, &req, resp, &resourceGitInitSchema{})
 }
 
 func (r *resourceGitInit) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	tflog.Debug(ctx, "Removing Git repository")
+	tflog.Debug(ctx, "Delete git_init")
 
 	var state resourceGitInitSchema
 	diags := req.State.Get(ctx, &state)
@@ -191,6 +191,8 @@ func (r *resourceGitInit) Delete(ctx context.Context, req resource.DeleteRequest
 }
 
 func (r *resourceGitInit) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	tflog.Debug(ctx, "ImportState git_init")
+
 	if req.ID == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected import identifier",
