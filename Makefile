@@ -9,10 +9,15 @@ MAKEFLAGS += --no-builtin-rules
 .ONESHELL:
 .DELETE_ON_ERROR:
 .DEFAULT_GOAL := help
-SHELL := zsh
-.SHELLFLAGS += -e
-.SHELLFLAGS += -u
-.SHELLFLAGS += -o pipefail
+ifneq ($(strip $(shell which zsh)),)
+  SHELL := zsh
+  .SHELLFLAGS += -o pipefail
+else ifneq ($(strip $(shell which bash)),)
+  SHELL := bash
+  .SHELLFLAGS += -o pipefail
+else
+  SHELL := sh
+endif
 
 ###############################################################################
 # COMMON RULES                                                                #
