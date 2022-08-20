@@ -3,7 +3,7 @@
 
 data "git_commit" "current_head" {
   directory = data.git_repository.repository.directory
-  sha1      = data.git_branch.current.sha1
+  sha1      = data.git_repository.repository.sha1
 }
 
 output "data_source_git_commit_current_head" {
