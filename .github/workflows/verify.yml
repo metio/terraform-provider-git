@@ -89,7 +89,7 @@ jobs:
   acceptance:
     name: Acceptance Tests with TF ${{ matrix.terraform }}
     needs: build
-    runs-on:             ubuntu-latest
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -115,6 +115,12 @@ jobs:
         with:
           terraform_version: ${{ matrix.terraform }}
           terraform_wrapper: false
-      - id: tests
-        name: Run Tests
-        run: make acceptance
+      - id: install
+        name: Install Provider
+        run: make install
+      - id: init
+        name: Initialize Terraform
+        run: terraform -chdir=./tests init
+      - id: apply
+        name: Apply Terraform
+        run: terraform -chdir=./tests apply -auto-approve -var="git_repo_path=${GITHUB_WORKSPACE}"
