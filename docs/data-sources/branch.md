@@ -15,7 +15,7 @@ Fetches information about a specific branch of a Git repository.
 ```terraform
 data "git_branch" "branch" {
   directory = "/path/to/git/repository"
-  branch    = "name-of-branch"
+  name      = "name-of-branch"
 }
 ```
 
