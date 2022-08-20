@@ -27,7 +27,8 @@ data "git_repository" "repository" {
 
 ### Read-Only
 
-- `branch` (String) The current branch of the given Git repository.
+- `branch` (String) The current branch of the given Git repository. Note that repositories in detached state might not have a branch associated with them.
 - `id` (String) The same value as the `directory` attribute.
+- `sha1` (String) The current SHA1 of the `HEAD` of the given Git repository.
 
 

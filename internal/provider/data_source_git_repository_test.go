@@ -33,6 +33,36 @@ func TestDataSourceGitRepository(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_repository.test", "directory", directory),
 					resource.TestCheckResourceAttr("data.git_repository.test", "id", directory),
 					resource.TestCheckResourceAttr("data.git_repository.test", "branch", "master"),
+					resource.TestCheckResourceAttrWith("data.git_repository.test", "sha1", testCheckMinLength(4)),
+				),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitRepository_Detached(t *testing.T) {
+	t.Parallel()
+	directory, repository := testRepository(t)
+	defer os.RemoveAll(directory)
+	worktree := testWorktree(t, repository)
+	testAddAndCommitNewFile(t, worktree, "some-file")
+	head := testReadHead(t, repository)
+	testGitCheckout(t, worktree, head.Hash())
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: testProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "git_repository" "test" {
+						directory = "%s"
+					}
+				`, directory),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.git_repository.test", "directory", directory),
+					resource.TestCheckResourceAttr("data.git_repository.test", "id", directory),
+					resource.TestCheckNoResourceAttr("data.git_repository.test", "branch"),
+					resource.TestCheckResourceAttrWith("data.git_repository.test", "sha1", testCheckMinLength(4)),
 				),
 			},
 		},

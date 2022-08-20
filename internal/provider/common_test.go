@@ -164,6 +164,15 @@ func testReadHead(t *testing.T, repository *git.Repository) *plumbing.Reference 
 	return head
 }
 
+func testGitCheckout(t *testing.T, worktree *git.Worktree, hash plumbing.Hash) {
+	err := worktree.Checkout(&git.CheckoutOptions{
+		Hash: hash,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func testSignature() *object.Signature {
 	return &object.Signature{
 		Name:  "Some Person",
