@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: The terraform-provider-git Authors
+# SPDX-License-Identifier: 0BSD
+
 data "git_tags" "tags" {
   directory = data.git_repository.repository.directory
 }

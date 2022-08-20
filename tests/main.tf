@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: The terraform-provider-git Authors
+# SPDX-License-Identifier: 0BSD
+
 terraform {
   required_providers {
     git = {
