@@ -34,6 +34,7 @@ func (p *gitProvider) Configure(_ context.Context, _ provider.ConfigureRequest, 
 // GetResources - Defines gitProvider resources
 func (p *gitProvider) GetResources(_ context.Context) (map[string]provider.ResourceType, diag.Diagnostics) {
 	return map[string]provider.ResourceType{
+		"git_add":    &resourceGitAddType{},
 		"git_init":   &resourceGitInitType{},
 		"git_remote": &resourceGitRemoteType{},
 		"git_tag":    &resourceGitTagType{},
