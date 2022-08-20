@@ -53,6 +53,15 @@ func testCreateBranch(t *testing.T, repository *git.Repository, branch *config.B
 	if err != nil {
 		t.Fatal(err)
 	}
+	head, err := repository.Head()
+	if err != nil {
+		t.Fatal(err)
+	}
+	reference := plumbing.NewHashReference(plumbing.NewBranchReferenceName(branch.Name), head.Hash())
+	err = repository.Storer.SetReference(reference)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func testWorktree(t *testing.T, repository *git.Repository) *git.Worktree {
