@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/metio/terraform-provider-git/internal/provider"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -41,7 +41,7 @@ func testGitInit(t *testing.T, directory string, bare bool) *git.Repository {
 }
 
 func testTemporaryDirectory(t *testing.T) string {
-	directory, err := ioutil.TempDir("", "terraform-provider-git")
+	directory, err := os.MkdirTemp("", "terraform-provider-git")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +74,7 @@ func testWorktree(t *testing.T, repository *git.Repository) *git.Worktree {
 
 func testWriteFile(t *testing.T, worktree *git.Worktree, name string) {
 	filename := filepath.Join(worktree.Filesystem.Root(), name)
-	err := ioutil.WriteFile(filename, []byte("hello world!"), 0644)
+	err := os.WriteFile(filename, []byte("hello world!"), 0644)
 	if err != nil {
 		t.Fatal(err)
 	}
