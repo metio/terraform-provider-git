@@ -7,6 +7,7 @@ package provider
 
 import (
 	"context"
+	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -102,20 +103,6 @@ func (r *dataSourceGitBranch) Read(ctx context.Context, req datasource.ReadReque
 		return
 	}
 
-	branch, err := repository.Branch(name)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Cannot read branch",
-			"Could not read branch ["+name+"] of ["+directory+"] because of: "+err.Error(),
-		)
-		return
-	}
-
-	tflog.Trace(ctx, "read branch", map[string]interface{}{
-		"directory": directory,
-		"branch":    branch.Name,
-	})
-
 	branches, err := repository.Branches()
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -124,9 +111,30 @@ func (r *dataSourceGitBranch) Read(ctx context.Context, req datasource.ReadReque
 		)
 		return
 	}
+	state.SHA1 = types.String{Unknown: true}
 	if err := branches.ForEach(func(ref *plumbing.Reference) error {
-		if ref.Name().Short() == branch.Name {
+		if ref.Name().Short() == name {
 			state.SHA1 = types.String{Value: ref.Hash().String()}
+
+			branch, err := repository.Branch(name)
+			if branch != nil {
+				state.Remote = types.String{Value: branch.Remote}
+				state.Rebase = types.String{Value: branch.Rebase}
+			} else if err == git.ErrBranchNotFound {
+				state.Remote = types.String{Null: true}
+				state.Rebase = types.String{Null: true}
+			} else if err != nil {
+				resp.Diagnostics.AddError(
+					"Cannot read branch",
+					"Could not read branch ["+name+"] of ["+directory+"] because of: "+err.Error(),
+				)
+				return err
+			}
+
+			tflog.Trace(ctx, "read branch", map[string]interface{}{
+				"directory": directory,
+				"branch":    name,
+			})
 		}
 		return nil
 	}); err != nil {
@@ -137,11 +145,16 @@ func (r *dataSourceGitBranch) Read(ctx context.Context, req datasource.ReadReque
 		return
 	}
 
+	if state.SHA1.IsNull() || state.SHA1.IsUnknown() {
+		resp.Diagnostics.AddError(
+			"Cannot read branch",
+			"The branch ["+name+"] does not exist in ["+directory+"]",
+		)
+	}
+
 	state.Directory = inputs.Directory
 	state.Id = inputs.Name
 	state.Name = inputs.Name
-	state.Remote = types.String{Value: branch.Remote}
-	state.Rebase = types.String{Value: branch.Rebase}
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

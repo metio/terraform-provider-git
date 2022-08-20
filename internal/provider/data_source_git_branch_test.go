@@ -18,6 +18,8 @@ func TestDataSourceGitBranch(t *testing.T) {
 	t.Parallel()
 	directory, repository := testRepository(t)
 	defer os.RemoveAll(directory)
+	worktree := testWorktree(t, repository)
+	testAddAndCommitNewFile(t, worktree, "some-file")
 	name := "name-of-branch"
 	remote := "origin"
 	rebase := "true"
