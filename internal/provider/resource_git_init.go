@@ -54,10 +54,10 @@ func (c *resourceGitInitType) GetSchema(_ context.Context) (tfsdk.Schema, diag.D
 				Computed:            true,
 			},
 			"bare": {
-				Description: "Whether the created Git repository is bare or not. Defaults to `false`.",
-				Type:        types.BoolType,
-				Computed:    true,
-				Optional:    true,
+				MarkdownDescription: "Whether the created Git repository is bare or not. Defaults to `false`.",
+				Type:                types.BoolType,
+				Computed:            true,
+				Optional:            true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
 					modifiers.DefaultValue(types.Bool{Value: false}),
 					resource.RequiresReplace(),
