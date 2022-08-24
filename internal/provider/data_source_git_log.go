@@ -8,6 +8,7 @@ package provider
 import (
 	"context"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -103,12 +104,18 @@ func (r *dataSourceGitLogType) GetSchema(_ context.Context) (tfsdk.Schema, diag.
 				Type:                types.Int64Type,
 				Computed:            true,
 				Optional:            true,
+				Validators: []tfsdk.AttributeValidator{
+					int64validator.AtLeast(0),
+				},
 			},
 			"skip": {
 				MarkdownDescription: "Skip first number of commits in output.",
 				Type:                types.Int64Type,
 				Computed:            true,
 				Optional:            true,
+				Validators: []tfsdk.AttributeValidator{
+					int64validator.AtLeast(0),
+				},
 			},
 			"filter_paths": {
 				MarkdownDescription: "Show only commits that are enough to explain how the files that match the specified paths came to be. Note that these are not Git `pathspec` but rather Go [path matchers](https://pkg.go.dev/path#Match) thus you have to add `/*` for directories yourself.",
@@ -185,7 +192,7 @@ func (r *dataSourceGitLog) Read(ctx context.Context, req datasource.ReadRequest,
 		return nil
 	})
 	if !inputs.Skip.IsNull() && !inputs.Skip.IsUnknown() {
-		if int64(len(hashes)) > inputs.Skip.Value {
+		if int64(len(hashes)) >= inputs.Skip.Value {
 			hashes = hashes[inputs.Skip.Value:]
 		}
 	}
