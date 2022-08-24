@@ -126,7 +126,7 @@ func (r *dataSourceGitLogType) GetSchema(_ context.Context) (tfsdk.Schema, diag.
 				Optional: true,
 			},
 			"commits": {
-				MarkdownDescription: "The resulting commits ordered as by the `order` attribute.",
+				MarkdownDescription: "The resulting commit SHA1 hashes ordered as specified by the `order` attribute.",
 				Type: types.ListType{
 					ElemType: types.StringType,
 				},
