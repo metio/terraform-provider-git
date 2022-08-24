@@ -44,21 +44,9 @@ data "git_log" "from_at" {
   max_count = 5
 }
 
-data "git_log" "from_main" {
-  directory = data.git_repository.repository.directory
-  from      = "main"
-  max_count = 5
-}
-
 data "git_log" "from_tag" {
   directory = data.git_repository.repository.directory
   from      = "2022.8.12"
-  max_count = 5
-}
-
-data "git_log" "from_tilde" {
-  directory = data.git_repository.repository.directory
-  from      = "main~3"
   max_count = 5
 }
 
@@ -127,16 +115,8 @@ output "data_source_git_log_from_at" {
   value = data.git_log.from_at
 }
 
-output "data_source_git_log_from_main" {
-  value = data.git_log.from_main
-}
-
 output "data_source_git_log_from_tag" {
   value = data.git_log.from_tag
-}
-
-output "data_source_git_log_from_tilde" {
-  value = data.git_log.from_tilde
 }
 
 output "data_source_git_log_range" {
