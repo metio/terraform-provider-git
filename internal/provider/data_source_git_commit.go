@@ -26,6 +26,7 @@ type dataSourceGitCommit struct {
 type dataSourceGitCommitSchema struct {
 	Directory types.String `tfsdk:"directory"`
 	Id        types.String `tfsdk:"id"`
+	Revision  types.String `tfsdk:"revision"`
 	SHA1      types.String `tfsdk:"sha1"`
 	Author    types.Object `tfsdk:"author"`
 	Committer types.Object `tfsdk:"committer"`
@@ -47,17 +48,22 @@ func (r *dataSourceGitCommitType) GetSchema(_ context.Context) (tfsdk.Schema, di
 				},
 			},
 			"id": {
-				MarkdownDescription: "The same value as the `sha1` attribute.",
+				MarkdownDescription: "The same value as the `revision` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
-			"sha1": {
-				Description: "The SHA1 checksum of the commit. Can be the entire SHA1 hash or at least the first 4 letters of the hash.",
-				Type:        types.StringType,
-				Required:    true,
+			"revision": {
+				MarkdownDescription: "The [revision](https://www.git-scm.com/docs/gitrevisions) of the commit to fetch. Note that `go-git` does not [support](https://pkg.go.dev/github.com/go-git/go-git/v5#Repository.ResolveRevision) every revision type at the moment.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
-					stringvalidator.LengthAtLeast(4),
+					stringvalidator.LengthAtLeast(1),
 				},
+			},
+			"sha1": {
+				MarkdownDescription: "The SHA1 hash of the resolved revision.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"author": {
 				Description: "The original author of the commit.",
@@ -127,10 +133,9 @@ func (r *dataSourceGitCommitType) NewDataSource(_ context.Context, p provider.Pr
 }
 
 func (r *dataSourceGitCommit) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	tflog.Debug(ctx, "Reading Git commit information")
+	tflog.Debug(ctx, "Read data source git_commit")
 
 	var inputs dataSourceGitCommitSchema
-	var state dataSourceGitCommitSchema
 
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
@@ -139,26 +144,36 @@ func (r *dataSourceGitCommit) Read(ctx context.Context, req datasource.ReadReque
 	}
 
 	directory := inputs.Directory.Value
-	sha1 := inputs.SHA1.Value
+	revision := inputs.Revision.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
 		return
 	}
 
-	state.Directory = inputs.Directory
-	state.Id = inputs.SHA1
-	state.SHA1 = inputs.SHA1
-
-	commit, err := repository.CommitObject(plumbing.NewHash(sha1))
+	hash, err := repository.ResolveRevision(plumbing.Revision(revision))
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Cannot read commit",
-			"Could not read commit ["+sha1+"] because of: "+err.Error(),
+			"Cannot resolve revision",
+			"Could not resolve revision ["+revision+"] because of: "+err.Error(),
 		)
 		return
 	}
 
+	commit, err := repository.CommitObject(*hash)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Cannot read commit",
+			"Could not read commit ["+hash.String()+"] because of: "+err.Error(),
+		)
+		return
+	}
+
+	var state dataSourceGitCommitSchema
+	state.Directory = inputs.Directory
+	state.Id = inputs.Revision
+	state.Revision = inputs.Revision
+	state.SHA1 = types.String{Value: commit.Hash.String()}
 	state.Message = types.String{Value: commit.Message}
 	state.Signature = types.String{Value: commit.PGPSignature}
 	state.TreeSHA1 = types.String{Value: commit.TreeHash.String()}

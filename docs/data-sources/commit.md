@@ -13,9 +13,34 @@ Fetches information about a single commit.
 ## Example Usage
 
 ```terraform
-data "git_commit" "commit" {
+# get commit by full sha1
+data "git_commit" "full_sha1" {
   directory = "/path/to/git/repository"
-  sha1      = "afe4"
+  revision  = "dae86e1950b1277e545cee180551750029cfe735"
+}
+
+# get commit by short sha1
+data "git_commit" "short_sha1" {
+  directory = "/path/to/git/repository"
+  revision  = "dae86e"
+}
+
+# get commit by refname
+data "git_commit" "refname" {
+  directory = "/path/to/git/repository"
+  revision  = "main"
+}
+
+# get commit by head shortcut
+data "git_commit" "head_shortcut" {
+  directory = "/path/to/git/repository"
+  revision  = "@"
+}
+
+# get commit by parent
+data "git_commit" "head_parent" {
+  directory = "/path/to/git/repository"
+  revision  = "HEAD~1"
 }
 ```
 
@@ -25,14 +50,15 @@ data "git_commit" "commit" {
 ### Required
 
 - `directory` (String) The path to the local Git repository.
-- `sha1` (String) The SHA1 checksum of the commit. Can be the entire SHA1 hash or at least the first 4 letters of the hash.
+- `revision` (String) The [revision](https://www.git-scm.com/docs/gitrevisions) of the commit to fetch. Note that `go-git` does not [support](https://pkg.go.dev/github.com/go-git/go-git/v5#Repository.ResolveRevision) every revision type at the moment.
 
 ### Read-Only
 
 - `author` (Attributes) The original author of the commit. (see [below for nested schema](#nestedatt--author))
 - `committer` (Attributes) The person performing the commit. (see [below for nested schema](#nestedatt--committer))
-- `id` (String) The same value as the `sha1` attribute.
+- `id` (String) The same value as the `revision` attribute.
 - `message` (String) The message of the commit.
+- `sha1` (String) The SHA1 hash of the resolved revision.
 - `signature` (String) The signature of the commit.
 - `tree_sha1` (String) The SHA1 checksum of the root tree of the commit.
 
