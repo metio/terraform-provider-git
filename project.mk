@@ -33,32 +33,33 @@ out/acceptance-sentinel: tests/.terraform.lock.hcl $(shell find tests -type f -n
 	terraform -chdir=./tests apply -auto-approve -var="git_repo_path=${CURDIR}"
 	touch $@
 
-out/test-sentinel: $(shell find internal -type f -name '*.go')
+out/tests-sentinel: $(shell find internal -type f -name '*.go')
 	mkdir --parents $(@D)
 	go test -v -cover -timeout=120s -parallel=4 ./internal/provider
 	touch $@
 
+##@ hacking
 .PHONY: install
-install: out/install-sentinel
+install: out/install-sentinel ## install the provider locally
 
 .PHONY: docs
-docs: out/docs-sentinel
+docs: out/docs-sentinel ## generate the documentation
 
 .PHONY: acceptance
-acceptance: out/acceptance-sentinel
+acceptance: out/acceptance-sentinel ## run the acceptance tests
+
+.PHONY: tests
+tests: out/tests-sentinel ## run the integration tests
 
 .PHONY: test
-test: out/test-sentinel
-
-.PHONY: single
-single:
+test: ## run specific tests
 	go test -v -timeout=120s -run $(filter-out $@,$(MAKECMDGOALS)) ./internal/provider
 
-.PHONY: fmt
-fmt:
+.PHONY: format
+format: ## format go code
 	gofmt -s -w -e .
 
 .PHONY: update
-update:
+update: ## update all dependencies
 	go get -u
 	go mod tidy
