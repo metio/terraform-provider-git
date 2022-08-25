@@ -56,6 +56,7 @@ data "git_commit" "head_parent" {
 
 - `author` (Attributes) The original author of the commit. (see [below for nested schema](#nestedatt--author))
 - `committer` (Attributes) The person performing the commit. (see [below for nested schema](#nestedatt--committer))
+- `files` (List of String) The files updated by the commit.
 - `id` (String) The same value as the `revision` attribute.
 - `message` (String) The message of the commit.
 - `sha1` (String) The SHA1 hash of the resolved revision.
