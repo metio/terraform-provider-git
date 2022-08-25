@@ -33,6 +33,7 @@ type dataSourceGitCommitSchema struct {
 	Message   types.String `tfsdk:"message"`
 	Signature types.String `tfsdk:"signature"`
 	TreeSHA1  types.String `tfsdk:"tree_sha1"`
+	Files     types.List   `tfsdk:"files"`
 }
 
 func (r *dataSourceGitCommitType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
@@ -122,6 +123,13 @@ func (r *dataSourceGitCommitType) GetSchema(_ context.Context) (tfsdk.Schema, di
 				Type:        types.StringType,
 				Computed:    true,
 			},
+			"files": {
+				Description: "The files updated by the commit.",
+				Type: types.ListType{
+					ElemType: types.StringType,
+				},
+				Computed: true,
+			},
 		},
 	}, nil
 }
@@ -179,6 +187,7 @@ func (r *dataSourceGitCommit) Read(ctx context.Context, req datasource.ReadReque
 	state.TreeSHA1 = types.String{Value: commit.TreeHash.String()}
 	state.Author = signatureToObject(&commit.Author)
 	state.Committer = signatureToObject(&commit.Committer)
+	state.Files = stringsToList(extractModifiedFiles(commit))
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
