@@ -69,6 +69,31 @@ func TestDataSourceGitRepository_Detached(t *testing.T) {
 	})
 }
 
+func TestDataSourceGitRepository_Empty(t *testing.T) {
+	t.Parallel()
+	directory, _ := testRepository(t)
+	defer os.RemoveAll(directory)
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: testProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "git_repository" "test" {
+						directory = "%s"
+					}
+				`, directory),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.git_repository.test", "directory", directory),
+					resource.TestCheckResourceAttr("data.git_repository.test", "id", directory),
+					resource.TestCheckNoResourceAttr("data.git_repository.test", "branch"),
+					resource.TestCheckNoResourceAttr("data.git_repository.test", "sha1"),
+				),
+			},
+		},
+	})
+}
+
 func TestDataSourceGitRepository_InvalidRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
