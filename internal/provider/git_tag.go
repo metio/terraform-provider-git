@@ -14,18 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-func createTagReference(repository *git.Repository, inputs resourceGitTagSchema) (*plumbing.Reference, error) {
-	if inputs.SHA1.IsNull() || inputs.SHA1.IsUnknown() {
-		head, err := repository.Head()
-		if err != nil {
-			return nil, err
-		}
-		return head, nil
-	}
-
-	return plumbing.NewHashReference("tag", plumbing.NewHash(inputs.SHA1.Value)), nil
-}
-
 func createTagOptions(inputs resourceGitTagSchema) *git.CreateTagOptions {
 	if inputs.Message.IsNull() || inputs.Message.IsUnknown() {
 		return nil

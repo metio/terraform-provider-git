@@ -8,6 +8,7 @@ package provider
 import (
 	"context"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -25,4 +26,20 @@ func openRepository(ctx context.Context, directory string, diag *diag.Diagnostic
 		"directory": directory,
 	})
 	return repository
+}
+
+func resolveRevision(ctx context.Context, repository *git.Repository, revision string, diag *diag.Diagnostics) *plumbing.Hash {
+	hash, err := repository.ResolveRevision(plumbing.Revision(revision))
+	if err != nil {
+		diag.AddError(
+			"Cannot resolve revision",
+			"Could not resolve revision ["+revision+"] because of: "+err.Error(),
+		)
+		return nil
+	}
+	tflog.Trace(ctx, "resolved revision", map[string]interface{}{
+		"revision": revision,
+		"hash":     hash.String(),
+	})
+	return hash
 }
