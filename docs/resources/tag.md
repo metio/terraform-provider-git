@@ -27,7 +27,19 @@ resource "git_tag" "annotated_tag" {
 resource "git_tag" "specific_commit" {
   directory = "/path/to/git/repository"
   name      = "v1.2.3"
-  sha1      = "b1af8d13f5131c9b4de9ddd06e311c2e79fdb285"
+  revision  = "b1af8d13f5131c9b4de9ddd06e311c2e79fdb285"
+}
+
+resource "git_tag" "head" {
+  directory = "/path/to/git/repository"
+  name      = "v1.2.3"
+  revision  = "HEAD"
+}
+
+resource "git_tag" "branch" {
+  directory = "/path/to/git/repository"
+  name      = "v1.2.3"
+  revision  = "main"
 }
 ```
 
@@ -42,11 +54,12 @@ resource "git_tag" "specific_commit" {
 ### Optional
 
 - `message` (String) The tag message to use. Note that by specifying a message, an annotated tag will be created.
-- `sha1` (String) The SHA1 checksum of the commit to tag. If none is specified, `HEAD` will be tagged.
+- `revision` (String) The [revision](https://www.git-scm.com/docs/gitrevisions) of the commit to tag. Can be any value that `go-git` [supports](https://pkg.go.dev/github.com/go-git/go-git/v5#Repository.ResolveRevision). If none is specified, `HEAD` will be tagged.
 
 ### Read-Only
 
 - `id` (String) The import ID to import this resource which has the form `'directory|name'`
+- `sha1` (String) The SHA1 hash of the resolved revision.
 
 ## Import
 
@@ -54,7 +67,8 @@ Import is supported using the following syntax:
 
 ```shell
 # git_tag resources can be imported by specifying the directory of the
-# Git repository and the name of the tag to import. Both values are
-# separated by a single '|'.
-terraform import git_tag.tag 'path/to/your/git/repository|name-of-your-tag'
+# Git repository, the name of the tag to import, and the revision. All
+# values are separated by a single '|'. The revision is optional and
+# will default to 'HEAD' if not specified.
+terraform import git_tag.tag 'path/to/your/git/repository|name-of-your-tag|revision'
 ```
