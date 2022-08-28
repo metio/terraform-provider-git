@@ -8,7 +8,6 @@ package provider
 import (
 	"context"
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"path"
@@ -24,15 +23,11 @@ func createLogOptions(ctx context.Context, repository *git.Repository, inputs *d
 	})
 
 	if !inputs.From.IsNull() && !inputs.From.IsUnknown() {
-		revision, err := repository.ResolveRevision(plumbing.Revision(inputs.From.Value))
-		if err != nil {
-			diag.AddError(
-				"Cannot resolve revision",
-				"Could revision ["+inputs.From.Value+"] because of: "+err.Error(),
-			)
+		hash := resolveRevision(ctx, repository, inputs.From.Value, diag)
+		if hash == nil {
 			return nil
 		}
-		logOptions.From = *revision
+		logOptions.From = *hash
 		tflog.Trace(ctx, "using 'From'", map[string]interface{}{
 			"from": logOptions.From,
 		})

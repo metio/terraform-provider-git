@@ -7,7 +7,6 @@ package provider
 
 import (
 	"context"
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -159,12 +158,8 @@ func (r *dataSourceGitCommit) Read(ctx context.Context, req datasource.ReadReque
 		return
 	}
 
-	hash, err := repository.ResolveRevision(plumbing.Revision(revision))
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Cannot resolve revision",
-			"Could not resolve revision ["+revision+"] because of: "+err.Error(),
-		)
+	hash := resolveRevision(ctx, repository, revision, &resp.Diagnostics)
+	if hash == nil {
 		return
 	}
 
