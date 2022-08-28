@@ -32,6 +32,12 @@ func testRepository(t *testing.T) (string, *git.Repository) {
 	return directory, repository
 }
 
+func testRepositoryBare(t *testing.T) string {
+	directory := testTemporaryDirectory(t)
+	testGitInit(t, directory, true)
+	return directory
+}
+
 func testGitInit(t *testing.T, directory string, bare bool) *git.Repository {
 	repository, err := git.PlainInit(directory, bare)
 	if err != nil {

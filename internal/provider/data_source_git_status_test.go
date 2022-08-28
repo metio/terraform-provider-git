@@ -77,8 +77,7 @@ func TestDataSourceGitStatus_Clean(t *testing.T) {
 
 func TestDataSourceGitStatus_BareRepository(t *testing.T) {
 	t.Parallel()
-	directory := testTemporaryDirectory(t)
-	testGitInit(t, directory, true)
+	directory := testRepositoryBare(t)
 	defer os.RemoveAll(directory)
 	fileName := "some-file"
 
