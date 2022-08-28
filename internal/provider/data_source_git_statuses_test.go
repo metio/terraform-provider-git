@@ -73,8 +73,7 @@ func TestDataSourceGitStatuses_Clean(t *testing.T) {
 
 func TestDataSourceGitStatuses_BareRepository(t *testing.T) {
 	t.Parallel()
-	directory := testTemporaryDirectory(t)
-	testGitInit(t, directory, true)
+	directory := testRepositoryBare(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
