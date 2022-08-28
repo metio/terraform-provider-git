@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/metio/terraform-provider-git/internal/modifiers"
 	"strings"
 )
 
@@ -29,6 +30,7 @@ type resourceGitTagSchema struct {
 	Id        types.String `tfsdk:"id"`
 	Name      types.String `tfsdk:"name"`
 	Message   types.String `tfsdk:"message"`
+	Revision  types.String `tfsdk:"revision"`
 	SHA1      types.String `tfsdk:"sha1"`
 }
 
@@ -63,14 +65,20 @@ func (r *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 					resource.RequiresReplace(),
 				},
 			},
-			"sha1": {
-				MarkdownDescription: "The SHA1 checksum of the commit to tag. If none is specified, `HEAD` will be tagged.",
+			"revision": {
+				MarkdownDescription: "The [revision](https://www.git-scm.com/docs/gitrevisions) of the commit to tag. Can be any value that `go-git` [supports](https://pkg.go.dev/github.com/go-git/go-git/v5#Repository.ResolveRevision). If none is specified, `HEAD` will be tagged.",
 				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
+					modifiers.DefaultValue(types.String{Value: "HEAD"}),
 					resource.RequiresReplace(),
 				},
+			},
+			"sha1": {
+				Description: "The SHA1 hash of the resolved revision.",
+				Type:        types.StringType,
+				Computed:    true,
 			},
 			"message": {
 				Description: "The tag message to use. Note that by specifying a message, an annotated tag will be created.",
@@ -108,22 +116,17 @@ func (r *resourceGitTag) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	reference, err := createTagReference(repository, inputs)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Cannot create tag reference",
-			"Could not create tag reference in git repository ["+directory+"] because of: "+err.Error(),
-		)
+	// NOTE: It seems default values are not working?
+	if inputs.Revision.IsNull() {
+		inputs.Revision = types.String{Value: "HEAD"}
+	}
+
+	hash := resolveRevision(ctx, repository, inputs.Revision.Value, &resp.Diagnostics)
+	if hash == nil {
 		return
 	}
 
-	tflog.Trace(ctx, "created tag reference", map[string]interface{}{
-		"directory": directory,
-		"tag":       tagName,
-		"reference": reference.Hash(),
-	})
-
-	_, err = repository.CreateTag(tagName, reference.Hash(), createTagOptions(inputs))
+	_, err := repository.CreateTag(tagName, *hash, createTagOptions(inputs))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Cannot create tag",
@@ -142,7 +145,8 @@ func (r *resourceGitTag) Create(ctx context.Context, req resource.CreateRequest,
 	state.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, tagName)}
 	state.Name = inputs.Name
 	state.Message = inputs.Message
-	state.SHA1 = types.String{Value: reference.Hash().String()}
+	state.Revision = inputs.Revision
+	state.SHA1 = types.String{Value: hash.String()}
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -185,6 +189,7 @@ func (r *resourceGitTag) Read(ctx context.Context, req resource.ReadRequest, res
 	newState.Directory = state.Directory
 	newState.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, tagName)}
 	newState.Name = state.Name
+	newState.Revision = state.Revision
 	newState.SHA1 = types.String{Value: tagReference.Hash().String()}
 	if tagObject == nil {
 		newState.Message = types.String{Null: true}
@@ -234,10 +239,10 @@ func (r *resourceGitTag) ImportState(ctx context.Context, req resource.ImportSta
 	id := req.ID
 	idParts := strings.Split(id, "|")
 
-	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
+	if len(idParts) < 2 || len(idParts) > 3 || idParts[0] == "" || idParts[1] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected import identifier",
-			fmt.Sprintf("Expected import identifier with format: 'path/to/your/git/repository|name-of-your-tag' Got: %q", id),
+			fmt.Sprintf("Expected import identifier with format: 'path/to/your/git/repository|name-of-your-tag|revision' Got: %q", id),
 		)
 		return
 	}
@@ -260,10 +265,18 @@ func (r *resourceGitTag) ImportState(ctx context.Context, req resource.ImportSta
 		return
 	}
 
+	var revision string
+	if len(idParts) == 2 {
+		revision = "HEAD"
+	} else {
+		revision = idParts[2]
+	}
+
 	var state resourceGitTagSchema
 	state.Directory = types.String{Value: directory}
 	state.Id = types.String{Value: id}
 	state.Name = types.String{Value: tagName}
+	state.Revision = types.String{Value: revision}
 	state.SHA1 = types.String{Value: tagReference.Hash().String()}
 	if tagObject == nil {
 		state.Message = types.String{Null: true}
