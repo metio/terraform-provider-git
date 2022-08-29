@@ -8,6 +8,7 @@ package provider_test
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"regexp"
 	"testing"
@@ -35,7 +36,7 @@ func TestDataSourceGitBranches(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_branches.test", "branches.%", "1"),
 					resource.TestCheckNoResourceAttr("data.git_branches.test", "branches.master.remote"),
 					resource.TestCheckNoResourceAttr("data.git_branches.test", "branches.master.rebase"),
-					resource.TestCheckResourceAttrWith("data.git_branches.test", "branches.master.sha1", testCheckExactLength(40)),
+					resource.TestCheckResourceAttrWith("data.git_branches.test", "branches.master.sha1", testutils.TestCheckExactLength(40)),
 				),
 			},
 		},
