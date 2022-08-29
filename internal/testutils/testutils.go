@@ -1,42 +1,22 @@
+//go:build testing
+
 /*
  * SPDX-FileCopyrightText: The terraform-provider-git Authors
  * SPDX-License-Identifier: 0BSD
  */
 
-package provider_test
+package testutils
 
 import (
-	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
-	"github.com/hashicorp/terraform-plugin-framework/providerserver"
-	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
-	"github.com/metio/terraform-provider-git/internal/provider"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 )
-
-func testProviderFactories() map[string]func() (tfprotov6.ProviderServer, error) {
-	return map[string]func() (tfprotov6.ProviderServer, error){
-		"git": providerserver.NewProtocol6WithError(provider.New()),
-	}
-}
-
-func testRepository(t *testing.T) (string, *git.Repository) {
-	directory := testTemporaryDirectory(t)
-	repository := testGitInit(t, directory, false)
-	return directory, repository
-}
-
-func testRepositoryBare(t *testing.T) string {
-	directory := testTemporaryDirectory(t)
-	testGitInit(t, directory, true)
-	return directory
-}
 
 func testGitInit(t *testing.T, directory string, bare bool) *git.Repository {
 	repository, err := git.PlainInit(directory, bare)
@@ -184,25 +164,5 @@ func testSignature() *object.Signature {
 		Name:  "Some Person",
 		Email: "person@example.com",
 		When:  time.Now(),
-	}
-}
-
-//func testCheckExactLength(expectedLength int) func(input string) error {
-//	return func(input string) error {
-//		if len(input) != expectedLength {
-//			return fmt.Errorf("expected length %d, actual length %d", expectedLength, len(input))
-//		}
-//
-//		return nil
-//	}
-//}
-
-func testCheckMinLength(minimumLength int) func(input string) error {
-	return func(input string) error {
-		if len(input) < minimumLength {
-			return fmt.Errorf("minimum length %d, actual length %d", minimumLength, len(input))
-		}
-
-		return nil
 	}
 }

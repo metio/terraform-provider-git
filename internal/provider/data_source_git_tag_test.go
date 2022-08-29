@@ -8,6 +8,7 @@ package provider_test
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"regexp"
 	"testing"
@@ -15,7 +16,7 @@ import (
 
 func TestDataSourceGitTag(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.TestRepository(t)
 	defer os.RemoveAll(directory)
 	worktree := testWorktree(t, repository)
 	testAddAndCommitNewFile(t, worktree, "some-file")
@@ -23,7 +24,7 @@ func TestDataSourceGitTag(t *testing.T) {
 	testCreateTag(t, repository, tag)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -38,7 +39,7 @@ func TestDataSourceGitTag(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_tag.test", "name", tag),
 					resource.TestCheckResourceAttr("data.git_tag.test", "annotated", "true"),
 					resource.TestCheckResourceAttr("data.git_tag.test", "lightweight", "false"),
-					resource.TestCheckResourceAttrWith("data.git_tag.test", "sha1", testCheckExactLength(40)),
+					resource.TestCheckResourceAttrWith("data.git_tag.test", "sha1", testutils.TestCheckExactLength(40)),
 				),
 			},
 		},
@@ -48,7 +49,7 @@ func TestDataSourceGitTag(t *testing.T) {
 func TestDataSourceGitTag_InvalidRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `
@@ -69,7 +70,7 @@ func TestDataSourceGitTag_InvalidTag(t *testing.T) {
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -90,7 +91,7 @@ func TestDataSourceGitTag_MissingName(t *testing.T) {
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -107,7 +108,7 @@ func TestDataSourceGitTag_MissingName(t *testing.T) {
 func TestDataSourceGitTag_MissingDirectory(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `

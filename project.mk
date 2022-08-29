@@ -24,18 +24,18 @@ out/install-sentinel: out/${PROVIDER}
 	cp out/${PROVIDER} ${XDG_DATA_HOME}/terraform/plugins/localhost/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}/${PROVIDER}
 	touch $@
 
-tests/.terraform.lock.hcl: out/install-sentinel
-	rm -rf ./tests/.terraform.lock.hcl
-	terraform -chdir=./tests init
+terratest/.terraform.lock.hcl: out/install-sentinel
+	rm -rf $@
+	terraform -chdir=./terratest init
 
-out/acceptance-sentinel: tests/.terraform.lock.hcl $(shell find tests -type f -name '*.tf')
+out/terratest-sentinel: terratest/.terraform.lock.hcl $(shell find terratest -type f -name '*.tf')
 	mkdir --parents $(@D)
-	terraform -chdir=./tests apply -auto-approve -var="git_repo_path=${CURDIR}"
+	terraform -chdir=./terratest apply -auto-approve -var="git_repo_path=${CURDIR}"
 	touch $@
 
 out/tests-sentinel: $(shell find internal -type f -name '*.go')
 	mkdir --parents $(@D)
-	go test -v -cover -timeout=120s -parallel=4 ./internal/provider
+	go test -v -cover -timeout=120s -parallel=4 -tags testing ./internal/provider
 	touch $@
 
 ##@ hacking
@@ -45,14 +45,14 @@ install: out/install-sentinel ## install the provider locally
 .PHONY: docs
 docs: out/docs-sentinel ## generate the documentation
 
-.PHONY: acceptance
-acceptance: out/acceptance-sentinel ## run the acceptance tests
+.PHONY: terratest
+terratest: out/terratest-sentinel ## run the terratest tests
 
 .PHONY: tests
-tests: out/tests-sentinel ## run the integration tests
+tests: out/tests-sentinel ## run the unit tests
 
 .PHONY: test
-test: ## run specific tests
+test: ## run specific unit tests
 	go test -v -timeout=120s -run $(filter-out $@,$(MAKECMDGOALS)) ./internal/provider
 
 .PHONY: format
