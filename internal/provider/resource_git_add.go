@@ -162,12 +162,12 @@ func (r *resourceGitAdd) Create(ctx context.Context, req resource.CreateRequest,
 	}
 }
 
-func (r *resourceGitAdd) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *resourceGitAdd) Read(ctx context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
 	tflog.Debug(ctx, "Read git_add")
 	// NO-OP: All data is already in Terraform state
 }
 
-func (r *resourceGitAdd) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *resourceGitAdd) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
 	tflog.Debug(ctx, "Update git_add")
 	// NO-OP: All attributes require replacement, thus delete/create will be called
 }
