@@ -12,12 +12,12 @@ resource "git_add" "directory" {
 
 # add files matching pattern
 resource "git_add" "glob" {
-  directory  = "/path/to/git/repository"
+  directory = "/path/to/git/repository"
   glob_path = "path/*/in/repo*"
 }
 
 # add all modified files
 resource "git_add" "all" {
-  directory  = "/path/to/git/repository"
-  all        = true
+  directory = "/path/to/git/repository"
+  all       = true
 }
