@@ -7,6 +7,7 @@ package provider
 
 import (
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
@@ -34,4 +35,16 @@ func addPaths(worktree *git.Worktree, options *git.AddOptions, diag *diag.Diagno
 		return err
 	}
 	return nil
+}
+
+func createCommit(worktree *git.Worktree, message string, options *git.CommitOptions, diag *diag.Diagnostics) *plumbing.Hash {
+	hash, err := worktree.Commit(message, options)
+	if err != nil {
+		diag.AddError(
+			"Cannot create commit",
+			"Could not create commit because of: "+err.Error(),
+		)
+		return nil
+	}
+	return &hash
 }
