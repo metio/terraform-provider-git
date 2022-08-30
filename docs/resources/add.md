@@ -13,9 +13,28 @@ Add file contents to the index using `git add`.
 ## Example Usage
 
 ```terraform
-resource "git_add" "add" {
-  directory = "/path/to/git/repository"
-  file      = "path/to/file/in/repository"
+# add single file
+resource "git_add" "file" {
+  directory  = "/path/to/git/repository"
+  exact_path = "path/to/file/in/repository"
+}
+
+# add all files in directory and its subdirectory recursively
+resource "git_add" "directory" {
+  directory  = "/path/to/git/repository"
+  exact_path = "path/to/directory/in/repository"
+}
+
+# add files matching pattern
+resource "git_add" "glob" {
+  directory  = "/path/to/git/repository"
+  glob_path = "path/*/in/repo*"
+}
+
+# add all modified files
+resource "git_add" "all" {
+  directory  = "/path/to/git/repository"
+  all        = true
 }
 ```
 
@@ -25,20 +44,15 @@ resource "git_add" "add" {
 ### Required
 
 - `directory` (String) The path to the local Git repository.
-- `file` (String) The file to add to the Git index.
+
+### Optional
+
+- `all` (Boolean) Update the index not only where the working tree has a file matching `exact_path` or `glob_path` but also where the index already has an entry. This adds, modifies, and removes index entries to match the working tree. If no paths are given, all files in the entire working tree are updated. Defaults to `true`.
+- `exact_path` (String) The exact filepath to the file or directory to be added. Conflicts with `glob_path`.
+- `glob_path` (String) The glob pattern of files or directories to be added. Conflicts with `exact_path`.
 
 ### Read-Only
 
-- `file_sha1` (String) The SHA1 checksum of the content in `file`.
-- `id` (String) The import ID to import this resource which has the form `'directory|file'`
+- `id` (String) The same value as the `directory` attribute.
 
-## Import
 
-Import is supported using the following syntax:
-
-```shell
-# git_add resources can be imported by specifying the directory of the
-# Git repository and the path of the file to import. Both values are
-# separated by a single '|'.
-terraform import git_add.add 'path/to/your/git/repository|path/to/your/file'
-```
