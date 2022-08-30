@@ -7,15 +7,17 @@ package provider
 
 import (
 	"context"
-	"fmt"
+	"github.com/go-git/go-git/v5"
+	"github.com/hashicorp/terraform-plugin-framework-validators/schemavalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"strings"
+	"github.com/metio/terraform-provider-git/internal/modifiers"
 )
 
 type resourceGitAddType struct{}
@@ -27,8 +29,9 @@ type resourceGitAdd struct {
 type resourceGitAddSchema struct {
 	Directory types.String `tfsdk:"directory"`
 	Id        types.String `tfsdk:"id"`
-	File      types.String `tfsdk:"file"`
-	FileSHA1  types.String `tfsdk:"file_sha1"`
+	All       types.Bool   `tfsdk:"all"`
+	ExactPath types.String `tfsdk:"exact_path"`
+	GlobPath  types.String `tfsdk:"glob_path"`
 }
 
 func (r *resourceGitAddType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
@@ -47,25 +50,45 @@ func (r *resourceGitAddType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 				},
 			},
 			"id": {
-				MarkdownDescription: "The import ID to import this resource which has the form `'directory|file'`",
+				MarkdownDescription: "The same value as the `directory` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
-			"file": {
-				Description: "The file to add to the Git index.",
+			"all": {
+				MarkdownDescription: "Update the index not only where the working tree has a file matching `exact_path` or `glob_path` but also where the index already has an entry. This adds, modifies, and removes index entries to match the working tree. If no paths are given, all files in the entire working tree are updated. Defaults to `true`.",
+				Type:                types.BoolType,
+				Computed:            true,
+				Optional:            true,
+				PlanModifiers: []tfsdk.AttributePlanModifier{
+					modifiers.DefaultValue(types.Bool{Value: true}),
+					resource.RequiresReplace(),
+				},
+			},
+			"exact_path": {
+				Description: "The exact filepath to the file or directory to be added. Conflicts with `glob_path`.",
 				Type:        types.StringType,
-				Required:    true,
+				Computed:    true,
+				Optional:    true,
 				Validators: []tfsdk.AttributeValidator{
+					schemavalidator.ConflictsWith(path.MatchRoot("glob_path")),
 					stringvalidator.LengthAtLeast(1),
 				},
 				PlanModifiers: []tfsdk.AttributePlanModifier{
 					resource.RequiresReplace(),
 				},
 			},
-			"file_sha1": {
-				MarkdownDescription: "The SHA1 checksum of the content in `file`.",
+			"glob_path": {
+				MarkdownDescription: "The glob pattern of files or directories to be added. Conflicts with `exact_path`.",
 				Type:                types.StringType,
 				Computed:            true,
+				Optional:            true,
+				Validators: []tfsdk.AttributeValidator{
+					schemavalidator.ConflictsWith(path.MatchRoot("exact_path")),
+					stringvalidator.LengthAtLeast(1),
+				},
+				PlanModifiers: []tfsdk.AttributePlanModifier{
+					resource.RequiresReplace(),
+				},
 			},
 		},
 	}, nil
@@ -88,7 +111,6 @@ func (r *resourceGitAdd) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	directory := inputs.Directory.Value
-	name := inputs.File.Value
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -107,21 +129,31 @@ func (r *resourceGitAdd) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	sha1 := readFileSha1(err, worktree, name, &resp.Diagnostics)
-	if sha1 == "" {
-		return
+	// NOTE: It seems default values are not working?
+	if inputs.All.IsNull() {
+		inputs.All = types.Bool{Value: true}
 	}
 
-	err = addFile(worktree, name, &resp.Diagnostics)
+	options := &git.AddOptions{
+		All: inputs.All.Value,
+	}
+	if !inputs.ExactPath.IsNull() {
+		options.Path = inputs.ExactPath.Value
+	} else if !inputs.GlobPath.IsNull() {
+		options.Glob = inputs.GlobPath.Value
+	}
+
+	err = addPaths(worktree, options, &resp.Diagnostics)
 	if err != nil {
 		return
 	}
 
 	var state resourceGitAddSchema
 	state.Directory = inputs.Directory
-	state.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, name)}
-	state.File = inputs.File
-	state.FileSHA1 = types.String{Value: sha1}
+	state.Id = inputs.Directory
+	state.All = inputs.All
+	state.ExactPath = inputs.ExactPath
+	state.GlobPath = inputs.GlobPath
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -132,167 +164,15 @@ func (r *resourceGitAdd) Create(ctx context.Context, req resource.CreateRequest,
 
 func (r *resourceGitAdd) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	tflog.Debug(ctx, "Read git_add")
-
-	var state resourceGitAddSchema
-	diags := req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	directory := state.Directory.Value
-	name := state.File.Value
-
-	repository := openRepository(ctx, directory, &resp.Diagnostics)
-	if repository == nil {
-		resp.State.RemoveResource(ctx)
-		return
-	}
-
-	worktree, err := getWorktree(repository, &resp.Diagnostics)
-	if err != nil {
-		resp.State.RemoveResource(ctx)
-		return
-	}
-	if worktree == nil {
-		resp.Diagnostics.AddError(
-			"Cannot add file to bare repository",
-			"The repository at ["+directory+"] is bare. Create a worktree first in order to add files to it.",
-		)
-		resp.State.RemoveResource(ctx)
-		return
-	}
-
-	sha1 := readFileSha1(err, worktree, name, &resp.Diagnostics)
-	if sha1 == "" {
-		resp.State.RemoveResource(ctx)
-		return
-	}
-
-	var newState resourceGitAddSchema
-	newState.Directory = state.Directory
-	newState.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, name)}
-	newState.File = state.File
-	newState.FileSHA1 = types.String{Value: sha1}
-
-	diags = resp.State.Set(ctx, &newState)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	// NO-OP: All data is already in Terraform state
 }
 
 func (r *resourceGitAdd) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	tflog.Debug(ctx, "Update git_add")
-
-	var inputs resourceGitAddSchema
-
-	diags := req.Config.Get(ctx, &inputs)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	directory := inputs.Directory.Value
-	name := inputs.File.Value
-
-	repository := openRepository(ctx, directory, &resp.Diagnostics)
-	if repository == nil {
-		return
-	}
-
-	worktree, err := getWorktree(repository, &resp.Diagnostics)
-	if err != nil {
-		return
-	}
-	if worktree == nil {
-		resp.Diagnostics.AddError(
-			"Cannot add file to bare repository",
-			"The repository at ["+directory+"] is bare. Create a worktree first in order to add files to it.",
-		)
-		return
-	}
-
-	sha1 := readFileSha1(err, worktree, name, &resp.Diagnostics)
-	if sha1 == "" {
-		return
-	}
-
-	err = addFile(worktree, name, &resp.Diagnostics)
-	if err != nil {
-		return
-	}
-
-	var state resourceGitAddSchema
-	state.Directory = inputs.Directory
-	state.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, name)}
-	state.File = inputs.File
-	state.FileSHA1 = types.String{Value: sha1}
-
-	diags = resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	// NO-OP: All attributes require replacement, thus delete/create will be called
 }
 
 func (r *resourceGitAdd) Delete(ctx context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
 	tflog.Debug(ctx, "Delete git_add")
 	// NO-OP: Terraform removes the state automatically for us
-}
-
-func (r *resourceGitAdd) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	tflog.Debug(ctx, "ImportState git_add")
-
-	id := req.ID
-	idParts := strings.Split(id, "|")
-
-	if len(idParts) != 2 || idParts[0] == "" || idParts[1] == "" {
-		resp.Diagnostics.AddError(
-			"Unexpected import identifier",
-			fmt.Sprintf("Expected import identifier with format: 'path/to/your/git/repository|path/to/your/file' Got: '%q'", id),
-		)
-		return
-	}
-
-	directory := idParts[0]
-	name := idParts[1]
-	tflog.Trace(ctx, "parsed import ID", map[string]interface{}{
-		"directory": directory,
-		"file":      name,
-	})
-
-	repository := openRepository(ctx, directory, &resp.Diagnostics)
-	if repository == nil {
-		return
-	}
-
-	worktree, err := getWorktree(repository, &resp.Diagnostics)
-	if err != nil {
-		return
-	}
-	if worktree == nil {
-		resp.Diagnostics.AddError(
-			"Cannot add file to bare repository",
-			"The repository at ["+directory+"] is bare. Create a worktree first in order to add files to it.",
-		)
-		return
-	}
-
-	sha1 := readFileSha1(err, worktree, name, &resp.Diagnostics)
-	if sha1 == "" {
-		return
-	}
-
-	var state resourceGitAddSchema
-	state.Directory = types.String{Value: directory}
-	state.Id = types.String{Value: id}
-	state.File = types.String{Value: name}
-	state.FileSHA1 = types.String{Value: sha1}
-
-	diags := resp.State.Set(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
