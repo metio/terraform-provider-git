@@ -163,12 +163,8 @@ func (r *dataSourceGitCommit) Read(ctx context.Context, req datasource.ReadReque
 		return
 	}
 
-	commit, err := repository.CommitObject(*hash)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Cannot read commit",
-			"Could not read commit ["+hash.String()+"] because of: "+err.Error(),
-		)
+	commitObject := getCommit(ctx, repository, hash, &resp.Diagnostics)
+	if commitObject == nil {
 		return
 	}
 
@@ -176,13 +172,13 @@ func (r *dataSourceGitCommit) Read(ctx context.Context, req datasource.ReadReque
 	state.Directory = inputs.Directory
 	state.Id = inputs.Revision
 	state.Revision = inputs.Revision
-	state.SHA1 = types.String{Value: commit.Hash.String()}
-	state.Message = types.String{Value: commit.Message}
-	state.Signature = types.String{Value: commit.PGPSignature}
-	state.TreeSHA1 = types.String{Value: commit.TreeHash.String()}
-	state.Author = signatureToObject(&commit.Author)
-	state.Committer = signatureToObject(&commit.Committer)
-	state.Files = stringsToList(extractModifiedFiles(commit))
+	state.SHA1 = types.String{Value: commitObject.Hash.String()}
+	state.Message = types.String{Value: commitObject.Message}
+	state.Signature = types.String{Value: commitObject.PGPSignature}
+	state.TreeSHA1 = types.String{Value: commitObject.TreeHash.String()}
+	state.Author = signatureToObject(&commitObject.Author)
+	state.Committer = signatureToObject(&commitObject.Committer)
+	state.Files = stringsToList(extractModifiedFiles(commitObject))
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
