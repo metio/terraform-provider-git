@@ -8,6 +8,7 @@ package provider_test
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"regexp"
 	"testing"
@@ -15,13 +16,13 @@ import (
 
 func TestDataSourceGitRepository(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -33,7 +34,7 @@ func TestDataSourceGitRepository(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_repository.test", "directory", directory),
 					resource.TestCheckResourceAttr("data.git_repository.test", "id", directory),
 					resource.TestCheckResourceAttr("data.git_repository.test", "branch", "master"),
-					resource.TestCheckResourceAttrWith("data.git_repository.test", "sha1", testCheckMinLength(4)),
+					resource.TestCheckResourceAttrWith("data.git_repository.test", "sha1", testutils.CheckMinLength(4)),
 				),
 			},
 		},
@@ -42,15 +43,15 @@ func TestDataSourceGitRepository(t *testing.T) {
 
 func TestDataSourceGitRepository_Detached(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
-	head := testReadHead(t, repository)
-	testGitCheckout(t, worktree, head.Hash())
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
+	head := testutils.GetRepositoryHead(t, repository)
+	testutils.TestGitCheckout(t, worktree, head.Hash())
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -62,7 +63,7 @@ func TestDataSourceGitRepository_Detached(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_repository.test", "directory", directory),
 					resource.TestCheckResourceAttr("data.git_repository.test", "id", directory),
 					resource.TestCheckNoResourceAttr("data.git_repository.test", "branch"),
-					resource.TestCheckResourceAttrWith("data.git_repository.test", "sha1", testCheckMinLength(4)),
+					resource.TestCheckResourceAttrWith("data.git_repository.test", "sha1", testutils.CheckMinLength(4)),
 				),
 			},
 		},
@@ -71,11 +72,11 @@ func TestDataSourceGitRepository_Detached(t *testing.T) {
 
 func TestDataSourceGitRepository_Empty(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -97,7 +98,7 @@ func TestDataSourceGitRepository_Empty(t *testing.T) {
 func TestDataSourceGitRepository_InvalidRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `
@@ -114,7 +115,7 @@ func TestDataSourceGitRepository_InvalidRepository(t *testing.T) {
 func TestDataSourceGitRepository_MissingRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `

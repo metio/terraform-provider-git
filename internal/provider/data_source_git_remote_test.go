@@ -8,6 +8,7 @@ package provider_test
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"regexp"
 	"testing"
@@ -15,13 +16,13 @@ import (
 
 func TestDataSourceGitRemote(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 	remote := "example"
-	testCreateRemote(t, repository, remote)
+	testutils.CreateRemote(t, repository, remote)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -44,7 +45,7 @@ func TestDataSourceGitRemote(t *testing.T) {
 func TestDataSourceGitRemote_InvalidRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `
@@ -61,11 +62,11 @@ func TestDataSourceGitRemote_InvalidRepository(t *testing.T) {
 
 func TestDataSourceGitRemote_InvalidRemote(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -82,11 +83,11 @@ func TestDataSourceGitRemote_InvalidRemote(t *testing.T) {
 
 func TestDataSourceGitRemote_MissingRemote(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -103,7 +104,7 @@ func TestDataSourceGitRemote_MissingRemote(t *testing.T) {
 func TestDataSourceGitRemote_MissingRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `

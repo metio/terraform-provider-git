@@ -8,6 +8,7 @@ package provider_test
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"regexp"
 	"testing"
@@ -15,14 +16,14 @@ import (
 
 func TestResourceGitAdd(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := testWorktree(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
-	testWriteFile(t, worktree, name)
+	testutils.WriteFileInWorktree(t, worktree, name)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -44,14 +45,14 @@ func TestResourceGitAdd(t *testing.T) {
 
 func TestResourceGitAdd_All_Disabled(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := testWorktree(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
-	testWriteFile(t, worktree, name)
+	testutils.WriteFileInWorktree(t, worktree, name)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -74,14 +75,14 @@ func TestResourceGitAdd_All_Disabled(t *testing.T) {
 
 func TestResourceGitAdd_ExactPath(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := testWorktree(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
-	testWriteFile(t, worktree, name)
+	testutils.WriteFileInWorktree(t, worktree, name)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -104,14 +105,14 @@ func TestResourceGitAdd_ExactPath(t *testing.T) {
 
 func TestResourceGitAdd_GlobPath(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := testWorktree(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
-	testWriteFile(t, worktree, name)
+	testutils.WriteFileInWorktree(t, worktree, name)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -134,12 +135,12 @@ func TestResourceGitAdd_GlobPath(t *testing.T) {
 
 func TestResourceGitAdd_ExactPath_NonExistingFile(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 	name := "some-file"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -162,7 +163,7 @@ func TestResourceGitAdd_ExactPath_NonExistingFile(t *testing.T) {
 
 func TestResourceGitAdd_ExactPath_Directory(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 	err := os.Mkdir(directory+"/nested-folder", 0700)
 	if err != nil {
@@ -170,7 +171,7 @@ func TestResourceGitAdd_ExactPath_Directory(t *testing.T) {
 	}
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -193,11 +194,11 @@ func TestResourceGitAdd_ExactPath_Directory(t *testing.T) {
 
 func TestResourceGitAdd_ExactPath_GlobPath(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -215,11 +216,11 @@ func TestResourceGitAdd_ExactPath_GlobPath(t *testing.T) {
 
 func TestResourceGitAdd_ExactPath_EmptyString(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -236,11 +237,11 @@ func TestResourceGitAdd_ExactPath_EmptyString(t *testing.T) {
 
 func TestResourceGitAdd_GlobPath_EmptyString(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -257,12 +258,12 @@ func TestResourceGitAdd_GlobPath_EmptyString(t *testing.T) {
 
 func TestResourceGitAdd_BareRepository(t *testing.T) {
 	t.Parallel()
-	directory := testRepositoryBare(t)
+	directory := testutils.CreateBareRepository(t)
 	defer os.RemoveAll(directory)
 	name := "some-file"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -282,7 +283,7 @@ func TestResourceGitAdd_Directory_Invalid(t *testing.T) {
 	name := "some-file"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -302,7 +303,7 @@ func TestResourceGitAdd_Directory_Missing(t *testing.T) {
 	name := "some-file"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -318,16 +319,16 @@ func TestResourceGitAdd_Directory_Missing(t *testing.T) {
 
 func TestResourceGitAdd_ExactPath_Update(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := testWorktree(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name1 := "some-file"
 	name2 := "other-file"
-	testWriteFile(t, worktree, name1)
-	testWriteFile(t, worktree, name2)
+	testutils.WriteFileInWorktree(t, worktree, name1)
+	testutils.WriteFileInWorktree(t, worktree, name2)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -365,16 +366,16 @@ func TestResourceGitAdd_ExactPath_Update(t *testing.T) {
 
 func TestResourceGitAdd_GlobPath_Update(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := testWorktree(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name1 := "some-file"
 	name2 := "other-file"
-	testWriteFile(t, worktree, name1)
-	testWriteFile(t, worktree, name2)
+	testutils.WriteFileInWorktree(t, worktree, name1)
+	testutils.WriteFileInWorktree(t, worktree, name2)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

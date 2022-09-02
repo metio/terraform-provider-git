@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"regexp"
 	"testing"
@@ -16,21 +17,21 @@ import (
 
 func TestDataSourceGitBranch(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	name := "name-of-branch"
 	remote := "origin"
 	rebase := "true"
-	testCreateBranch(t, repository, &config.Branch{
+	testutils.CreateBranch(t, repository, &config.Branch{
 		Name:   name,
 		Remote: remote,
 		Rebase: rebase,
 	})
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -54,7 +55,7 @@ func TestDataSourceGitBranch(t *testing.T) {
 func TestDataSourceGitBranch_InvalidRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `
@@ -71,11 +72,11 @@ func TestDataSourceGitBranch_InvalidRepository(t *testing.T) {
 
 func TestDataSourceGitBranch_InvalidBranch(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -92,11 +93,11 @@ func TestDataSourceGitBranch_InvalidBranch(t *testing.T) {
 
 func TestDataSourceGitBranch_MissingBranch(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -113,7 +114,7 @@ func TestDataSourceGitBranch_MissingBranch(t *testing.T) {
 func TestDataSourceGitBranch_MissingRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `

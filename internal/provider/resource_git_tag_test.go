@@ -8,6 +8,7 @@ package provider_test
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"regexp"
 	"testing"
@@ -15,15 +16,15 @@ import (
 
 func TestResourceGitTag(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -36,8 +37,8 @@ func TestResourceGitTag(t *testing.T) {
 					resource.TestCheckResourceAttr("git_tag.test", "directory", directory),
 					resource.TestCheckResourceAttr("git_tag.test", "id", fmt.Sprintf("%s|%s", directory, name)),
 					resource.TestCheckResourceAttr("git_tag.test", "name", name),
-					resource.TestCheckResourceAttrWith("git_tag.test", "revision", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("git_tag.test", "sha1", testCheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("git_tag.test", "revision", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("git_tag.test", "sha1", testutils.CheckMinLength(1)),
 				),
 			},
 		},
@@ -46,16 +47,16 @@ func TestResourceGitTag(t *testing.T) {
 
 func TestResourceGitTag_Annotated(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	name := "some-name"
 	message := "some message for the tag"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -78,11 +79,11 @@ func TestResourceGitTag_Annotated(t *testing.T) {
 
 func TestResourceGitTag_Revision_Hash(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	head, err := repository.Head()
 	if err != nil {
 		t.Fatal(err)
@@ -90,7 +91,7 @@ func TestResourceGitTag_Revision_Hash(t *testing.T) {
 	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -114,11 +115,11 @@ func TestResourceGitTag_Revision_Hash(t *testing.T) {
 
 func TestResourceGitTag_Revision_Head(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	head, err := repository.Head()
 	if err != nil {
 		t.Fatal(err)
@@ -126,7 +127,7 @@ func TestResourceGitTag_Revision_Head(t *testing.T) {
 	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -150,11 +151,11 @@ func TestResourceGitTag_Revision_Head(t *testing.T) {
 
 func TestResourceGitTag_Revision_Master(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	head, err := repository.Head()
 	if err != nil {
 		t.Fatal(err)
@@ -162,7 +163,7 @@ func TestResourceGitTag_Revision_Master(t *testing.T) {
 	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -189,7 +190,7 @@ func TestResourceGitTag_Directory_Invalid(t *testing.T) {
 	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -209,7 +210,7 @@ func TestResourceGitTag_Directory_Missing(t *testing.T) {
 	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -225,11 +226,11 @@ func TestResourceGitTag_Directory_Missing(t *testing.T) {
 
 func TestResourceGitTag_Name_Missing(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -245,15 +246,15 @@ func TestResourceGitTag_Name_Missing(t *testing.T) {
 
 func TestResourceGitTag_Import(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -281,16 +282,16 @@ func TestResourceGitTag_Import(t *testing.T) {
 
 func TestResourceGitTag_Import_Symbolic(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	name := "some-name"
 	revision := "master"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -319,16 +320,16 @@ func TestResourceGitTag_Import_Symbolic(t *testing.T) {
 
 func TestResourceGitTag_Name_Update(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	name := "some-name"
 	newName := "other-name"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -362,20 +363,20 @@ func TestResourceGitTag_Name_Update(t *testing.T) {
 
 func TestResourceGitTag_Directory_Update(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
-	newDirectory, newRepository := testRepository(t)
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
+	newDirectory, newRepository := testutils.CreateRepository(t)
 	defer os.RemoveAll(newDirectory)
-	testConfig(t, newRepository)
-	newWorktree := testWorktree(t, newRepository)
-	testAddAndCommitNewFile(t, newWorktree, "other-file")
+	testutils.TestConfig(t, newRepository)
+	newWorktree := testutils.GetRepositoryWorktree(t, newRepository)
+	testutils.AddAndCommitNewFile(t, newWorktree, "other-file")
 	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

@@ -16,13 +16,13 @@ import (
 
 func TestDataSourceGitBranches(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -36,7 +36,7 @@ func TestDataSourceGitBranches(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_branches.test", "branches.%", "1"),
 					resource.TestCheckNoResourceAttr("data.git_branches.test", "branches.master.remote"),
 					resource.TestCheckNoResourceAttr("data.git_branches.test", "branches.master.rebase"),
-					resource.TestCheckResourceAttrWith("data.git_branches.test", "branches.master.sha1", testutils.TestCheckExactLength(40)),
+					resource.TestCheckResourceAttrWith("data.git_branches.test", "branches.master.sha1", testutils.CheckExactLength(40)),
 				),
 			},
 		},
@@ -46,7 +46,7 @@ func TestDataSourceGitBranches(t *testing.T) {
 func TestDataSourceGitBranches_InvalidRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `
@@ -63,7 +63,7 @@ func TestDataSourceGitBranches_InvalidRepository(t *testing.T) {
 func TestDataSourceGitBranches_MissingRepository(t *testing.T) {
 	t.Parallel()
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: `

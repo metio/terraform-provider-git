@@ -8,17 +8,18 @@ package provider_test
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"testing"
 )
 
 func TestResourceGitInit(t *testing.T) {
 	t.Parallel()
-	directory := testTemporaryDirectory(t)
+	directory := testutils.TemporaryDirectory(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -38,11 +39,11 @@ func TestResourceGitInit(t *testing.T) {
 
 func TestResourceGitInit_Bare(t *testing.T) {
 	t.Parallel()
-	directory := testTemporaryDirectory(t)
+	directory := testutils.TemporaryDirectory(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -63,11 +64,11 @@ func TestResourceGitInit_Bare(t *testing.T) {
 
 func TestResourceGitInit_NonBare(t *testing.T) {
 	t.Parallel()
-	directory := testTemporaryDirectory(t)
+	directory := testutils.TemporaryDirectory(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -88,11 +89,11 @@ func TestResourceGitInit_NonBare(t *testing.T) {
 
 func TestResourceGitInit_Import(t *testing.T) {
 	t.Parallel()
-	directory := testTemporaryDirectory(t)
+	directory := testutils.TemporaryDirectory(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -118,11 +119,11 @@ func TestResourceGitInit_Import(t *testing.T) {
 
 func TestResourceGitInit_Delete(t *testing.T) {
 	t.Parallel()
-	directory := testTemporaryDirectory(t)
+	directory := testutils.TemporaryDirectory(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

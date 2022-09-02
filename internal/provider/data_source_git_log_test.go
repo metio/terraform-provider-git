@@ -8,6 +8,7 @@ package provider_test
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"regexp"
 	"testing"
@@ -15,17 +16,17 @@ import (
 
 func TestDataSourceGitLog(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
 	fileName := "some-file"
-	testWriteFile(t, worktree, fileName)
-	testGitAdd(t, worktree, fileName)
-	commit := testGitCommit(t, worktree)
+	testutils.WriteFileInWorktree(t, worktree, fileName)
+	testutils.GitAdd(t, worktree, fileName)
+	commit := testutils.GitCommit(t, worktree)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -46,15 +47,15 @@ func TestDataSourceGitLog(t *testing.T) {
 
 func TestDataSourceGitLog_All(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
-	testAddAndCommitNewFile(t, worktree, "other-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
+	testutils.AddAndCommitNewFile(t, worktree, "other-file")
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -75,15 +76,15 @@ func TestDataSourceGitLog_All(t *testing.T) {
 
 func TestDataSourceGitLog_MaxCount(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
-	testAddAndCommitNewFile(t, worktree, "other-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
+	testutils.AddAndCommitNewFile(t, worktree, "other-file")
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -104,15 +105,15 @@ func TestDataSourceGitLog_MaxCount(t *testing.T) {
 
 func TestDataSourceGitLog_FilterPaths(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
-	testAddAndCommitNewFile(t, worktree, "other-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
+	testutils.AddAndCommitNewFile(t, worktree, "other-file")
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -133,15 +134,15 @@ func TestDataSourceGitLog_FilterPaths(t *testing.T) {
 
 func TestDataSourceGitLog_From(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
-	testAddAndCommitNewFile(t, worktree, "other-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
+	testutils.AddAndCommitNewFile(t, worktree, "other-file")
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -162,15 +163,15 @@ func TestDataSourceGitLog_From(t *testing.T) {
 
 func TestDataSourceGitLog_Skip(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
-	testAddAndCommitNewFile(t, worktree, "other-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
+	testutils.AddAndCommitNewFile(t, worktree, "other-file")
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -191,15 +192,15 @@ func TestDataSourceGitLog_Skip(t *testing.T) {
 
 func TestDataSourceGitLog_Since(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
-	testAddAndCommitNewFile(t, worktree, "other-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
+	testutils.AddAndCommitNewFile(t, worktree, "other-file")
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -220,15 +221,15 @@ func TestDataSourceGitLog_Since(t *testing.T) {
 
 func TestDataSourceGitLog_Until(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
-	testAddAndCommitNewFile(t, worktree, "other-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
+	testutils.AddAndCommitNewFile(t, worktree, "other-file")
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -249,15 +250,15 @@ func TestDataSourceGitLog_Until(t *testing.T) {
 
 func TestDataSourceGitLog_Order_Time(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
-	testAddAndCommitNewFile(t, worktree, "other-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
+	testutils.AddAndCommitNewFile(t, worktree, "other-file")
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -278,15 +279,15 @@ func TestDataSourceGitLog_Order_Time(t *testing.T) {
 
 func TestDataSourceGitLog_Order_Depth(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
-	testAddAndCommitNewFile(t, worktree, "other-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
+	testutils.AddAndCommitNewFile(t, worktree, "other-file")
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -307,15 +308,15 @@ func TestDataSourceGitLog_Order_Depth(t *testing.T) {
 
 func TestDataSourceGitLog_Order_Breadth(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
-	testAddAndCommitNewFile(t, worktree, "other-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
+	testutils.AddAndCommitNewFile(t, worktree, "other-file")
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -336,15 +337,15 @@ func TestDataSourceGitLog_Order_Breadth(t *testing.T) {
 
 func TestDataSourceGitLog_MaxCount_Zero(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
-	testAddAndCommitNewFile(t, worktree, "some-file")
-	testAddAndCommitNewFile(t, worktree, "other-file")
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	testutils.AddAndCommitNewFile(t, worktree, "some-file")
+	testutils.AddAndCommitNewFile(t, worktree, "other-file")
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -365,12 +366,12 @@ func TestDataSourceGitLog_MaxCount_Zero(t *testing.T) {
 
 func TestDataSourceGitLog_MaxCount_Negative(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
+	testutils.TestConfig(t, repository)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -387,12 +388,12 @@ func TestDataSourceGitLog_MaxCount_Negative(t *testing.T) {
 
 func TestDataSourceGitLog_Skip_Negative(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
+	testutils.TestConfig(t, repository)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -409,12 +410,12 @@ func TestDataSourceGitLog_Skip_Negative(t *testing.T) {
 
 func TestDataSourceGitLog_Order_Invalid(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
+	testutils.TestConfig(t, repository)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
