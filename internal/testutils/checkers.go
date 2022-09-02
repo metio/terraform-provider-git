@@ -11,7 +11,7 @@ import (
 	"fmt"
 )
 
-func TestCheckExactLength(expectedLength int) func(input string) error {
+func CheckExactLength(expectedLength int) func(input string) error {
 	return func(input string) error {
 		if len(input) != expectedLength {
 			return fmt.Errorf("expected length %d, actual length %d", expectedLength, len(input))
@@ -21,7 +21,7 @@ func TestCheckExactLength(expectedLength int) func(input string) error {
 	}
 }
 
-func TestCheckMinLength(minimumLength int) func(input string) error {
+func CheckMinLength(minimumLength int) func(input string) error {
 	return func(input string) error {
 		if len(input) < minimumLength {
 			return fmt.Errorf("minimum length %d, actual length %d", minimumLength, len(input))

@@ -9,23 +9,24 @@ import (
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"testing"
 )
 
 func TestDataSourceGitCommit(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
 	fileName := "some-file"
-	testWriteFile(t, worktree, fileName)
-	testGitAdd(t, worktree, fileName)
-	commit := testGitCommit(t, worktree)
+	testutils.WriteFileInWorktree(t, worktree, fileName)
+	testutils.GitAdd(t, worktree, fileName)
+	commit := testutils.GitCommit(t, worktree)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -41,14 +42,14 @@ func TestDataSourceGitCommit(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_commit.test", "sha1", commit.String()),
 					resource.TestCheckResourceAttr("data.git_commit.test", "signature", ""),
 					resource.TestCheckResourceAttr("data.git_commit.test", "files.#", "1"),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "message", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "tree_sha1", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.name", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.email", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.timestamp", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.name", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.email", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.timestamp", testCheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "message", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "tree_sha1", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.name", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.email", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.timestamp", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.name", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.email", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.timestamp", testutils.CheckMinLength(1)),
 				),
 			},
 		},
@@ -57,20 +58,20 @@ func TestDataSourceGitCommit(t *testing.T) {
 
 func TestDataSourceGitCommit_MultipleFiles(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
 	fileName1 := "some-file"
 	fileName2 := "other-file"
-	testWriteFile(t, worktree, fileName1)
-	testWriteFile(t, worktree, fileName2)
-	testGitAdd(t, worktree, fileName1)
-	testGitAdd(t, worktree, fileName2)
-	commit := testGitCommit(t, worktree)
+	testutils.WriteFileInWorktree(t, worktree, fileName1)
+	testutils.WriteFileInWorktree(t, worktree, fileName2)
+	testutils.GitAdd(t, worktree, fileName1)
+	testutils.GitAdd(t, worktree, fileName2)
+	commit := testutils.GitCommit(t, worktree)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -86,14 +87,14 @@ func TestDataSourceGitCommit_MultipleFiles(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_commit.test", "sha1", commit.String()),
 					resource.TestCheckResourceAttr("data.git_commit.test", "signature", ""),
 					resource.TestCheckResourceAttr("data.git_commit.test", "files.#", "2"),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "message", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "tree_sha1", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.name", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.email", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.timestamp", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.name", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.email", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.timestamp", testCheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "message", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "tree_sha1", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.name", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.email", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.timestamp", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.name", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.email", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.timestamp", testutils.CheckMinLength(1)),
 				),
 			},
 		},
@@ -102,17 +103,17 @@ func TestDataSourceGitCommit_MultipleFiles(t *testing.T) {
 
 func TestDataSourceGitCommit_WithHead(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
 	fileName := "some-file"
-	testWriteFile(t, worktree, fileName)
-	testGitAdd(t, worktree, fileName)
-	commit := testGitCommit(t, worktree)
+	testutils.WriteFileInWorktree(t, worktree, fileName)
+	testutils.GitAdd(t, worktree, fileName)
+	commit := testutils.GitCommit(t, worktree)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -128,14 +129,14 @@ func TestDataSourceGitCommit_WithHead(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_commit.test", "sha1", commit.String()),
 					resource.TestCheckResourceAttr("data.git_commit.test", "files.#", "1"),
 					resource.TestCheckResourceAttr("data.git_commit.test", "signature", ""),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "message", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "tree_sha1", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.name", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.email", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.timestamp", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.name", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.email", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.timestamp", testCheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "message", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "tree_sha1", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.name", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.email", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.timestamp", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.name", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.email", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.timestamp", testutils.CheckMinLength(1)),
 				),
 			},
 		},
@@ -144,17 +145,17 @@ func TestDataSourceGitCommit_WithHead(t *testing.T) {
 
 func TestDataSourceGitCommit_WithBranch(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testConfig(t, repository)
-	worktree := testWorktree(t, repository)
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
 	fileName := "some-file"
-	testWriteFile(t, worktree, fileName)
-	testGitAdd(t, worktree, fileName)
-	commit := testGitCommit(t, worktree)
+	testutils.WriteFileInWorktree(t, worktree, fileName)
+	testutils.GitAdd(t, worktree, fileName)
+	commit := testutils.GitCommit(t, worktree)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -169,14 +170,14 @@ func TestDataSourceGitCommit_WithBranch(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_commit.test", "revision", "master"),
 					resource.TestCheckResourceAttr("data.git_commit.test", "sha1", commit.String()),
 					resource.TestCheckResourceAttr("data.git_commit.test", "signature", ""),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "message", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "tree_sha1", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.name", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.email", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.timestamp", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.name", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.email", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.timestamp", testCheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "message", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "tree_sha1", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.name", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.email", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.timestamp", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.name", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.email", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.timestamp", testutils.CheckMinLength(1)),
 				),
 			},
 		},
@@ -185,19 +186,19 @@ func TestDataSourceGitCommit_WithBranch(t *testing.T) {
 
 func TestDataSourceGitCommit_WithSignature(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := testWorktree(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
 	fileName := "some-file"
-	testWriteFile(t, worktree, fileName)
-	testGitAdd(t, worktree, fileName)
-	signature := testSignature()
-	commit := testGitCommitWith(t, worktree, &git.CommitOptions{
+	testutils.WriteFileInWorktree(t, worktree, fileName)
+	testutils.GitAdd(t, worktree, fileName)
+	signature := testutils.Signature()
+	commit := testutils.GitCommitWith(t, worktree, &git.CommitOptions{
 		Author: signature,
 	})
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -212,14 +213,14 @@ func TestDataSourceGitCommit_WithSignature(t *testing.T) {
 					resource.TestCheckResourceAttr("data.git_commit.test", "revision", commit.String()),
 					resource.TestCheckResourceAttr("data.git_commit.test", "sha1", commit.String()),
 					resource.TestCheckResourceAttr("data.git_commit.test", "signature", ""),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "message", testCheckMinLength(1)),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "tree_sha1", testCheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "message", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "tree_sha1", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("data.git_commit.test", "author.name", signature.Name),
 					resource.TestCheckResourceAttr("data.git_commit.test", "author.email", signature.Email),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.timestamp", testCheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.timestamp", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("data.git_commit.test", "committer.name", signature.Name),
 					resource.TestCheckResourceAttr("data.git_commit.test", "committer.email", signature.Email),
-					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.timestamp", testCheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.timestamp", testutils.CheckMinLength(1)),
 				),
 			},
 		},

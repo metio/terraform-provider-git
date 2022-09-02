@@ -8,21 +8,22 @@ package provider_test
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"testing"
 )
 
 func TestDataSourceGitStatus_StagedFile(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := testWorktree(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
 	fileName := "some-file"
-	testWriteFile(t, worktree, fileName)
-	testGitAdd(t, worktree, fileName)
+	testutils.WriteFileInWorktree(t, worktree, fileName)
+	testutils.GitAdd(t, worktree, fileName)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -45,16 +46,16 @@ func TestDataSourceGitStatus_StagedFile(t *testing.T) {
 
 func TestDataSourceGitStatus_Clean(t *testing.T) {
 	t.Parallel()
-	directory, repository := testRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	worktree := testWorktree(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
 	fileName := "some-file"
-	testWriteFile(t, worktree, fileName)
-	testGitAdd(t, worktree, fileName)
-	testGitCommit(t, worktree)
+	testutils.WriteFileInWorktree(t, worktree, fileName)
+	testutils.GitAdd(t, worktree, fileName)
+	testutils.GitCommit(t, worktree)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -77,12 +78,12 @@ func TestDataSourceGitStatus_Clean(t *testing.T) {
 
 func TestDataSourceGitStatus_BareRepository(t *testing.T) {
 	t.Parallel()
-	directory := testRepositoryBare(t)
+	directory := testutils.CreateBareRepository(t)
 	defer os.RemoveAll(directory)
 	fileName := "some-file"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

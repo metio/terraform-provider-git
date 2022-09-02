@@ -8,6 +8,7 @@ package provider_test
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"regexp"
 	"testing"
@@ -15,13 +16,13 @@ import (
 
 func TestResourceGitRemote(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -45,14 +46,14 @@ func TestResourceGitRemote(t *testing.T) {
 
 func TestResourceGitRemote_MultipleUrls(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 	url2 := "https://codeberg.org/some-org/some-repo.git"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -80,7 +81,7 @@ func TestResourceGitRemote_InvalidRepository(t *testing.T) {
 	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -101,7 +102,7 @@ func TestResourceGitRemote_MissingRepository(t *testing.T) {
 	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -118,11 +119,11 @@ func TestResourceGitRemote_MissingRepository(t *testing.T) {
 
 func TestResourceGitRemote_MissingName(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -139,12 +140,12 @@ func TestResourceGitRemote_MissingName(t *testing.T) {
 
 func TestResourceGitRemote_MissingUrls(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -161,13 +162,13 @@ func TestResourceGitRemote_MissingUrls(t *testing.T) {
 
 func TestResourceGitRemote_Import(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 	name := "some-name"
 	url := "https://github.com/some-org/some-repo.git"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -197,14 +198,14 @@ func TestResourceGitRemote_Import(t *testing.T) {
 
 func TestResourceGitRemote_ImportMultipleUrls(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 	url2 := "https://codeberg.org/some-org/some-repo.git"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -235,14 +236,14 @@ func TestResourceGitRemote_ImportMultipleUrls(t *testing.T) {
 
 func TestResourceGitRemote_Update_Urls(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 	url2 := "https://codeberg.org/some-org/some-repo.git"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -299,14 +300,14 @@ func TestResourceGitRemote_Update_Urls(t *testing.T) {
 
 func TestResourceGitRemote_Update_Name(t *testing.T) {
 	t.Parallel()
-	directory, _ := testRepository(t)
+	directory, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 	name := "some-name"
 	newName := "other-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -346,15 +347,15 @@ func TestResourceGitRemote_Update_Name(t *testing.T) {
 
 func TestResourceGitRemote_Update_Directory(t *testing.T) {
 	t.Parallel()
-	directory1, _ := testRepository(t)
-	directory2, _ := testRepository(t)
+	directory1, _ := testutils.CreateRepository(t)
+	directory2, _ := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory1)
 	defer os.RemoveAll(directory2)
 	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 
 	resource.UnitTest(t, resource.TestCase{
-		ProtoV6ProviderFactories: testProviderFactories(),
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
