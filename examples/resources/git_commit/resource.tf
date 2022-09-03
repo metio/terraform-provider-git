@@ -8,7 +8,7 @@ resource "git_commit" "commit" {
 resource "git_commit" "author" {
   directory = "/path/to/git/repository"
   message   = "committed with terraform"
-  author    = {
+  author = {
     name  = "terraform"
     email = "automation@example.com"
   }
