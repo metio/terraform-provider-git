@@ -36,7 +36,7 @@ out/terratests-run-sentinel: out/terratest-lock-sentinel $(shell find terratest 
 
 out/tests-sentinel: $(shell find internal -type f -name '*.go')
 	mkdir --parents $(@D)
-	go test -v -cover -timeout=240s -parallel=4 -tags testing ./internal/provider
+	go test -v -cover -timeout=120s -parallel=4 -tags testing ./internal/provider
 	touch $@
 
 out/go-format-sentinel: $(shell find . -type f -name '*.go')
