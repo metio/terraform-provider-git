@@ -86,8 +86,8 @@ jobs:
         run: go test -v -cover -parallel=4 -timeout=240s -tags testing ./internal/provider/
         env:
           TF_ACC: "1"
-  acceptance:
-    name: Acceptance Tests with TF ${{ matrix.terraform }}
+  terratest:
+    name: Terratest Tests with TF ${{ matrix.terraform }}
     needs: build
     runs-on: ubuntu-latest
     strategy:
@@ -115,12 +115,6 @@ jobs:
         with:
           terraform_version: ${{ matrix.terraform }}
           terraform_wrapper: false
-      - id: install
-        name: Install Provider
-        run: make install
-      - id: init
-        name: Initialize Terraform
-        run: terraform -chdir=./tests init
-      - id: apply
-        name: Apply Terraform
-        run: terraform -chdir=./tests apply -auto-approve -var="git_repo_path=${GITHUB_WORKSPACE}"
+      - id: terratest
+        name: Run Terratest Tests
+        run: make terratests
