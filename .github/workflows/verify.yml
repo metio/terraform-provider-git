@@ -82,17 +82,39 @@ jobs:
           terraform_version: ${{ matrix.terraform }}
           terraform_wrapper: false
       - id: tests
-        name: Run Terraform Tests
-        run: make tests
-      - id: terratest-linux
+        name: Run Tests
+        run: go test -v -cover -parallel=4 -timeout=240s -tags testing ./internal/provider/
+        env:
+          TF_ACC: "1"
+  terratest:
+    name: Terratest Tests with TF ${{ matrix.terraform }}
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        terraform:
+          - 1.0.*
+          - 1.1.*
+          - 1.2.*
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - id: setup_go
+        name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version-file: go.mod
+          cache: true
+      - id: setup_terraform
+        name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ matrix.terraform }}
+          terraform_wrapper: false
+      - id: terratest
         name: Run Terratest Tests
-        if: runner.os == 'Linux'
-        run: make terratests OS_ARCH=linux_amd64
-      - id: terratest-mac
-        name: Run Terratest Tests
-        if: runner.os == 'macOS'
-        run: make terratests OS_ARCH=darwin_amd64
-      - id: terratest-windows
-        name: Run Terratest Tests
-        if: runner.os == 'Windows'
-        run: make terratests OS_ARCH=windows_amd64
+        run: make terratests
