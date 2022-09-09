@@ -204,7 +204,7 @@ func (r *resourceGitTag) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 }
 
-func (r *resourceGitTag) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *resourceGitTag) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
 	tflog.Debug(ctx, "Update git_tag")
 	// NO-OP: all attributes require replace, thus Delete and Create methods will be called
 }

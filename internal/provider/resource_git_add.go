@@ -8,7 +8,6 @@ package provider
 import (
 	"context"
 	"github.com/go-git/go-git/v5"
-	"github.com/hashicorp/terraform-plugin-framework-validators/schemavalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -17,7 +16,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/metio/terraform-provider-git/internal/modifiers"
+	"path/filepath"
+	"time"
 )
 
 type resourceGitAddType struct{}
@@ -28,15 +28,13 @@ type resourceGitAdd struct {
 
 type resourceGitAddSchema struct {
 	Directory types.String `tfsdk:"directory"`
-	Id        types.String `tfsdk:"id"`
-	All       types.Bool   `tfsdk:"all"`
-	ExactPath types.String `tfsdk:"exact_path"`
-	GlobPath  types.String `tfsdk:"glob_path"`
+	Id        types.Int64  `tfsdk:"id"`
+	Paths     types.List   `tfsdk:"add_paths"`
 }
 
 func (r *resourceGitAddType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		MarkdownDescription: "Add file contents to the index using `git add`.",
+		MarkdownDescription: "Add file contents to the index similar to `git add`.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
 				Description: "The path to the local Git repository.",
@@ -50,45 +48,17 @@ func (r *resourceGitAddType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 				},
 			},
 			"id": {
-				MarkdownDescription: "The same value as the `directory` attribute.",
-				Type:                types.StringType,
-				Computed:            true,
-			},
-			"all": {
-				MarkdownDescription: "Update the index not only where the working tree has a file matching `exact_path` or `glob_path` but also where the index already has an entry. This adds, modifies, and removes index entries to match the working tree. If no paths are given, all files in the entire working tree are updated. Defaults to `true`.",
-				Type:                types.BoolType,
-				Computed:            true,
-				Optional:            true,
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.Bool{Value: true}),
-					resource.RequiresReplace(),
-				},
-			},
-			"exact_path": {
-				Description: "The exact filepath to the file or directory to be added. Conflicts with `glob_path`.",
-				Type:        types.StringType,
+				Description: "The timestamp of the last addition in Unix nanoseconds.",
+				Type:        types.Int64Type,
 				Computed:    true,
-				Optional:    true,
-				Validators: []tfsdk.AttributeValidator{
-					schemavalidator.ConflictsWith(path.MatchRoot("glob_path")),
-					stringvalidator.LengthAtLeast(1),
-				},
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
-				},
 			},
-			"glob_path": {
-				MarkdownDescription: "The glob pattern of files or directories to be added. Conflicts with `exact_path`.",
-				Type:                types.StringType,
-				Computed:            true,
-				Optional:            true,
-				Validators: []tfsdk.AttributeValidator{
-					schemavalidator.ConflictsWith(path.MatchRoot("exact_path")),
-					stringvalidator.LengthAtLeast(1),
+			"add_paths": {
+				Description: "The paths to add to the Git index. Values can be exact paths or glob patterns.",
+				Type: types.ListType{
+					ElemType: types.StringType,
 				},
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
-				},
+				Computed: true,
+				Optional: true,
 			},
 		},
 	}, nil
@@ -129,31 +99,44 @@ func (r *resourceGitAdd) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	// NOTE: It seems default values are not working?
-	if inputs.All.IsNull() {
-		inputs.All = types.Bool{Value: true}
-	}
-
-	options := &git.AddOptions{
-		All: inputs.All.Value,
-	}
-	if !inputs.ExactPath.IsNull() {
-		options.Path = inputs.ExactPath.Value
-	} else if !inputs.GlobPath.IsNull() {
-		options.Glob = inputs.GlobPath.Value
-	}
-
-	err = addPaths(worktree, options, &resp.Diagnostics)
-	if err != nil {
+	status := getStatus(ctx, worktree, &resp.Diagnostics)
+	if status == nil {
 		return
+	}
+
+	paths := make([]string, len(inputs.Paths.Elems))
+	resp.Diagnostics.Append(inputs.Paths.ElementsAs(ctx, &paths, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	for _, pattern := range paths {
+		for file, fileStatus := range status {
+			if fileStatus.Worktree != git.Unmodified {
+				match, errMatch := filepath.Match(pattern, file)
+				if errMatch != nil {
+					resp.Diagnostics.AddError(
+						"Cannot match file path",
+						"Could not match pattern ["+pattern+"] because of: "+errMatch.Error(),
+					)
+				}
+				if match {
+					_, errAdd := worktree.Add(file)
+					if errAdd != nil {
+						resp.Diagnostics.AddError(
+							"Cannot add file",
+							"Could not add file ["+file+"] because of: "+errAdd.Error(),
+						)
+					}
+				}
+			}
+		}
 	}
 
 	var state resourceGitAddSchema
 	state.Directory = inputs.Directory
-	state.Id = inputs.Directory
-	state.All = inputs.All
-	state.ExactPath = inputs.ExactPath
-	state.GlobPath = inputs.GlobPath
+	state.Id = types.Int64{Value: time.Now().UnixNano()}
+	state.Paths = inputs.Paths
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -175,4 +158,69 @@ func (r *resourceGitAdd) Update(ctx context.Context, _ resource.UpdateRequest, _
 func (r *resourceGitAdd) Delete(ctx context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
 	tflog.Debug(ctx, "Delete git_add")
 	// NO-OP: Terraform removes the state automatically for us
+}
+
+func (r *resourceGitAdd) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	tflog.Debug(ctx, "ModifyPlan git_add")
+
+	if req.State.Raw.IsNull() {
+		// if we're creating the resource, no need to modify it
+		return
+	}
+
+	if req.Plan.Raw.IsNull() {
+		// if we're deleting the resource, no need to modify it
+		return
+	}
+
+	var inputs resourceGitAddSchema
+	diags := req.Config.Get(ctx, &inputs)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	directory := inputs.Directory.Value
+
+	repository := openRepository(ctx, directory, &resp.Diagnostics)
+	if repository == nil {
+		return
+	}
+
+	worktree, err := getWorktree(repository, &resp.Diagnostics)
+	if err != nil || worktree == nil {
+		return
+	}
+
+	status := getStatus(ctx, worktree, &resp.Diagnostics)
+	if status == nil {
+		return
+	}
+
+	paths := make([]string, len(inputs.Paths.Elems))
+	resp.Diagnostics.Append(inputs.Paths.ElementsAs(ctx, &paths, false)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	for _, pattern := range paths {
+		for key, val := range status {
+			if val.Worktree != git.Unmodified {
+				match, errMatch := filepath.Match(pattern, key)
+				if errMatch != nil {
+					resp.Diagnostics.AddError(
+						"Cannot match file path",
+						"Could not match pattern ["+pattern+"] because of: "+errMatch.Error(),
+					)
+					return
+				}
+				if match {
+					id := path.Root("id")
+					resp.Plan.SetAttribute(ctx, id, time.Now().UnixNano())
+					resp.RequiresReplace = append(resp.RequiresReplace, id)
+					break
+				}
+			}
+		}
+	}
 }
