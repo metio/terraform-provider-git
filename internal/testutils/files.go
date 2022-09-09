@@ -22,7 +22,11 @@ func TemporaryDirectory(t *testing.T) string {
 }
 
 func WriteFile(t *testing.T, name string) {
-	err := os.WriteFile(name, []byte("hello world!"), 0644)
+	WriteFileContent(t, name, "hello world!")
+}
+
+func WriteFileContent(t *testing.T, name string, content string) {
+	err := os.WriteFile(name, []byte(content), 0644)
 	if err != nil {
 		t.Fatal(err)
 	}
