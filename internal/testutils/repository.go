@@ -43,8 +43,12 @@ func GetRepositoryHead(t *testing.T, repository *git.Repository) *plumbing.Refer
 }
 
 func WriteFileInWorktree(t *testing.T, worktree *git.Worktree, name string) {
-	filename := filepath.Join(worktree.Filesystem.Root(), name)
+	filename := FileInWorktree(worktree, name)
 	WriteFile(t, filename)
+}
+
+func FileInWorktree(worktree *git.Worktree, name string) string {
+	return filepath.Join(worktree.Filesystem.Root(), name)
 }
 
 func AddAndCommitNewFile(t *testing.T, worktree *git.Worktree, name string) {
