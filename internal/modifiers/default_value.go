@@ -7,7 +7,6 @@ package modifiers
 
 import (
 	"context"
-
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 )
@@ -22,7 +21,7 @@ type defaultValueAttributePlanModifier struct {
 	defaultValue attr.Value
 }
 
-func (d *defaultValueAttributePlanModifier) Description(ctx context.Context) string {
+func (d *defaultValueAttributePlanModifier) Description(_ context.Context) string {
 	return "If the config does not contain a value, a default will be set using defaultValue."
 }
 
@@ -33,9 +32,9 @@ func (d *defaultValueAttributePlanModifier) MarkdownDescription(ctx context.Cont
 // Modify checks that the value of the attribute in the configuration and assigns the default value if
 // the value in the config is null. This is a destructive operation in that it will overwrite any value
 // present in the plan.
-func (d *defaultValueAttributePlanModifier) Modify(ctx context.Context, req tfsdk.ModifyAttributePlanRequest, resp *tfsdk.ModifyAttributePlanResponse) {
-	// If the attribute configuration is not null, we are done here
+func (d *defaultValueAttributePlanModifier) Modify(_ context.Context, req tfsdk.ModifyAttributePlanRequest, resp *tfsdk.ModifyAttributePlanResponse) {
 	if !req.AttributeConfig.IsNull() {
+		// If the attribute configuration is not null, we are done here
 		return
 	}
 
