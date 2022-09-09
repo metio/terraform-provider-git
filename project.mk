@@ -61,7 +61,7 @@ terratests: out/terratests-run-sentinel ## run all terratest tests
 
 .PHONY: terratest
 terratest: out/terratest-lock-sentinel ## run specific terratest tests
-	go test -timeout=120s -parallel=4 -tags testing -run $(filter-out $@,$(MAKECMDGOALS)) ./terratest/tests
+	go test -v -timeout=120s -parallel=4 -tags testing -run $(filter-out $@,$(MAKECMDGOALS)) ./terratest/tests
 
 .PHONY: tests
 tests: out/tests-sentinel ## run the unit tests
