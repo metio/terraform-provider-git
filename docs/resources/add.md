@@ -3,38 +3,42 @@
 page_title: "git_add Resource - terraform-provider-git"
 subcategory: ""
 description: |-
-  Add file contents to the index using git add.
+  Add file contents to the index similar to git add.
 ---
 
 # git_add (Resource)
 
-Add file contents to the index using `git add`.
+Add file contents to the index similar to `git add`.
 
 ## Example Usage
 
 ```terraform
 # add single file
-resource "git_add" "file" {
+resource "git_add" "single_file" {
   directory  = "/path/to/git/repository"
-  exact_path = "path/to/file/in/repository"
+  add_paths  = ["path/to/file/in/repository"]
 }
 
 # add all files in directory and its subdirectory recursively
-resource "git_add" "directory" {
+resource "git_add" "single_directory" {
   directory  = "/path/to/git/repository"
-  exact_path = "path/to/directory/in/repository"
+  add_paths  = ["path/to/directory/in/repository"]
 }
 
 # add files matching pattern
-resource "git_add" "glob" {
+resource "git_add" "glob_pattern" {
   directory = "/path/to/git/repository"
-  glob_path = "path/*/in/repo*"
+  add_paths = ["path/*/in/repo*"]
 }
 
-# add all modified files
-resource "git_add" "all" {
+# mix exact paths and glob patterns
+resource "git_add" "glob_pattern" {
   directory = "/path/to/git/repository"
-  all       = true
+  add_paths = [
+    "path/*/in/repo*",
+    "another/path/to/file/here",
+    "this/could/be/a/directory",
+  ]
 }
 ```
 
@@ -47,12 +51,10 @@ resource "git_add" "all" {
 
 ### Optional
 
-- `all` (Boolean) Update the index not only where the working tree has a file matching `exact_path` or `glob_path` but also where the index already has an entry. This adds, modifies, and removes index entries to match the working tree. If no paths are given, all files in the entire working tree are updated. Defaults to `true`.
-- `exact_path` (String) The exact filepath to the file or directory to be added. Conflicts with `glob_path`.
-- `glob_path` (String) The glob pattern of files or directories to be added. Conflicts with `exact_path`.
+- `add_paths` (List of String) The paths to add to the Git index. Values can be exact paths or glob patterns.
 
 ### Read-Only
 
-- `id` (String) The same value as the `directory` attribute.
+- `id` (Number) The timestamp of the last addition in Unix nanoseconds.
 
 

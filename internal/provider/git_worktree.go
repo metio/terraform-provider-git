@@ -6,9 +6,11 @@
 package provider
 
 import (
+	"context"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 func getWorktree(repository *git.Repository, diag *diag.Diagnostics) (*git.Worktree, error) {
@@ -25,18 +27,6 @@ func getWorktree(repository *git.Repository, diag *diag.Diagnostics) (*git.Workt
 	return nil, err
 }
 
-func addPaths(worktree *git.Worktree, options *git.AddOptions, diag *diag.Diagnostics) error {
-	err := worktree.AddWithOptions(options)
-	if err != nil {
-		diag.AddError(
-			"Cannot add paths to worktree",
-			"The given paths cannot be added to the worktree because of: "+err.Error(),
-		)
-		return err
-	}
-	return nil
-}
-
 func createCommit(worktree *git.Worktree, message string, options *git.CommitOptions, diag *diag.Diagnostics) *plumbing.Hash {
 	hash, err := worktree.Commit(message, options)
 	if err != nil {
@@ -47,4 +37,19 @@ func createCommit(worktree *git.Worktree, message string, options *git.CommitOpt
 		return nil
 	}
 	return &hash
+}
+
+func getStatus(ctx context.Context, worktree *git.Worktree, diag *diag.Diagnostics) git.Status {
+	status, err := worktree.Status()
+	if err != nil {
+		diag.AddError(
+			"Cannot read status",
+			"Could not read status because of: "+err.Error(),
+		)
+		return nil
+	}
+	tflog.Trace(ctx, "read status", map[string]interface{}{
+		"status": status.String(),
+	})
+	return status
 }

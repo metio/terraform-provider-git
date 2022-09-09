@@ -1,23 +1,27 @@
 # add single file
-resource "git_add" "file" {
+resource "git_add" "single_file" {
   directory  = "/path/to/git/repository"
-  exact_path = "path/to/file/in/repository"
+  add_paths  = ["path/to/file/in/repository"]
 }
 
 # add all files in directory and its subdirectory recursively
-resource "git_add" "directory" {
+resource "git_add" "single_directory" {
   directory  = "/path/to/git/repository"
-  exact_path = "path/to/directory/in/repository"
+  add_paths  = ["path/to/directory/in/repository"]
 }
 
 # add files matching pattern
-resource "git_add" "glob" {
+resource "git_add" "glob_pattern" {
   directory = "/path/to/git/repository"
-  glob_path = "path/*/in/repo*"
+  add_paths = ["path/*/in/repo*"]
 }
 
-# add all modified files
-resource "git_add" "all" {
+# mix exact paths and glob patterns
+resource "git_add" "glob_pattern" {
   directory = "/path/to/git/repository"
-  all       = true
+  add_paths = [
+    "path/*/in/repo*",
+    "another/path/to/file/here",
+    "this/could/be/a/directory",
+  ]
 }
