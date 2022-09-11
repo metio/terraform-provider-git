@@ -44,6 +44,11 @@ out/go-format-sentinel: $(shell find . -type f -name '*.go')
 	gofmt -s -w -e .
 	touch $@
 
+out/go-lint-sentinel: $(shell find . -type f -name '*.go')
+	mkdir --parents $(@D)
+	golangci-lint run
+	touch $@
+
 out/tf-format-sentinel: $(shell find ./examples -type f -name '*.tf') $(shell find ./terratest -type f -name '*.tf')
 	mkdir --parents $(@D)
 	terraform fmt -recursive ./terratest
@@ -72,6 +77,9 @@ test: ## run specific unit tests
 
 .PHONY: format
 format: out/go-format-sentinel out/tf-format-sentinel ## format Go code and Terraform config
+
+.PHONY: lint
+lint: out/go-lint-sentinel ## lint all Go code
 
 .PHONY: update
 update: ## update all dependencies

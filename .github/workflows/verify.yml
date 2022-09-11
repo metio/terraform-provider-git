@@ -39,6 +39,11 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
+      - id: lint
+        name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
       - id: generate_docs
         name: Generate Documentation
         run: go generate

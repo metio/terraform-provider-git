@@ -112,11 +112,11 @@ func TestResourceGitCommit_Directory_Missing(t *testing.T) {
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
+				Config: `
 					resource "git_commit" "test" {
 						message = "committed with terraform"
 					}
-				`),
+				`,
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 		},
