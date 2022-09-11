@@ -110,7 +110,7 @@ func TestResourceGitInit_Import(t *testing.T) {
 			{
 				ResourceName:      "git_init.test",
 				ImportState:       true,
-				ImportStateId:     fmt.Sprintf("%s", directory),
+				ImportStateId:     directory,
 				ImportStateVerify: true,
 			},
 		},

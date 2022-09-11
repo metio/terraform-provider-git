@@ -203,6 +203,13 @@ func (r *dataSourceGitLog) Read(ctx context.Context, req datasource.ReadRequest,
 		}
 		return nil
 	})
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Cannot read commits",
+			"Could not read commits because of: "+err.Error(),
+		)
+		return
+	}
 	if !inputs.Skip.IsNull() && !inputs.Skip.IsUnknown() {
 		if int64(len(hashes)) >= inputs.Skip.Value {
 			hashes = hashes[inputs.Skip.Value:]
