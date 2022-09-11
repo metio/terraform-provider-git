@@ -32,27 +32,32 @@ type dataSourceGitRepositorySchema struct {
 
 func (r *dataSourceGitRepositoryType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		Description: "Reads information about a specific Git repository.",
+		Description:         "Reads information about a specific Git repository.",
+		MarkdownDescription: "Reads information about a specific Git repository.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
-				Description: "The path to the local Git repository.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The path to the local Git repository.",
+				MarkdownDescription: "The path to the local Git repository.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"id": {
+				Description:         "The same value as the 'directory' attribute.",
 				MarkdownDescription: "The same value as the `directory` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
 			"branch": {
-				Description: "The name of the current branch of the given Git repository. Note that repositories in detached state might not have a branch associated with them.",
-				Type:        types.StringType,
-				Computed:    true,
+				Description:         "The name of the current branch of the given Git repository. Note that repositories in detached state might not have a branch associated with them.",
+				MarkdownDescription: "The name of the current branch of the given Git repository. Note that repositories in detached state might not have a branch associated with them.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"sha1": {
+				Description:         "The SHA1 of the current 'HEAD' of the given Git repository.",
 				MarkdownDescription: "The SHA1 of the current `HEAD` of the given Git repository.",
 				Type:                types.StringType,
 				Computed:            true,
@@ -68,7 +73,7 @@ func (r *dataSourceGitRepositoryType) NewDataSource(_ context.Context, p provide
 }
 
 func (r *dataSourceGitRepository) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	tflog.Debug(ctx, "Read git_repository")
+	tflog.Debug(ctx, "Read data source git_repository")
 
 	var inputs dataSourceGitRepositorySchema
 

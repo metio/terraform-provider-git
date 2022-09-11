@@ -35,12 +35,14 @@ type resourceGitCommitSchema struct {
 
 func (r *resourceGitCommitType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
+		Description:         "Record changes to the repository similar to 'git commit'",
 		MarkdownDescription: "Record changes to the repository with `git commit`",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
-				Description: "The path to the local Git repository.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The path to the local Git repository.",
+				MarkdownDescription: "The path to the local Git repository.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
@@ -49,14 +51,16 @@ func (r *resourceGitCommitType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 				},
 			},
 			"id": {
+				Description:         "The same value as the 'directory' attribute.",
 				MarkdownDescription: "The same value as the `directory` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
 			"message": {
-				Description: "The commit message to use.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The commit message to use.",
+				MarkdownDescription: "The commit message to use.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
@@ -65,6 +69,7 @@ func (r *resourceGitCommitType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 				},
 			},
 			"all": {
+				Description:         "Automatically stage files that have been modified and deleted, but new files you have not told Git about are not affected. Defaults to 'false'.",
 				MarkdownDescription: "Automatically stage files that have been modified and deleted, but new files you have not told Git about are not affected. Defaults to `false`.",
 				Type:                types.BoolType,
 				Computed:            true,
@@ -75,47 +80,54 @@ func (r *resourceGitCommitType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 				},
 			},
 			"author": {
-				Description: "The original author of the commit. If none is specified, the author will be read from the Git configuration.",
-				Computed:    true,
-				Optional:    true,
+				Description:         "The original author of the commit. If none is specified, the author will be read from the Git configuration.",
+				MarkdownDescription: "The original author of the commit. If none is specified, the author will be read from the Git configuration.",
+				Computed:            true,
+				Optional:            true,
 				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
 					"name": {
-						Description: "The name of the author.",
-						Type:        types.StringType,
-						Computed:    true,
-						Optional:    true,
+						Description:         "The name of the author.",
+						MarkdownDescription: "The name of the author.",
+						Type:                types.StringType,
+						Computed:            true,
+						Optional:            true,
 					},
 					"email": {
-						Description: "The email address of the author.",
-						Type:        types.StringType,
-						Computed:    true,
-						Optional:    true,
+						Description:         "The email address of the author.",
+						MarkdownDescription: "The email address of the author.",
+						Type:                types.StringType,
+						Computed:            true,
+						Optional:            true,
 					},
 				}),
 			},
 			"committer": {
-				Description: "The person performing the commit. If none is specified, the author is used as committer.",
-				Computed:    true,
-				Optional:    true,
+				Description:         "The person performing the commit. If none is specified, the author is used as committer.",
+				MarkdownDescription: "The person performing the commit. If none is specified, the author is used as committer.",
+				Computed:            true,
+				Optional:            true,
 				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
 					"name": {
-						Description: "The name of the committer.",
-						Type:        types.StringType,
-						Computed:    true,
-						Optional:    true,
+						Description:         "The name of the committer.",
+						MarkdownDescription: "The name of the committer.",
+						Type:                types.StringType,
+						Computed:            true,
+						Optional:            true,
 					},
 					"email": {
-						Description: "The email address of the committer.",
-						Type:        types.StringType,
-						Computed:    true,
-						Optional:    true,
+						Description:         "The email address of the committer.",
+						MarkdownDescription: "The email address of the committer.",
+						Type:                types.StringType,
+						Computed:            true,
+						Optional:            true,
 					},
 				}),
 			},
 			"sha1": {
-				Description: "The SHA1 hash of the created commit.",
-				Type:        types.StringType,
-				Computed:    true,
+				Description:         "The SHA1 hash of the created commit.",
+				MarkdownDescription: "The SHA1 hash of the created commit.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 		},
 	}, nil
@@ -128,7 +140,7 @@ func (r *resourceGitCommitType) NewResource(_ context.Context, p provider.Provid
 }
 
 func (r *resourceGitCommit) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	tflog.Debug(ctx, "Create git_commit")
+	tflog.Debug(ctx, "Create resource git_commit")
 
 	var inputs resourceGitCommitSchema
 	diags := req.Config.Get(ctx, &inputs)
@@ -200,16 +212,16 @@ func (r *resourceGitCommit) Create(ctx context.Context, req resource.CreateReque
 }
 
 func (r *resourceGitCommit) Read(ctx context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
-	tflog.Debug(ctx, "Read git_add")
+	tflog.Debug(ctx, "Read resource git_add")
 	// NO-OP: All data is already in Terraform state
 }
 
 func (r *resourceGitCommit) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
-	tflog.Debug(ctx, "Update git_add")
+	tflog.Debug(ctx, "Update resource git_add")
 	// NO-OP: All attributes require replacement, thus delete/create will be called
 }
 
 func (r *resourceGitCommit) Delete(ctx context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
-	tflog.Debug(ctx, "Delete git_add")
+	tflog.Debug(ctx, "Delete resource git_add")
 	// NO-OP: Terraform removes the state automatically for us
 }

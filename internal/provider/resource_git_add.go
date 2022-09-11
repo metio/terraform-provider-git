@@ -34,12 +34,14 @@ type resourceGitAddSchema struct {
 
 func (r *resourceGitAddType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
+		Description:         "Add file contents to the index similar to 'git add'.",
 		MarkdownDescription: "Add file contents to the index similar to `git add`.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
-				Description: "The path to the local Git repository.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The path to the local Git repository.",
+				MarkdownDescription: "The path to the local Git repository.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
@@ -48,12 +50,14 @@ func (r *resourceGitAddType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 				},
 			},
 			"id": {
-				Description: "The timestamp of the last addition in Unix nanoseconds.",
-				Type:        types.Int64Type,
-				Computed:    true,
+				Description:         "The timestamp of the last addition in Unix nanoseconds.",
+				MarkdownDescription: "The timestamp of the last addition in Unix nanoseconds.",
+				Type:                types.Int64Type,
+				Computed:            true,
 			},
 			"add_paths": {
-				Description: "The paths to add to the Git index. Values can be exact paths or glob patterns.",
+				Description:         "The paths to add to the Git index. Values can be exact paths or glob patterns.",
+				MarkdownDescription: "The paths to add to the Git index. Values can be exact paths or glob patterns.",
 				Type: types.ListType{
 					ElemType: types.StringType,
 				},
@@ -71,7 +75,7 @@ func (r *resourceGitAddType) NewResource(_ context.Context, p provider.Provider)
 }
 
 func (r *resourceGitAdd) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	tflog.Debug(ctx, "Create git_add")
+	tflog.Debug(ctx, "Create resource git_add")
 
 	var inputs resourceGitAddSchema
 	diags := req.Config.Get(ctx, &inputs)
@@ -146,22 +150,22 @@ func (r *resourceGitAdd) Create(ctx context.Context, req resource.CreateRequest,
 }
 
 func (r *resourceGitAdd) Read(ctx context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
-	tflog.Debug(ctx, "Read git_add")
+	tflog.Debug(ctx, "Read resource git_add")
 	// NO-OP: All data is already in Terraform state
 }
 
 func (r *resourceGitAdd) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
-	tflog.Debug(ctx, "Update git_add")
+	tflog.Debug(ctx, "Update resource git_add")
 	// NO-OP: All attributes require replacement, thus delete/create will be called
 }
 
 func (r *resourceGitAdd) Delete(ctx context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
-	tflog.Debug(ctx, "Delete git_add")
+	tflog.Debug(ctx, "Delete resource git_add")
 	// NO-OP: Terraform removes the state automatically for us
 }
 
 func (r *resourceGitAdd) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	tflog.Debug(ctx, "ModifyPlan git_add")
+	tflog.Debug(ctx, "ModifyPlan resource git_add")
 
 	if req.State.Raw.IsNull() {
 		// if we're creating the resource, no need to modify it

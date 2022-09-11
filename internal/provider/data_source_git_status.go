@@ -33,38 +33,44 @@ type dataSourceGitStatusSchema struct {
 
 func (r *dataSourceGitStatusType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		Description: "Fetches the status of a single files in a Git repository.",
+		Description:         "Fetches the status of a single files in a Git repository.",
+		MarkdownDescription: "Fetches the status of a single files in a Git repository.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
-				Description: "The path to the local Git repository.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The path to the local Git repository.",
+				MarkdownDescription: "The path to the local Git repository.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"id": {
+				Description:         "The same value as the 'file' attribute.",
 				MarkdownDescription: "The same value as the `file` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
 			"file": {
-				Description: "The file to get status information about.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The file to get status information about.",
+				MarkdownDescription: "The file to get status information about.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"staging": {
-				Description: "The status of the file in the staging area.",
-				Type:        types.StringType,
-				Computed:    true,
+				Description:         "The status of the file in the staging area.",
+				MarkdownDescription: "The status of the file in the staging area.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"worktree": {
-				Description: "The status of the file in the worktree",
-				Type:        types.StringType,
-				Computed:    true,
+				Description:         "The status of the file in the worktree",
+				MarkdownDescription: "The status of the file in the worktree",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 		},
 	}, nil
@@ -77,7 +83,7 @@ func (r *dataSourceGitStatusType) NewDataSource(_ context.Context, p provider.Pr
 }
 
 func (r *dataSourceGitStatus) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	tflog.Debug(ctx, "Reading Git file status")
+	tflog.Debug(ctx, "Read data source git_status")
 
 	var inputs dataSourceGitStatusSchema
 	var state dataSourceGitStatusSchema

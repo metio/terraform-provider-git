@@ -3,12 +3,12 @@
 page_title: "git_init Resource - terraform-provider-git"
 subcategory: ""
 description: |-
-  Initializes a Git repository using git init.
+  Initializes a Git repository similar to git init.
 ---
 
 # git_init (Resource)
 
-Initializes a Git repository using `git init`.
+Initializes a Git repository similar to `git init`.
 
 ## Example Usage
 

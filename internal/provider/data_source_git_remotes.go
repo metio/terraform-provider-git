@@ -31,27 +31,32 @@ type dataSourceGitRemotesSchema struct {
 
 func (r *dataSourceGitRemotesType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		Description: "Reads all configured remotes of a Git repository.",
+		Description:         "Reads all configured remotes of a Git repository.",
+		MarkdownDescription: "Reads all configured remotes of a Git repository.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
-				Description: "The path to the local Git repository.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The path to the local Git repository.",
+				MarkdownDescription: "The path to the local Git repository.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"id": {
+				Description:         "The same value as the 'directory' attribute.",
 				MarkdownDescription: "The same value as the `directory` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
 			"remotes": {
-				Description: "All configured remotes of the given Git repository.",
-				Computed:    true,
+				Description:         "All configured remotes of the given Git repository.",
+				MarkdownDescription: "All configured remotes of the given Git repository.",
+				Computed:            true,
 				Attributes: tfsdk.MapNestedAttributes(map[string]tfsdk.Attribute{
 					"urls": {
-						Description: "The URLs for the remote.",
+						Description:         "The URLs for the remote.",
+						MarkdownDescription: "The URLs for the remote.",
 						Type: types.ListType{
 							ElemType: types.StringType,
 						},
@@ -70,7 +75,7 @@ func (r *dataSourceGitRemotesType) NewDataSource(_ context.Context, p provider.P
 }
 
 func (r *dataSourceGitRemotes) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	tflog.Debug(ctx, "Reading Git repository remotes")
+	tflog.Debug(ctx, "Read data source git_remotes")
 
 	var inputs dataSourceGitRemotesSchema
 	var state dataSourceGitRemotesSchema

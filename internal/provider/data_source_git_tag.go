@@ -34,48 +34,56 @@ type dataSourceGitTagSchema struct {
 
 func (r *dataSourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		Description: "Reads information about a specific tag of a Git repository.",
+		Description:         "Reads information about a specific tag of a Git repository.",
+		MarkdownDescription: "Reads information about a specific tag of a Git repository.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
-				Description: "The path to the local Git repository.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The path to the local Git repository.",
+				MarkdownDescription: "The path to the local Git repository.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"id": {
+				Description:         "The same value as the 'name' attribute.",
 				MarkdownDescription: "The same value as the `name` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
 			"name": {
-				Description: "The name of the tag to gather information about.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The name of the tag to gather information about.",
+				MarkdownDescription: "The name of the tag to gather information about.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"annotated": {
-				Description: "Whether the given tag is an annotated tag.",
-				Type:        types.BoolType,
-				Computed:    true,
+				Description:         "Whether the given tag is an annotated tag.",
+				MarkdownDescription: "Whether the given tag is an annotated tag.",
+				Type:                types.BoolType,
+				Computed:            true,
 			},
 			"lightweight": {
-				Description: "Whether the given tag is a lightweight tag.",
-				Type:        types.BoolType,
-				Computed:    true,
+				Description:         "Whether the given tag is a lightweight tag.",
+				MarkdownDescription: "Whether the given tag is a lightweight tag.",
+				Type:                types.BoolType,
+				Computed:            true,
 			},
 			"sha1": {
-				Description: "The SHA1 checksum of the commit the given tag is pointing at.",
-				Type:        types.StringType,
-				Computed:    true,
+				Description:         "The SHA1 checksum of the commit the given tag is pointing at.",
+				MarkdownDescription: "The SHA1 checksum of the commit the given tag is pointing at.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"message": {
-				Description: "The associated message of an annotated tag.",
-				Type:        types.StringType,
-				Computed:    true,
+				Description:         "The associated message of an annotated tag.",
+				MarkdownDescription: "The associated message of an annotated tag.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 		},
 	}, nil

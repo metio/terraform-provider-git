@@ -27,7 +27,7 @@ data "git_statuses" "statuses" {
 
 ### Read-Only
 
-- `files` (Attributes Map) (see [below for nested schema](#nestedatt--files))
+- `files` (Attributes Map) All modified files. (see [below for nested schema](#nestedatt--files))
 - `id` (String) The same value as the `directory` attribute.
 - `is_clean` (Boolean) Whether the Git worktree is clean - all files must be in unmodified status for this to be true.
 

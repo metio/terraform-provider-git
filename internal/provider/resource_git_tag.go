@@ -36,12 +36,14 @@ type resourceGitTagSchema struct {
 
 func (r *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		MarkdownDescription: "Manage Git tags with `git tag`.",
+		Description:         "Manage Git tags similar to 'git tag'.",
+		MarkdownDescription: "Manage Git tags similar to `git tag`.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
-				Description: "The path to the local Git repository.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The path to the local Git repository.",
+				MarkdownDescription: "The path to the local Git repository.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
@@ -50,14 +52,16 @@ func (r *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 				},
 			},
 			"id": {
+				Description:         "The import ID to import this resource which has the form 'directory|name'",
 				MarkdownDescription: "The import ID to import this resource which has the form `'directory|name'`",
 				Type:                types.StringType,
 				Computed:            true,
 			},
 			"name": {
-				Description: "The name of the Git tag to add.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The name of the Git tag to add.",
+				MarkdownDescription: "The name of the Git tag to add.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
@@ -66,6 +70,7 @@ func (r *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 				},
 			},
 			"revision": {
+				Description:         "The revision of the commit to tag. Can be any value that 'go-git' supports. If none is specified, 'HEAD' will be tagged.",
 				MarkdownDescription: "The [revision](https://www.git-scm.com/docs/gitrevisions) of the commit to tag. Can be any value that `go-git` [supports](https://pkg.go.dev/github.com/go-git/go-git/v5#Repository.ResolveRevision). If none is specified, `HEAD` will be tagged.",
 				Type:                types.StringType,
 				Optional:            true,
@@ -76,14 +81,16 @@ func (r *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 				},
 			},
 			"sha1": {
-				Description: "The SHA1 hash of the resolved revision.",
-				Type:        types.StringType,
-				Computed:    true,
+				Description:         "The SHA1 hash of the resolved revision.",
+				MarkdownDescription: "The SHA1 hash of the resolved revision.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"message": {
-				Description: "The tag message to use. Note that by specifying a message, an annotated tag will be created.",
-				Type:        types.StringType,
-				Optional:    true,
+				Description:         "The tag message to use. Note that by specifying a message, an annotated tag will be created.",
+				MarkdownDescription: "The tag message to use. Note that by specifying a message, an annotated tag will be created.",
+				Type:                types.StringType,
+				Optional:            true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
 					resource.RequiresReplace(),
 				},
@@ -99,7 +106,7 @@ func (r *resourceGitTagType) NewResource(_ context.Context, p provider.Provider)
 }
 
 func (r *resourceGitTag) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	tflog.Debug(ctx, "Create git_tag")
+	tflog.Debug(ctx, "Create resource git_tag")
 
 	var inputs resourceGitTagSchema
 	diags := req.Config.Get(ctx, &inputs)
@@ -156,7 +163,7 @@ func (r *resourceGitTag) Create(ctx context.Context, req resource.CreateRequest,
 }
 
 func (r *resourceGitTag) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	tflog.Debug(ctx, "Read git_tag")
+	tflog.Debug(ctx, "Read resource git_tag")
 
 	var state resourceGitTagSchema
 	diags := req.State.Get(ctx, &state)
@@ -205,12 +212,12 @@ func (r *resourceGitTag) Read(ctx context.Context, req resource.ReadRequest, res
 }
 
 func (r *resourceGitTag) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
-	tflog.Debug(ctx, "Update git_tag")
+	tflog.Debug(ctx, "Update resource git_tag")
 	// NO-OP: all attributes require replace, thus Delete and Create methods will be called
 }
 
 func (r *resourceGitTag) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	tflog.Debug(ctx, "Delete git_tag")
+	tflog.Debug(ctx, "Delete resource git_tag")
 
 	var state resourceGitTagSchema
 	diags := req.State.Get(ctx, &state)
@@ -234,7 +241,7 @@ func (r *resourceGitTag) Delete(ctx context.Context, req resource.DeleteRequest,
 }
 
 func (r *resourceGitTag) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	tflog.Debug(ctx, "ImportState git_tag")
+	tflog.Debug(ctx, "ImportState resource git_tag")
 
 	id := req.ID
 	idParts := strings.Split(id, "|")
