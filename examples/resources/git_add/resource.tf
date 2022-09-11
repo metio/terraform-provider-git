@@ -1,13 +1,13 @@
 # add single file
 resource "git_add" "single_file" {
-  directory  = "/path/to/git/repository"
-  add_paths  = ["path/to/file/in/repository"]
+  directory = "/path/to/git/repository"
+  add_paths = ["path/to/file/in/repository"]
 }
 
 # add all files in directory and its subdirectory recursively
 resource "git_add" "single_directory" {
-  directory  = "/path/to/git/repository"
-  add_paths  = ["path/to/directory/in/repository"]
+  directory = "/path/to/git/repository"
+  add_paths = ["path/to/directory/in/repository"]
 }
 
 # add files matching pattern
