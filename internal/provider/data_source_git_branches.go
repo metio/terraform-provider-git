@@ -33,36 +33,43 @@ type dataSourceGitBranchesSchema struct {
 
 func (r *dataSourceGitBranchesType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		Description: "Fetches all branches of a Git repository.",
+		Description:         "Fetches all branches of a Git repository.",
+		MarkdownDescription: "Fetches all branches of a Git repository.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
-				Description: "The path to the local Git repository.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The path to the local Git repository.",
+				MarkdownDescription: "The path to the local Git repository.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"id": {
+				Description:         "The same value as the 'directory' attribute.",
 				MarkdownDescription: "The same value as the `directory` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
 			"branches": {
-				Description: "All branches in a Git repository and their configuration.",
-				Computed:    true,
+				Description:         "All branches in a Git repository and their configuration.",
+				MarkdownDescription: "All branches in a Git repository and their configuration.",
+				Computed:            true,
 				Attributes: tfsdk.MapNestedAttributes(map[string]tfsdk.Attribute{
 					"sha1": {
+						Description:         "The SHA1 checksum of the 'HEAD' of the branch.",
 						MarkdownDescription: "The SHA1 checksum of the `HEAD` of the branch.",
 						Type:                types.StringType,
 						Computed:            true,
 					},
 					"remote": {
-						Description: "The name of remote this branch is tracking.",
-						Type:        types.StringType,
-						Computed:    true,
+						Description:         "The name of remote this branch is tracking.",
+						MarkdownDescription: "The name of remote this branch is tracking.",
+						Type:                types.StringType,
+						Computed:            true,
 					},
 					"rebase": {
+						Description:         "The rebase configuration for the specified Git branch. Possible values are 'true', 'interactive', and 'false'.",
 						MarkdownDescription: "The rebase configuration for the specified Git branch. Possible values are `true`, `interactive`, and `false`.",
 						Type:                types.StringType,
 						Computed:            true,
@@ -80,7 +87,7 @@ func (r *dataSourceGitBranchesType) NewDataSource(_ context.Context, p provider.
 }
 
 func (r *dataSourceGitBranches) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	tflog.Debug(ctx, "Reading Git repository branches")
+	tflog.Debug(ctx, "Read data source git_branches")
 
 	var inputs dataSourceGitBranchesSchema
 	var state dataSourceGitBranchesSchema

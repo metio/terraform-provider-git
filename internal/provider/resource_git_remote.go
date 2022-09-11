@@ -34,12 +34,14 @@ type resourceGitRemoteSchema struct {
 
 func (r *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		MarkdownDescription: "Manages remotes in a Git repository with `git remote`.",
+		Description:         "Manages remotes in a Git repository similar to 'git remote'.",
+		MarkdownDescription: "Manages remotes in a Git repository similar to `git remote`.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
-				Description: "The path to the local Git repository.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The path to the local Git repository.",
+				MarkdownDescription: "The path to the local Git repository.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
@@ -48,14 +50,16 @@ func (r *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 				},
 			},
 			"id": {
+				Description:         "The import ID to import this resource which has the form 'directory|name'",
 				MarkdownDescription: "The import ID to import this resource which has the form `'directory|name'`",
 				Type:                types.StringType,
 				Computed:            true,
 			},
 			"name": {
-				Description: "The name of the Git remote to manage.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The name of the Git remote to manage.",
+				MarkdownDescription: "The name of the Git remote to manage.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
@@ -64,7 +68,8 @@ func (r *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 				},
 			},
 			"urls": {
-				Description: "The URLs of the Git remote to manage. The first URL will be a fetch/pull URL. All other URLs will be push only.",
+				Description:         "The URLs of the Git remote to manage. The first URL will be a fetch/pull URL. All other URLs will be push only.",
+				MarkdownDescription: "The URLs of the Git remote to manage. The first URL will be a fetch/pull URL. All other URLs will be push only.",
 				Type: types.ListType{
 					ElemType: types.StringType,
 				},
@@ -81,7 +86,7 @@ func (r *resourceGitRemoteType) NewResource(_ context.Context, p provider.Provid
 }
 
 func (r *resourceGitRemote) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	tflog.Debug(ctx, "Create git_remote")
+	tflog.Debug(ctx, "Create resource git_remote")
 
 	var inputs resourceGitRemoteSchema
 
@@ -136,7 +141,7 @@ func (r *resourceGitRemote) Create(ctx context.Context, req resource.CreateReque
 }
 
 func (r *resourceGitRemote) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	tflog.Debug(ctx, "Read git_remote")
+	tflog.Debug(ctx, "Read resource git_remote")
 
 	var state resourceGitRemoteSchema
 	diags := req.State.Get(ctx, &state)
@@ -174,7 +179,7 @@ func (r *resourceGitRemote) Read(ctx context.Context, req resource.ReadRequest, 
 }
 
 func (r *resourceGitRemote) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	tflog.Debug(ctx, "Update git_remote")
+	tflog.Debug(ctx, "Update resource git_remote")
 
 	var inputs resourceGitRemoteSchema
 
@@ -245,7 +250,7 @@ func (r *resourceGitRemote) Update(ctx context.Context, req resource.UpdateReque
 }
 
 func (r *resourceGitRemote) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	tflog.Debug(ctx, "Delete git_remote")
+	tflog.Debug(ctx, "Delete resource git_remote")
 
 	var state resourceGitRemoteSchema
 
@@ -274,7 +279,7 @@ func (r *resourceGitRemote) Delete(ctx context.Context, req resource.DeleteReque
 }
 
 func (r *resourceGitRemote) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	tflog.Debug(ctx, "ImportState git_remote")
+	tflog.Debug(ctx, "ImportState resource git_remote")
 
 	id := req.ID
 	idParts := strings.Split(id, "|")

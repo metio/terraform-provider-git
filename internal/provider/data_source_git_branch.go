@@ -35,40 +35,47 @@ type dataSourceGitBranchSchema struct {
 
 func (r *dataSourceGitBranchType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		Description: "Fetches information about a specific branch of a Git repository.",
+		Description:         "Fetches information about a specific branch of a Git repository.",
+		MarkdownDescription: "Fetches information about a specific branch of a Git repository.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
-				Description: "The path to the local Git repository.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The path to the local Git repository.",
+				MarkdownDescription: "The path to the local Git repository.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"name": {
-				Description: "The name of the Git branch.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The name of the Git branch.",
+				MarkdownDescription: "The name of the Git branch.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"id": {
+				Description:         "The same value as the 'name' attribute.",
 				MarkdownDescription: "The same value as the `name` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
 			"sha1": {
+				Description:         "The SHA1 checksum of the 'HEAD' commit in the specified Git branch.",
 				MarkdownDescription: "The SHA1 checksum of the `HEAD` commit in the specified Git branch.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
 			"remote": {
-				Description: "The configured remote for the specified Git branch.",
-				Type:        types.StringType,
-				Computed:    true,
+				Description:         "The configured remote for the specified Git branch.",
+				MarkdownDescription: "The configured remote for the specified Git branch.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"rebase": {
+				Description:         "The rebase configuration for the specified Git branch. Possible values are 'true', 'interactive', and 'false'.",
 				MarkdownDescription: "The rebase configuration for the specified Git branch. Possible values are `true`, `interactive`, and `false`.",
 				Type:                types.StringType,
 				Computed:            true,
@@ -84,7 +91,7 @@ func (r *dataSourceGitBranchType) NewDataSource(_ context.Context, p provider.Pr
 }
 
 func (r *dataSourceGitBranch) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	tflog.Debug(ctx, "Reading Git repository branch")
+	tflog.Debug(ctx, "Read data source git_branch")
 
 	var inputs dataSourceGitBranchSchema
 	var state dataSourceGitBranchSchema

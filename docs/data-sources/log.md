@@ -41,7 +41,7 @@ data "git_commit" "from_log" {
 
 ### Optional
 
-- `all` (Boolean) Pretend as if all the refs in `refs/`, along with `HEAD`, are listed. It is equivalent to running `git log --all`. If set on true, the `from` attribute will be ignored.
+- `all` (Boolean) Pretend as if all the refs in `refs/`, along with `HEAD`, are listed. It is equivalent to running `git log --all`. If set to `true`, the `from` attribute will be ignored.
 - `filter_paths` (List of String) Show only commits that are enough to explain how the files that match the specified paths came to be. Note that these are not Git `pathspec` but rather Go [path matchers](https://pkg.go.dev/path#Match) thus you have to add `/*` for directories yourself.
 - `from` (String) When set the log will only contain commits reachable from it. If this option is not set, `HEAD` will be used as the default. Can be any [revision](https://www.git-scm.com/docs/gitrevisions) that `go-git` [supports](https://pkg.go.dev/github.com/go-git/go-git/v5#Repository.ResolveRevision).
 - `max_count` (Number) Limit the number of commits to output.

@@ -3,12 +3,12 @@
 page_title: "git_tag Resource - terraform-provider-git"
 subcategory: ""
 description: |-
-  Manage Git tags with git tag.
+  Manage Git tags similar to git tag.
 ---
 
 # git_tag (Resource)
 
-Manage Git tags with `git tag`.
+Manage Git tags similar to `git tag`.
 
 ## Example Usage
 

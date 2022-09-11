@@ -3,12 +3,12 @@
 page_title: "git_remote Resource - terraform-provider-git"
 subcategory: ""
 description: |-
-  Manages remotes in a Git repository with git remote.
+  Manages remotes in a Git repository similar to git remote.
 ---
 
 # git_remote (Resource)
 
-Manages remotes in a Git repository with `git remote`.
+Manages remotes in a Git repository similar to `git remote`.
 
 ## Example Usage
 

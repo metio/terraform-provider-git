@@ -45,7 +45,7 @@ data "git_tags" "lightweight_tags" {
 ### Read-Only
 
 - `id` (String) The same value as the `directory` attribute.
-- `tags` (Attributes Map) (see [below for nested schema](#nestedatt--tags))
+- `tags` (Attributes Map) All existing tags. (see [below for nested schema](#nestedatt--tags))
 
 <a id="nestedatt--tags"></a>
 ### Nested Schema for `tags`

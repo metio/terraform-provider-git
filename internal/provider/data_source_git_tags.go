@@ -35,22 +35,26 @@ type dataSourceGitTagsSchema struct {
 
 func (r *dataSourceGitTagsType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		Description: "Reads information about all tags of a Git repository.",
+		Description:         "Reads information about all tags of a Git repository.",
+		MarkdownDescription: "Reads information about all tags of a Git repository.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
-				Description: "The path to the local Git repository.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The path to the local Git repository.",
+				MarkdownDescription: "The path to the local Git repository.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"id": {
+				Description:         "The same value as the 'directory' attribute.",
 				MarkdownDescription: "The same value as the `directory` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
 			"annotated": {
+				Description:         "Whether to request annotated tags. Defaults to 'true'.",
 				MarkdownDescription: "Whether to request annotated tags. Defaults to `true`.",
 				Type:                types.BoolType,
 				Required:            false,
@@ -60,6 +64,7 @@ func (r *dataSourceGitTagsType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 				},
 			},
 			"lightweight": {
+				Description:         "Whether to request lightweight tags. Defaults to 'true'.",
 				MarkdownDescription: "Whether to request lightweight tags. Defaults to `true`.",
 				Type:                types.BoolType,
 				Required:            false,
@@ -69,22 +74,27 @@ func (r *dataSourceGitTagsType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 				},
 			},
 			"tags": {
-				Computed: true,
+				Description:         "All existing tags.",
+				MarkdownDescription: "All existing tags.",
+				Computed:            true,
 				Attributes: tfsdk.MapNestedAttributes(map[string]tfsdk.Attribute{
 					"annotated": {
-						Description: "Whether the tag is an annotated tag or not.",
-						Type:        types.BoolType,
-						Computed:    true,
+						Description:         "Whether the tag is an annotated tag or not.",
+						MarkdownDescription: "Whether the tag is an annotated tag or not.",
+						Type:                types.BoolType,
+						Computed:            true,
 					},
 					"lightweight": {
-						Description: "Whether the tag is a lightweight tag or not.",
-						Type:        types.BoolType,
-						Computed:    true,
+						Description:         "Whether the tag is a lightweight tag or not.",
+						MarkdownDescription: "Whether the tag is a lightweight tag or not.",
+						Type:                types.BoolType,
+						Computed:            true,
 					},
 					"sha1": {
-						Description: "The SHA1 checksum of the commit the tag is pointing at.",
-						Type:        types.StringType,
-						Computed:    true,
+						Description:         "The SHA1 checksum of the commit the tag is pointing at.",
+						MarkdownDescription: "The SHA1 checksum of the commit the tag is pointing at.",
+						Type:                types.StringType,
+						Computed:            true,
 					},
 				}),
 			},
@@ -99,7 +109,7 @@ func (r *dataSourceGitTagsType) NewDataSource(_ context.Context, p provider.Prov
 }
 
 func (r *dataSourceGitTags) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	tflog.Debug(ctx, "Reading Git repository tags")
+	tflog.Debug(ctx, "Read data source git_tags")
 
 	var inputs dataSourceGitTagsSchema
 	var state dataSourceGitTagsSchema

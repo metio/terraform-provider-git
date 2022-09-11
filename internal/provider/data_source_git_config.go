@@ -37,22 +37,26 @@ type dataSourceGitConfigSchema struct {
 
 func (r *dataSourceGitConfigType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		Description: "Reads the configuration of a Git repository.",
+		Description:         "Reads the configuration of a Git repository.",
+		MarkdownDescription: "Reads the configuration of a Git repository.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
-				Description: "The path to the local Git repository.",
-				Type:        types.StringType,
-				Required:    true,
+				Description:         "The path to the local Git repository.",
+				MarkdownDescription: "The path to the local Git repository.",
+				Type:                types.StringType,
+				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"id": {
+				Description:         "The same value as the 'directory' attribute.",
 				MarkdownDescription: "The same value as the `directory` attribute.",
 				Type:                types.StringType,
 				Computed:            true,
 			},
 			"scope": {
+				Description:         "The configuration scope to read. Possible values are 'local', 'global', and 'system'. Defaults to 'global'.",
 				MarkdownDescription: "The configuration scope to read. Possible values are `local`, `global`, and `system`. Defaults to `global`.",
 				Type:                types.StringType,
 				Optional:            true,
@@ -69,34 +73,40 @@ func (r *dataSourceGitConfigType) GetSchema(_ context.Context) (tfsdk.Schema, di
 				},
 			},
 			"user_name": {
-				Description: "The name of the author and the committer of a commit.",
-				Type:        types.StringType,
-				Computed:    true,
+				Description:         "The name of the author and the committer of a commit.",
+				MarkdownDescription: "The name of the author and the committer of a commit.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"user_email": {
-				Description: "The email address of the author and the committer of a commit.",
-				Type:        types.StringType,
-				Computed:    true,
+				Description:         "The email address of the author and the committer of a commit.",
+				MarkdownDescription: "The email address of the author and the committer of a commit.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"author_name": {
-				Description: "The name of the author of a commit.",
-				Type:        types.StringType,
-				Computed:    true,
+				Description:         "The name of the author of a commit.",
+				MarkdownDescription: "The name of the author of a commit.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"author_email": {
-				Description: "The email address of the author of a commit.",
-				Type:        types.StringType,
-				Computed:    true,
+				Description:         "The email address of the author of a commit.",
+				MarkdownDescription: "The email address of the author of a commit.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"committer_name": {
-				Description: "The name of the committer of a commit.",
-				Type:        types.StringType,
-				Computed:    true,
+				Description:         "The name of the committer of a commit.",
+				MarkdownDescription: "The name of the committer of a commit.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 			"committer_email": {
-				Description: "The email address of the committer of a commit.",
-				Type:        types.StringType,
-				Computed:    true,
+				Description:         "The email address of the committer of a commit.",
+				MarkdownDescription: "The email address of the committer of a commit.",
+				Type:                types.StringType,
+				Computed:            true,
 			},
 		},
 	}, nil
@@ -109,7 +119,7 @@ func (r *dataSourceGitConfigType) NewDataSource(_ context.Context, p provider.Pr
 }
 
 func (r *dataSourceGitConfig) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	tflog.Debug(ctx, "Reading Git repository configuration")
+	tflog.Debug(ctx, "Read data source git_config")
 
 	var inputs dataSourceGitConfigSchema
 	var state dataSourceGitConfigSchema
