@@ -22,8 +22,8 @@ type gitProvider struct {
 
 func (p *gitProvider) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
+		Description:         "Provider for local Git operations. Requires Terraform 1.0 or later.",
 		MarkdownDescription: "Provider for local [Git](https://git-scm.com/) operations. Requires Terraform 1.0 or later.",
-		Attributes:          map[string]tfsdk.Attribute{},
 	}, nil
 }
 
