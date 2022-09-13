@@ -15,9 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-type remoteDataSource struct {
-	p gitProvider
-}
+type remoteDataSource struct{}
 
 var (
 	_ datasource.DataSource              = (*remoteDataSource)(nil)
