@@ -9,7 +9,6 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -17,13 +16,15 @@ import (
 	"github.com/metio/terraform-provider-git/internal/modifiers"
 )
 
-type resourceGitCommitType struct{}
+type commitResource struct{}
 
-type resourceGitCommit struct {
-	p gitProvider
-}
+var (
+	_ resource.Resource              = (*commitResource)(nil)
+	_ resource.ResourceWithMetadata  = (*commitResource)(nil)
+	_ resource.ResourceWithGetSchema = (*commitResource)(nil)
+)
 
-type resourceGitCommitSchema struct {
+type commitResourceModel struct {
 	Directory types.String `tfsdk:"directory"`
 	Id        types.String `tfsdk:"id"`
 	Message   types.String `tfsdk:"message"`
@@ -33,7 +34,15 @@ type resourceGitCommitSchema struct {
 	SHA1      types.String `tfsdk:"sha1"`
 }
 
-func (r *resourceGitCommitType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewCommitResource() resource.Resource {
+	return &commitResource{}
+}
+
+func (r *commitResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_commit"
+}
+
+func (r *commitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Record changes to the repository similar to 'git commit'",
 		MarkdownDescription: "Record changes to the repository with `git commit`",
@@ -133,16 +142,10 @@ func (r *resourceGitCommitType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 	}, nil
 }
 
-func (r *resourceGitCommitType) NewResource(_ context.Context, p provider.Provider) (resource.Resource, diag.Diagnostics) {
-	return &resourceGitCommit{
-		p: *(p.(*gitProvider)),
-	}, nil
-}
-
-func (r *resourceGitCommit) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *commitResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "Create resource git_commit")
 
-	var inputs resourceGitCommitSchema
+	var inputs commitResourceModel
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -178,7 +181,7 @@ func (r *resourceGitCommit) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	var state resourceGitCommitSchema
+	var state commitResourceModel
 	state.Directory = inputs.Directory
 	state.Id = inputs.Directory
 	state.All = inputs.All
@@ -211,17 +214,17 @@ func (r *resourceGitCommit) Create(ctx context.Context, req resource.CreateReque
 	}
 }
 
-func (r *resourceGitCommit) Read(ctx context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
+func (r *commitResource) Read(ctx context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
 	tflog.Debug(ctx, "Read resource git_add")
 	// NO-OP: All data is already in Terraform state
 }
 
-func (r *resourceGitCommit) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
+func (r *commitResource) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
 	tflog.Debug(ctx, "Update resource git_add")
 	// NO-OP: All attributes require replacement, thus delete/create will be called
 }
 
-func (r *resourceGitCommit) Delete(ctx context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
+func (r *commitResource) Delete(ctx context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
 	tflog.Debug(ctx, "Delete resource git_add")
 	// NO-OP: Terraform removes the state automatically for us
 }

@@ -62,7 +62,7 @@ func signatureToObjectWithoutTimestamp(signature *object.Signature) types.Object
 	}
 }
 
-func createCommitOptions(ctx context.Context, inputs resourceGitCommitSchema) *git.CommitOptions {
+func createCommitOptions(ctx context.Context, inputs commitResourceModel) *git.CommitOptions {
 	options := &git.CommitOptions{}
 
 	options.All = inputs.All.Value

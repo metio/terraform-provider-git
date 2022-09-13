@@ -11,7 +11,6 @@ import (
 	"github.com/go-git/go-git/v5/config"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -19,20 +18,31 @@ import (
 	"strings"
 )
 
-type resourceGitRemoteType struct{}
+type remoteResource struct{}
 
-type resourceGitRemote struct {
-	p gitProvider
-}
+var (
+	_ resource.Resource                = (*remoteResource)(nil)
+	_ resource.ResourceWithMetadata    = (*remoteResource)(nil)
+	_ resource.ResourceWithGetSchema   = (*remoteResource)(nil)
+	_ resource.ResourceWithImportState = (*remoteResource)(nil)
+)
 
-type resourceGitRemoteSchema struct {
+type remoteResourceModel struct {
 	Directory types.String `tfsdk:"directory"`
 	Id        types.String `tfsdk:"id"`
 	Name      types.String `tfsdk:"name"`
 	Urls      types.List   `tfsdk:"urls"`
 }
 
-func (r *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewRemoteResource() resource.Resource {
+	return &remoteResource{}
+}
+
+func (r *remoteResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_remote"
+}
+
+func (r *remoteResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Manages remotes in a Git repository similar to 'git remote'.",
 		MarkdownDescription: "Manages remotes in a Git repository similar to `git remote`.",
@@ -79,16 +89,10 @@ func (r *resourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 	}, nil
 }
 
-func (r *resourceGitRemoteType) NewResource(_ context.Context, p provider.Provider) (resource.Resource, diag.Diagnostics) {
-	return &resourceGitRemote{
-		p: *(p.(*gitProvider)),
-	}, nil
-}
-
-func (r *resourceGitRemote) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *remoteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "Create resource git_remote")
 
-	var inputs resourceGitRemoteSchema
+	var inputs remoteResourceModel
 
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
@@ -127,7 +131,7 @@ func (r *resourceGitRemote) Create(ctx context.Context, req resource.CreateReque
 		"remote":    name,
 	})
 
-	var state resourceGitRemoteSchema
+	var state remoteResourceModel
 	state.Directory = inputs.Directory
 	state.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, name)}
 	state.Name = inputs.Name
@@ -140,10 +144,10 @@ func (r *resourceGitRemote) Create(ctx context.Context, req resource.CreateReque
 	}
 }
 
-func (r *resourceGitRemote) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *remoteResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	tflog.Debug(ctx, "Read resource git_remote")
 
-	var state resourceGitRemoteSchema
+	var state remoteResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -165,7 +169,7 @@ func (r *resourceGitRemote) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	var newState resourceGitRemoteSchema
+	var newState remoteResourceModel
 	newState.Directory = state.Directory
 	newState.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, name)}
 	newState.Name = state.Name
@@ -178,10 +182,10 @@ func (r *resourceGitRemote) Read(ctx context.Context, req resource.ReadRequest, 
 	}
 }
 
-func (r *resourceGitRemote) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *remoteResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	tflog.Debug(ctx, "Update resource git_remote")
 
-	var inputs resourceGitRemoteSchema
+	var inputs remoteResourceModel
 
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
@@ -236,7 +240,7 @@ func (r *resourceGitRemote) Update(ctx context.Context, req resource.UpdateReque
 		"directory": directory,
 	})
 
-	var state resourceGitRemoteSchema
+	var state remoteResourceModel
 	state.Directory = inputs.Directory
 	state.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, name)}
 	state.Name = inputs.Name
@@ -249,10 +253,10 @@ func (r *resourceGitRemote) Update(ctx context.Context, req resource.UpdateReque
 	}
 }
 
-func (r *resourceGitRemote) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *remoteResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	tflog.Debug(ctx, "Delete resource git_remote")
 
-	var state resourceGitRemoteSchema
+	var state remoteResourceModel
 
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -278,7 +282,7 @@ func (r *resourceGitRemote) Delete(ctx context.Context, req resource.DeleteReque
 	})
 }
 
-func (r *resourceGitRemote) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *remoteResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	tflog.Debug(ctx, "ImportState resource git_remote")
 
 	id := req.ID
@@ -309,7 +313,7 @@ func (r *resourceGitRemote) ImportState(ctx context.Context, req resource.Import
 		return
 	}
 
-	var state resourceGitRemoteSchema
+	var state remoteResourceModel
 	state.Directory = types.String{Value: directory}
 	state.Id = types.String{Value: id}
 	state.Name = types.String{Value: name}

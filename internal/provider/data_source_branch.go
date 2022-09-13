@@ -12,19 +12,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-type dataSourceGitBranchType struct{}
+type branchDataSource struct{}
 
-type dataSourceGitBranch struct {
-	p gitProvider
-}
+var (
+	_ datasource.DataSource              = (*branchDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*branchDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*branchDataSource)(nil)
+)
 
-type dataSourceGitBranchSchema struct {
+type branchDataSourceModel struct {
 	Directory types.String `tfsdk:"directory"`
 	Id        types.String `tfsdk:"id"`
 	Name      types.String `tfsdk:"name"`
@@ -33,7 +34,15 @@ type dataSourceGitBranchSchema struct {
 	Rebase    types.String `tfsdk:"rebase"`
 }
 
-func (r *dataSourceGitBranchType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewBranchDataSource() datasource.DataSource {
+	return &branchDataSource{}
+}
+
+func (d *branchDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_branch"
+}
+
+func (d *branchDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Fetches information about a specific branch of a Git repository.",
 		MarkdownDescription: "Fetches information about a specific branch of a Git repository.",
@@ -84,17 +93,11 @@ func (r *dataSourceGitBranchType) GetSchema(_ context.Context) (tfsdk.Schema, di
 	}, nil
 }
 
-func (r *dataSourceGitBranchType) NewDataSource(_ context.Context, p provider.Provider) (datasource.DataSource, diag.Diagnostics) {
-	return &dataSourceGitBranch{
-		p: *(p.(*gitProvider)),
-	}, nil
-}
-
-func (r *dataSourceGitBranch) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *branchDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_branch")
 
-	var inputs dataSourceGitBranchSchema
-	var state dataSourceGitBranchSchema
+	var inputs branchDataSourceModel
+	var state branchDataSourceModel
 
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)

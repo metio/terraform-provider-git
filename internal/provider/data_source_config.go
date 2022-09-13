@@ -10,20 +10,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/metio/terraform-provider-git/internal/modifiers"
 )
 
-type dataSourceGitConfigType struct{}
+type configDataSource struct{}
 
-type dataSourceGitConfig struct {
-	p gitProvider
-}
+var (
+	_ datasource.DataSource              = (*configDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*configDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*configDataSource)(nil)
+)
 
-type dataSourceGitConfigSchema struct {
+type configDataSourceModel struct {
 	Directory      types.String `tfsdk:"directory"`
 	Id             types.String `tfsdk:"id"`
 	Scope          types.String `tfsdk:"scope"`
@@ -35,7 +36,15 @@ type dataSourceGitConfigSchema struct {
 	CommitterEmail types.String `tfsdk:"committer_email"`
 }
 
-func (r *dataSourceGitConfigType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewConfigDataSource() datasource.DataSource {
+	return &configDataSource{}
+}
+
+func (d *configDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_config"
+}
+
+func (d *configDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Reads the configuration of a Git repository.",
 		MarkdownDescription: "Reads the configuration of a Git repository.",
@@ -112,17 +121,11 @@ func (r *dataSourceGitConfigType) GetSchema(_ context.Context) (tfsdk.Schema, di
 	}, nil
 }
 
-func (r *dataSourceGitConfigType) NewDataSource(_ context.Context, p provider.Provider) (datasource.DataSource, diag.Diagnostics) {
-	return &dataSourceGitConfig{
-		p: *(p.(*gitProvider)),
-	}, nil
-}
-
-func (r *dataSourceGitConfig) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *configDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_config")
 
-	var inputs dataSourceGitConfigSchema
-	var state dataSourceGitConfigSchema
+	var inputs configDataSourceModel
+	var state configDataSourceModel
 
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)

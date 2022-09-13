@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func createLogOptions(ctx context.Context, repository *git.Repository, inputs *dataSourceGitLogSchema, diag *diag.Diagnostics) *git.LogOptions {
+func createLogOptions(ctx context.Context, repository *git.Repository, inputs *logDataSourceModel, diag *diag.Diagnostics) *git.LogOptions {
 	logOptions := &git.LogOptions{}
 
 	logOptions.All = inputs.All.Value

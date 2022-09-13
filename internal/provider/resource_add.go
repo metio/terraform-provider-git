@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -20,19 +19,30 @@ import (
 	"time"
 )
 
-type resourceGitAddType struct{}
+type addResource struct{}
 
-type resourceGitAdd struct {
-	p gitProvider
-}
+var (
+	_ resource.Resource               = (*addResource)(nil)
+	_ resource.ResourceWithMetadata   = (*addResource)(nil)
+	_ resource.ResourceWithGetSchema  = (*addResource)(nil)
+	_ resource.ResourceWithModifyPlan = (*addResource)(nil)
+)
 
-type resourceGitAddSchema struct {
+type addResourceModel struct {
 	Directory types.String `tfsdk:"directory"`
 	Id        types.Int64  `tfsdk:"id"`
 	Paths     types.List   `tfsdk:"add_paths"`
 }
 
-func (r *resourceGitAddType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewAddResource() resource.Resource {
+	return &addResource{}
+}
+
+func (r *addResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_add"
+}
+
+func (r *addResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Add file contents to the index similar to 'git add'.",
 		MarkdownDescription: "Add file contents to the index similar to `git add`.",
@@ -68,16 +78,10 @@ func (r *resourceGitAddType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 	}, nil
 }
 
-func (r *resourceGitAddType) NewResource(_ context.Context, p provider.Provider) (resource.Resource, diag.Diagnostics) {
-	return &resourceGitAdd{
-		p: *(p.(*gitProvider)),
-	}, nil
-}
-
-func (r *resourceGitAdd) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *addResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "Create resource git_add")
 
-	var inputs resourceGitAddSchema
+	var inputs addResourceModel
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -137,7 +141,7 @@ func (r *resourceGitAdd) Create(ctx context.Context, req resource.CreateRequest,
 		}
 	}
 
-	var state resourceGitAddSchema
+	var state addResourceModel
 	state.Directory = inputs.Directory
 	state.Id = types.Int64{Value: time.Now().UnixNano()}
 	state.Paths = inputs.Paths
@@ -149,22 +153,22 @@ func (r *resourceGitAdd) Create(ctx context.Context, req resource.CreateRequest,
 	}
 }
 
-func (r *resourceGitAdd) Read(ctx context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
+func (r *addResource) Read(ctx context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
 	tflog.Debug(ctx, "Read resource git_add")
 	// NO-OP: All data is already in Terraform state
 }
 
-func (r *resourceGitAdd) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
+func (r *addResource) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
 	tflog.Debug(ctx, "Update resource git_add")
 	// NO-OP: All attributes require replacement, thus delete/create will be called
 }
 
-func (r *resourceGitAdd) Delete(ctx context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
+func (r *addResource) Delete(ctx context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
 	tflog.Debug(ctx, "Delete resource git_add")
 	// NO-OP: Terraform removes the state automatically for us
 }
 
-func (r *resourceGitAdd) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+func (r *addResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	tflog.Debug(ctx, "ModifyPlan resource git_add")
 
 	if req.State.Raw.IsNull() {
@@ -177,7 +181,7 @@ func (r *resourceGitAdd) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 		return
 	}
 
-	var inputs resourceGitAddSchema
+	var inputs addResourceModel
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -19,13 +18,15 @@ import (
 	"strings"
 )
 
-type resourceGitTagType struct{}
+type tagResource struct{}
 
-type resourceGitTag struct {
-	p gitProvider
-}
+var (
+	_ resource.Resource              = (*tagResource)(nil)
+	_ resource.ResourceWithMetadata  = (*tagResource)(nil)
+	_ resource.ResourceWithGetSchema = (*tagResource)(nil)
+)
 
-type resourceGitTagSchema struct {
+type tagResourceModel struct {
 	Directory types.String `tfsdk:"directory"`
 	Id        types.String `tfsdk:"id"`
 	Name      types.String `tfsdk:"name"`
@@ -34,7 +35,15 @@ type resourceGitTagSchema struct {
 	SHA1      types.String `tfsdk:"sha1"`
 }
 
-func (r *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewTagResource() resource.Resource {
+	return &tagResource{}
+}
+
+func (r *tagResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_tag"
+}
+
+func (r *tagResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Manage Git tags similar to 'git tag'.",
 		MarkdownDescription: "Manage Git tags similar to `git tag`.",
@@ -99,16 +108,10 @@ func (r *resourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 	}, nil
 }
 
-func (r *resourceGitTagType) NewResource(_ context.Context, p provider.Provider) (resource.Resource, diag.Diagnostics) {
-	return &resourceGitTag{
-		p: *(p.(*gitProvider)),
-	}, nil
-}
-
-func (r *resourceGitTag) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *tagResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "Create resource git_tag")
 
-	var inputs resourceGitTagSchema
+	var inputs tagResourceModel
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -147,7 +150,7 @@ func (r *resourceGitTag) Create(ctx context.Context, req resource.CreateRequest,
 		"tag":       tagName,
 	})
 
-	var state resourceGitTagSchema
+	var state tagResourceModel
 	state.Directory = inputs.Directory
 	state.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, tagName)}
 	state.Name = inputs.Name
@@ -162,10 +165,10 @@ func (r *resourceGitTag) Create(ctx context.Context, req resource.CreateRequest,
 	}
 }
 
-func (r *resourceGitTag) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *tagResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	tflog.Debug(ctx, "Read resource git_tag")
 
-	var state resourceGitTagSchema
+	var state tagResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -192,7 +195,7 @@ func (r *resourceGitTag) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	var newState resourceGitTagSchema
+	var newState tagResourceModel
 	newState.Directory = state.Directory
 	newState.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, tagName)}
 	newState.Name = state.Name
@@ -211,15 +214,15 @@ func (r *resourceGitTag) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 }
 
-func (r *resourceGitTag) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
+func (r *tagResource) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
 	tflog.Debug(ctx, "Update resource git_tag")
 	// NO-OP: all attributes require replace, thus Delete and Create methods will be called
 }
 
-func (r *resourceGitTag) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *tagResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	tflog.Debug(ctx, "Delete resource git_tag")
 
-	var state resourceGitTagSchema
+	var state tagResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -240,7 +243,7 @@ func (r *resourceGitTag) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 }
 
-func (r *resourceGitTag) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *tagResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	tflog.Debug(ctx, "ImportState resource git_tag")
 
 	id := req.ID
@@ -279,7 +282,7 @@ func (r *resourceGitTag) ImportState(ctx context.Context, req resource.ImportSta
 		revision = idParts[2]
 	}
 
-	var state resourceGitTagSchema
+	var state tagResourceModel
 	state.Directory = types.String{Value: directory}
 	state.Id = types.String{Value: id}
 	state.Name = types.String{Value: tagName}

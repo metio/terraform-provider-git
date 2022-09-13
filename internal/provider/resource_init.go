@@ -12,7 +12,6 @@ import (
 	"github.com/go-git/go-git/v5/storage/filesystem"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -21,19 +20,30 @@ import (
 	"os"
 )
 
-type resourceGitInitType struct{}
+type initResource struct{}
 
-type resourceGitInit struct {
-	p gitProvider
-}
+var (
+	_ resource.Resource                = (*initResource)(nil)
+	_ resource.ResourceWithMetadata    = (*initResource)(nil)
+	_ resource.ResourceWithGetSchema   = (*initResource)(nil)
+	_ resource.ResourceWithImportState = (*initResource)(nil)
+)
 
-type resourceGitInitSchema struct {
+type initResourceModel struct {
 	Directory types.String `tfsdk:"directory"`
 	Id        types.String `tfsdk:"id"`
 	Bare      types.Bool   `tfsdk:"bare"`
 }
 
-func (r *resourceGitInitType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewInitResource() resource.Resource {
+	return &initResource{}
+}
+
+func (r *initResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_init"
+}
+
+func (r *initResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Initializes a Git repository similar to 'git init'.",
 		MarkdownDescription: "Initializes a Git repository similar to `git init`.",
@@ -71,17 +81,11 @@ func (r *resourceGitInitType) GetSchema(_ context.Context) (tfsdk.Schema, diag.D
 	}, nil
 }
 
-func (r *resourceGitInitType) NewResource(_ context.Context, p provider.Provider) (resource.Resource, diag.Diagnostics) {
-	return &resourceGitInit{
-		p: *(p.(*gitProvider)),
-	}, nil
-}
-
-func (r *resourceGitInit) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *initResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "Create resource git_init")
 
-	var inputs resourceGitInitSchema
-	var state resourceGitInitSchema
+	var inputs initResourceModel
+	var state initResourceModel
 
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
@@ -122,10 +126,10 @@ func (r *resourceGitInit) Create(ctx context.Context, req resource.CreateRequest
 	}
 }
 
-func (r *resourceGitInit) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *initResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	tflog.Debug(ctx, "Read resource git_init")
 
-	var state resourceGitInitSchema
+	var state initResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -140,7 +144,7 @@ func (r *resourceGitInit) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	var newState resourceGitInitSchema
+	var newState initResourceModel
 	newState.Directory = state.Directory
 
 	worktree, err := getWorktree(repository, &resp.Diagnostics)
@@ -156,15 +160,15 @@ func (r *resourceGitInit) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 }
 
-func (r *resourceGitInit) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *initResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	tflog.Debug(ctx, "Update resource git_init")
-	updatedUsingPlan(ctx, &req, resp, &resourceGitInitSchema{})
+	updatedUsingPlan(ctx, &req, resp, &initResourceModel{})
 }
 
-func (r *resourceGitInit) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *initResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	tflog.Debug(ctx, "Delete resource git_init")
 
-	var state resourceGitInitSchema
+	var state initResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -194,7 +198,7 @@ func (r *resourceGitInit) Delete(ctx context.Context, req resource.DeleteRequest
 	}
 }
 
-func (r *resourceGitInit) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *initResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	tflog.Debug(ctx, "ImportState resource git_init")
 
 	if req.ID == "" {
@@ -210,7 +214,7 @@ func (r *resourceGitInit) ImportState(ctx context.Context, req resource.ImportSt
 		return
 	}
 
-	var state resourceGitInitSchema
+	var state initResourceModel
 	state.Directory = types.String{Value: req.ID}
 	state.Id = types.String{Value: req.ID}
 	worktree, err := getWorktree(repository, &resp.Diagnostics)
