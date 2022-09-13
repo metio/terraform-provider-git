@@ -13,25 +13,34 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-type dataSourceGitBranchesType struct{}
+type branchesDataSource struct{}
 
-type dataSourceGitBranches struct {
-	p gitProvider
-}
+var (
+	_ datasource.DataSource              = (*branchesDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*branchesDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*branchesDataSource)(nil)
+)
 
-type dataSourceGitBranchesSchema struct {
+type branchesDataSourceModel struct {
 	Directory types.String `tfsdk:"directory"`
 	Id        types.String `tfsdk:"id"`
 	Branches  types.Map    `tfsdk:"branches"`
 }
 
-func (r *dataSourceGitBranchesType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewBranchesDataSource() datasource.DataSource {
+	return &branchesDataSource{}
+}
+
+func (d *branchesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_branches"
+}
+
+func (d *branchesDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Fetches all branches of a Git repository.",
 		MarkdownDescription: "Fetches all branches of a Git repository.",
@@ -80,17 +89,11 @@ func (r *dataSourceGitBranchesType) GetSchema(_ context.Context) (tfsdk.Schema, 
 	}, nil
 }
 
-func (r *dataSourceGitBranchesType) NewDataSource(_ context.Context, p provider.Provider) (datasource.DataSource, diag.Diagnostics) {
-	return &dataSourceGitBranches{
-		p: *(p.(*gitProvider)),
-	}, nil
-}
-
-func (r *dataSourceGitBranches) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *branchesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_branches")
 
-	var inputs dataSourceGitBranchesSchema
-	var state dataSourceGitBranchesSchema
+	var inputs branchesDataSourceModel
+	var state branchesDataSourceModel
 
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)

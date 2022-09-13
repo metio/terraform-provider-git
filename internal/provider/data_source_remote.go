@@ -10,26 +10,37 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-type dataSourceGitRemoteType struct{}
-
-type dataSourceGitRemote struct {
+type remoteDataSource struct {
 	p gitProvider
 }
 
-type dataSourceGitRemoteSchema struct {
+var (
+	_ datasource.DataSource              = (*remoteDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*remoteDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*remoteDataSource)(nil)
+)
+
+type remoteDataSourceModel struct {
 	Directory types.String `tfsdk:"directory"`
 	Id        types.String `tfsdk:"id"`
 	Name      types.String `tfsdk:"name"`
 	URLs      types.List   `tfsdk:"urls"`
 }
 
-func (r *dataSourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewRemoteDataSource() datasource.DataSource {
+	return &remoteDataSource{}
+}
+
+func (d *remoteDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_remote"
+}
+
+func (d *remoteDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Reads information about a specific remote of a Git repository.",
 		MarkdownDescription: "Reads information about a specific remote of a Git repository.",
@@ -70,17 +81,11 @@ func (r *dataSourceGitRemoteType) GetSchema(_ context.Context) (tfsdk.Schema, di
 	}, nil
 }
 
-func (r *dataSourceGitRemoteType) NewDataSource(_ context.Context, p provider.Provider) (datasource.DataSource, diag.Diagnostics) {
-	return &dataSourceGitRemote{
-		p: *(p.(*gitProvider)),
-	}, nil
-}
-
-func (r *dataSourceGitRemote) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *remoteDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_remote")
 
-	var inputs dataSourceGitRemoteSchema
-	var state dataSourceGitRemoteSchema
+	var inputs remoteDataSourceModel
+	var state remoteDataSourceModel
 
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)

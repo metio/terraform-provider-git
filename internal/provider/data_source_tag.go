@@ -10,19 +10,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-type dataSourceGitTagType struct{}
+type tagDataSource struct{}
 
-type dataSourceGitTag struct {
-	p gitProvider
-}
+var (
+	_ datasource.DataSource              = (*tagDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*tagDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*tagDataSource)(nil)
+)
 
-type dataSourceGitTagSchema struct {
+type tagDataSourceModel struct {
 	Directory   types.String `tfsdk:"directory"`
 	Id          types.String `tfsdk:"id"`
 	Name        types.String `tfsdk:"name"`
@@ -32,7 +33,15 @@ type dataSourceGitTagSchema struct {
 	Message     types.String `tfsdk:"message"`
 }
 
-func (r *dataSourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewTagDataSource() datasource.DataSource {
+	return &tagDataSource{}
+}
+
+func (d *tagDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_tag"
+}
+
+func (d *tagDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Reads information about a specific tag of a Git repository.",
 		MarkdownDescription: "Reads information about a specific tag of a Git repository.",
@@ -89,16 +98,10 @@ func (r *dataSourceGitTagType) GetSchema(_ context.Context) (tfsdk.Schema, diag.
 	}, nil
 }
 
-func (r *dataSourceGitTagType) NewDataSource(_ context.Context, p provider.Provider) (datasource.DataSource, diag.Diagnostics) {
-	return &dataSourceGitTag{
-		p: *(p.(*gitProvider)),
-	}, nil
-}
-
-func (r *dataSourceGitTag) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *tagDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Reading Git repository tag")
 
-	var inputs dataSourceGitTagSchema
+	var inputs tagDataSourceModel
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -123,7 +126,7 @@ func (r *dataSourceGitTag) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	var state dataSourceGitTagSchema
+	var state tagDataSourceModel
 	state.Directory = inputs.Directory
 	state.Id = inputs.Name
 	state.Name = inputs.Name

@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-func createTagOptions(inputs resourceGitTagSchema) *git.CreateTagOptions {
+func createTagOptions(inputs tagResourceModel) *git.CreateTagOptions {
 	if inputs.Message.IsNull() || inputs.Message.IsUnknown() {
 		return nil
 	}

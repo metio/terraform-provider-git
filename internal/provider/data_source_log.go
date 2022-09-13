@@ -12,20 +12,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/metio/terraform-provider-git/internal/modifiers"
 )
 
-type dataSourceGitLogType struct{}
+type logDataSource struct{}
 
-type dataSourceGitLog struct {
-	p gitProvider
-}
+var (
+	_ datasource.DataSource              = (*logDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*logDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*logDataSource)(nil)
+)
 
-type dataSourceGitLogSchema struct {
+type logDataSourceModel struct {
 	Directory   types.String `tfsdk:"directory"`
 	Id          types.String `tfsdk:"id"`
 	From        types.String `tfsdk:"from"`
@@ -39,7 +40,15 @@ type dataSourceGitLogSchema struct {
 	Commits     types.List   `tfsdk:"commits"`
 }
 
-func (r *dataSourceGitLogType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewLogDataSource() datasource.DataSource {
+	return &logDataSource{}
+}
+
+func (d *logDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_log"
+}
+
+func (d *logDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Fetches the commit log of a Git repository similar to 'git log'.",
 		MarkdownDescription: "Fetches the commit log of a Git repository similar to `git log`.",
@@ -148,17 +157,11 @@ func (r *dataSourceGitLogType) GetSchema(_ context.Context) (tfsdk.Schema, diag.
 	}, nil
 }
 
-func (r *dataSourceGitLogType) NewDataSource(_ context.Context, p provider.Provider) (datasource.DataSource, diag.Diagnostics) {
-	return &dataSourceGitLog{
-		p: *(p.(*gitProvider)),
-	}, nil
-}
-
-func (r *dataSourceGitLog) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *logDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_log")
 
-	var inputs dataSourceGitLogSchema
-	var state dataSourceGitLogSchema
+	var inputs logDataSourceModel
+	var state logDataSourceModel
 
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)

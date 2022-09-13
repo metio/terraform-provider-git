@@ -11,26 +11,35 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-type dataSourceGitStatusesType struct{}
+type statusesDataSource struct{}
 
-type dataSourceGitStatuses struct {
-	p gitProvider
-}
+var (
+	_ datasource.DataSource              = (*statusesDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*statusesDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*statusesDataSource)(nil)
+)
 
-type dataSourceGitStatusesSchema struct {
+type statusesDataSourceModel struct {
 	Directory types.String `tfsdk:"directory"`
 	Id        types.String `tfsdk:"id"`
 	IsClean   types.Bool   `tfsdk:"is_clean"`
 	Files     types.Map    `tfsdk:"files"`
 }
 
-func (r *dataSourceGitStatusesType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewStatusesDataSource() datasource.DataSource {
+	return &statusesDataSource{}
+}
+
+func (d *statusesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_statuses"
+}
+
+func (d *statusesDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Fetches the status of all files in a Git repository.",
 		MarkdownDescription: "Fetches the status of all files in a Git repository.",
@@ -79,17 +88,11 @@ func (r *dataSourceGitStatusesType) GetSchema(_ context.Context) (tfsdk.Schema, 
 	}, nil
 }
 
-func (r *dataSourceGitStatusesType) NewDataSource(_ context.Context, p provider.Provider) (datasource.DataSource, diag.Diagnostics) {
-	return &dataSourceGitStatuses{
-		p: *(p.(*gitProvider)),
-	}, nil
-}
-
-func (r *dataSourceGitStatuses) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *statusesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_statuses")
 
-	var inputs dataSourceGitStatusesSchema
-	var state dataSourceGitStatusesSchema
+	var inputs statusesDataSourceModel
+	var state statusesDataSourceModel
 
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)

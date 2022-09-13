@@ -10,19 +10,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-type dataSourceGitCommitType struct{}
+type commitDataSource struct{}
 
-type dataSourceGitCommit struct {
-	p gitProvider
-}
+var (
+	_ datasource.DataSource              = (*commitDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*commitDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*commitDataSource)(nil)
+)
 
-type dataSourceGitCommitSchema struct {
+type commitDataSourceModel struct {
 	Directory types.String `tfsdk:"directory"`
 	Id        types.String `tfsdk:"id"`
 	Revision  types.String `tfsdk:"revision"`
@@ -35,7 +36,15 @@ type dataSourceGitCommitSchema struct {
 	Files     types.List   `tfsdk:"files"`
 }
 
-func (r *dataSourceGitCommitType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewCommitDataSource() datasource.DataSource {
+	return &commitDataSource{}
+}
+
+func (d *commitDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_commit"
+}
+
+func (d *commitDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Fetches information about a single commit.",
 		MarkdownDescription: "Fetches information about a single commit.",
@@ -150,16 +159,10 @@ func (r *dataSourceGitCommitType) GetSchema(_ context.Context) (tfsdk.Schema, di
 	}, nil
 }
 
-func (r *dataSourceGitCommitType) NewDataSource(_ context.Context, p provider.Provider) (datasource.DataSource, diag.Diagnostics) {
-	return &dataSourceGitCommit{
-		p: *(p.(*gitProvider)),
-	}, nil
-}
-
-func (r *dataSourceGitCommit) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *commitDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_commit")
 
-	var inputs dataSourceGitCommitSchema
+	var inputs commitDataSourceModel
 
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
@@ -185,7 +188,7 @@ func (r *dataSourceGitCommit) Read(ctx context.Context, req datasource.ReadReque
 		return
 	}
 
-	var state dataSourceGitCommitSchema
+	var state commitDataSourceModel
 	state.Directory = inputs.Directory
 	state.Id = inputs.Revision
 	state.Revision = inputs.Revision

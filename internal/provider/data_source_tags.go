@@ -12,20 +12,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/metio/terraform-provider-git/internal/modifiers"
 )
 
-type dataSourceGitTagsType struct{}
+type tagsDataSource struct{}
 
-type dataSourceGitTags struct {
-	p gitProvider
-}
+var (
+	_ datasource.DataSource              = (*tagsDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*tagsDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*tagsDataSource)(nil)
+)
 
-type dataSourceGitTagsSchema struct {
+type tagsDataSourceModel struct {
 	Directory   types.String `tfsdk:"directory"`
 	Id          types.String `tfsdk:"id"`
 	Lightweight types.Bool   `tfsdk:"lightweight"`
@@ -33,7 +34,15 @@ type dataSourceGitTagsSchema struct {
 	Tags        types.Map    `tfsdk:"tags"`
 }
 
-func (r *dataSourceGitTagsType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func NewTagsDataSource() datasource.DataSource {
+	return &tagsDataSource{}
+}
+
+func (d *tagsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_tags"
+}
+
+func (d *tagsDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Reads information about all tags of a Git repository.",
 		MarkdownDescription: "Reads information about all tags of a Git repository.",
@@ -102,17 +111,11 @@ func (r *dataSourceGitTagsType) GetSchema(_ context.Context) (tfsdk.Schema, diag
 	}, nil
 }
 
-func (r *dataSourceGitTagsType) NewDataSource(_ context.Context, p provider.Provider) (datasource.DataSource, diag.Diagnostics) {
-	return &dataSourceGitTags{
-		p: *(p.(*gitProvider)),
-	}, nil
-}
-
-func (r *dataSourceGitTags) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *tagsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_tags")
 
-	var inputs dataSourceGitTagsSchema
-	var state dataSourceGitTagsSchema
+	var inputs tagsDataSourceModel
+	var state tagsDataSourceModel
 
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
