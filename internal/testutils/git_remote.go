@@ -14,9 +14,13 @@ import (
 )
 
 func CreateRemote(t *testing.T, repository *git.Repository, remote string) {
+	CreateRemoteWithUrls(t, repository, remote, []string{"https://example.com/metio/terraform-provider-git.git"})
+}
+
+func CreateRemoteWithUrls(t *testing.T, repository *git.Repository, remote string, urls []string) {
 	_, err := repository.CreateRemote(&config.RemoteConfig{
 		Name: remote,
-		URLs: []string{"https://example.com/metio/terraform-provider-git.git"},
+		URLs: urls,
 	})
 	if err != nil {
 		t.Fatal(err)

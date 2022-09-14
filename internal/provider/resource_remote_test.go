@@ -160,9 +160,9 @@ func TestResourceGitRemote_MissingUrls(t *testing.T) {
 	})
 }
 
-func TestResourceGitRemote_Import(t *testing.T) {
+func TestResourceGitRemote_Import_NonExistingRepo(t *testing.T) {
 	t.Parallel()
-	directory, _ := testutils.CreateRepository(t)
+	directory := testutils.TemporaryDirectory(t)
 	defer os.RemoveAll(directory)
 	name := "some-name"
 	url := "https://github.com/some-org/some-repo.git"
@@ -170,6 +170,82 @@ func TestResourceGitRemote_Import(t *testing.T) {
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					resource "git_remote" "test" {
+						directory = "%s"
+						name      = "%s"
+						urls      = ["%s"]
+					}
+				`, directory, name, url),
+				ResourceName:       "git_remote.test",
+				ImportState:        true,
+				ImportStateId:      fmt.Sprintf("%s|%s", directory, name),
+				ImportStatePersist: false,
+				ExpectError:        regexp.MustCompile(`Cannot open repository`),
+			},
+		},
+	})
+}
+
+func TestResourceGitRemote_Import_NonExistingRemote(t *testing.T) {
+	t.Parallel()
+	directory, _ := testutils.CreateRepository(t)
+	defer os.RemoveAll(directory)
+	name := "some-name"
+	url := "https://example.com/metio/terraform-provider-git.git"
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					resource "git_remote" "test" {
+						directory = "%s"
+						name      = "%s"
+						urls      = ["%s"]
+					}
+				`, directory, name, url),
+				ResourceName:       "git_remote.test",
+				ImportState:        true,
+				ImportStateId:      fmt.Sprintf("%s|%s", directory, name),
+				ImportStatePersist: false,
+				ExpectError:        regexp.MustCompile(`Cannot read remote`),
+			},
+		},
+	})
+}
+
+func TestResourceGitRemote_Import_SingleUrl(t *testing.T) {
+	t.Parallel()
+	directory, repository := testutils.CreateRepository(t)
+	defer os.RemoveAll(directory)
+	name := "some-name"
+	url := "https://example.com/metio/terraform-provider-git.git"
+	testutils.CreateRemoteWithUrls(t, repository, name, []string{url})
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					resource "git_remote" "test" {
+						directory = "%s"
+						name      = "%s"
+						urls      = ["%s"]
+					}
+				`, directory, name, url),
+				ResourceName:       "git_remote.test",
+				ImportState:        true,
+				ImportStateId:      fmt.Sprintf("%s|%s", directory, name),
+				ImportStatePersist: true,
+				ImportStateCheck: testutils.ComposeImportStateCheck(
+					testutils.CheckResourceAttrInstanceState("directory", directory),
+					testutils.CheckResourceAttrInstanceState("id", fmt.Sprintf("%s|%s", directory, name)),
+					testutils.CheckResourceAttrInstanceState("name", name),
+					testutils.CheckResourceAttrInstanceState("urls.0", url),
+				),
+			},
 			{
 				Config: fmt.Sprintf(`
 					resource "git_remote" "test" {
@@ -186,27 +262,92 @@ func TestResourceGitRemote_Import(t *testing.T) {
 					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url),
 				),
 			},
+		},
+	})
+}
+
+func TestResourceGitRemote_Import_SingleUrlWithDrift(t *testing.T) {
+	t.Parallel()
+	directory, repository := testutils.CreateRepository(t)
+	defer os.RemoveAll(directory)
+	name := "some-name"
+	url := "https://example.com/metio/terraform-provider-git.git"
+	testutils.CreateRemoteWithUrls(t, repository, name, []string{"https://example.com/another/random.git"})
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
+		Steps: []resource.TestStep{
 			{
-				ResourceName:      "git_remote.test",
-				ImportState:       true,
-				ImportStateId:     fmt.Sprintf("%s|%s", directory, name),
-				ImportStateVerify: true,
+				Config: fmt.Sprintf(`
+					resource "git_remote" "test" {
+						directory = "%s"
+						name      = "%s"
+						urls      = ["%s"]
+					}
+				`, directory, name, url),
+				ResourceName:       "git_remote.test",
+				ImportState:        true,
+				ImportStateId:      fmt.Sprintf("%s|%s", directory, name),
+				ImportStatePersist: true,
+				ImportStateCheck: testutils.ComposeImportStateCheck(
+					testutils.CheckResourceAttrInstanceState("directory", directory),
+					testutils.CheckResourceAttrInstanceState("id", fmt.Sprintf("%s|%s", directory, name)),
+					testutils.CheckResourceAttrInstanceState("name", name),
+					testutils.CheckResourceAttrInstanceState("urls.0", "https://example.com/another/random.git"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "git_remote" "test" {
+						directory = "%s"
+						name      = "%s"
+						urls      = ["%s"]
+					}
+				`, directory, name, url),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("git_remote.test", "directory", directory),
+					resource.TestCheckResourceAttr("git_remote.test", "id", fmt.Sprintf("%s|%s", directory, name)),
+					resource.TestCheckResourceAttr("git_remote.test", "name", name),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.#", "1"),
+					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url),
+				),
 			},
 		},
 	})
 }
 
-func TestResourceGitRemote_ImportMultipleUrls(t *testing.T) {
+func TestResourceGitRemote_Import_MultipleUrls(t *testing.T) {
 	t.Parallel()
-	directory, _ := testutils.CreateRepository(t)
+	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
 	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 	url2 := "https://codeberg.org/some-org/some-repo.git"
+	testutils.CreateRemoteWithUrls(t, repository, name, []string{url1, url2})
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					resource "git_remote" "test" {
+						directory = "%s"
+						name      = "%s"
+						urls      = ["%s", "%s"]
+					}
+				`, directory, name, url1, url2),
+				ResourceName:       "git_remote.test",
+				ImportState:        true,
+				ImportStateId:      fmt.Sprintf("%s|%s", directory, name),
+				ImportStatePersist: true,
+				ImportStateCheck: testutils.ComposeImportStateCheck(
+					testutils.CheckResourceAttrInstanceState("directory", directory),
+					testutils.CheckResourceAttrInstanceState("id", fmt.Sprintf("%s|%s", directory, name)),
+					testutils.CheckResourceAttrInstanceState("name", name),
+					testutils.CheckResourceAttrInstanceState("urls.0", url1),
+					testutils.CheckResourceAttrInstanceState("urls.1", url2),
+				),
+			},
 			{
 				Config: fmt.Sprintf(`
 					resource "git_remote" "test" {
@@ -223,12 +364,6 @@ func TestResourceGitRemote_ImportMultipleUrls(t *testing.T) {
 					resource.TestCheckResourceAttr("git_remote.test", "urls.0", url1),
 					resource.TestCheckResourceAttr("git_remote.test", "urls.1", url2),
 				),
-			},
-			{
-				ResourceName:      "git_remote.test",
-				ImportState:       true,
-				ImportStateId:     fmt.Sprintf("%s|%s", directory, name),
-				ImportStateVerify: true,
 			},
 		},
 	})
