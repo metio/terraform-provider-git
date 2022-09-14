@@ -252,10 +252,29 @@ func TestResourceGitTag_Import(t *testing.T) {
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	name := "some-name"
+	testutils.CreateTag(t, repository, name)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
 		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					resource "git_tag" "test" {
+						directory = "%s"
+						name      = "%s"
+					}
+				`, directory, name),
+				ResourceName:       "git_tag.test",
+				ImportState:        true,
+				ImportStateId:      fmt.Sprintf("%s|%s", directory, name),
+				ImportStatePersist: true,
+				ImportStateCheck: testutils.ComposeImportStateCheck(
+					testutils.CheckResourceAttrInstanceState("directory", directory),
+					testutils.CheckResourceAttrInstanceState("id", fmt.Sprintf("%s|%s", directory, name)),
+					testutils.CheckResourceAttrInstanceState("name", name),
+					testutils.CheckResourceAttrInstanceState("revision", "HEAD"),
+				),
+			},
 			{
 				Config: fmt.Sprintf(`
 					resource "git_tag" "test" {
@@ -270,17 +289,11 @@ func TestResourceGitTag_Import(t *testing.T) {
 					resource.TestCheckResourceAttr("git_tag.test", "revision", "HEAD"),
 				),
 			},
-			{
-				ResourceName:      "git_tag.test",
-				ImportState:       true,
-				ImportStateId:     fmt.Sprintf("%s|%s", directory, name),
-				ImportStateVerify: true,
-			},
 		},
 	})
 }
 
-func TestResourceGitTag_Import_Symbolic(t *testing.T) {
+func TestResourceGitTag_ImportWithRevision(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
@@ -288,7 +301,7 @@ func TestResourceGitTag_Import_Symbolic(t *testing.T) {
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	name := "some-name"
-	revision := "master"
+	testutils.CreateTag(t, repository, name)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -298,21 +311,60 @@ func TestResourceGitTag_Import_Symbolic(t *testing.T) {
 					resource "git_tag" "test" {
 						directory = "%s"
 						name      = "%s"
-						revision  = "%s" 
+						revision  = "master" 
 					}
-				`, directory, name, revision),
+				`, directory, name),
+				ResourceName:       "git_tag.test",
+				ImportState:        true,
+				ImportStateId:      fmt.Sprintf("%s|%s|master", directory, name),
+				ImportStatePersist: true,
+				ImportStateCheck: testutils.ComposeImportStateCheck(
+					testutils.CheckResourceAttrInstanceState("directory", directory),
+					testutils.CheckResourceAttrInstanceState("id", fmt.Sprintf("%s|%s", directory, name)),
+					testutils.CheckResourceAttrInstanceState("name", name),
+					testutils.CheckResourceAttrInstanceState("revision", "master"),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+					resource "git_tag" "test" {
+						directory = "%s"
+						name      = "%s"
+						revision  = "master" 
+					}
+				`, directory, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_tag.test", "directory", directory),
 					resource.TestCheckResourceAttr("git_tag.test", "id", fmt.Sprintf("%s|%s", directory, name)),
 					resource.TestCheckResourceAttr("git_tag.test", "name", name),
-					resource.TestCheckResourceAttr("git_tag.test", "revision", revision),
+					resource.TestCheckResourceAttr("git_tag.test", "revision", "master"),
 				),
 			},
+		},
+	})
+}
+
+func TestResourceGitTag_Import_NonExistingRepo(t *testing.T) {
+	t.Parallel()
+	directory := testutils.TemporaryDirectory(t)
+	defer os.RemoveAll(directory)
+	name := "some-name"
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
+		Steps: []resource.TestStep{
 			{
-				ResourceName:      "git_tag.test",
-				ImportState:       true,
-				ImportStateId:     fmt.Sprintf("%s|%s|%s", directory, name, revision),
-				ImportStateVerify: true,
+				Config: fmt.Sprintf(`
+					resource "git_tag" "test" {
+						directory = "%s"
+						name      = "%s"
+					}
+				`, directory, name),
+				ResourceName:       "git_tag.test",
+				ImportState:        true,
+				ImportStateId:      fmt.Sprintf("%s|%s", directory, name),
+				ImportStatePersist: false,
+				ExpectError:        regexp.MustCompile(`Cannot open repository`),
 			},
 		},
 	})
