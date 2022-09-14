@@ -138,15 +138,15 @@ func (r *initResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 
 	directory := state.Directory.Value
 
+	var newState initResourceModel
+	newState.Directory = state.Directory
+	newState.Id = state.Id
+
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
 		resp.State.RemoveResource(ctx)
 		return
 	}
-
-	var newState initResourceModel
-	newState.Directory = state.Directory
-
 	worktree, err := getWorktree(repository, &resp.Diagnostics)
 	if err != nil {
 		return
@@ -209,14 +209,14 @@ func (r *initResource) ImportState(ctx context.Context, req resource.ImportState
 		return
 	}
 
+	var state initResourceModel
+	state.Directory = types.String{Value: req.ID}
+	state.Id = types.String{Value: req.ID}
+
 	repository := openRepository(ctx, req.ID, &resp.Diagnostics)
 	if repository == nil {
 		return
 	}
-
-	var state initResourceModel
-	state.Directory = types.String{Value: req.ID}
-	state.Id = types.String{Value: req.ID}
 	worktree, err := getWorktree(repository, &resp.Diagnostics)
 	if err != nil {
 		return
