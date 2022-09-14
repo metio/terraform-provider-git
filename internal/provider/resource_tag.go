@@ -284,7 +284,7 @@ func (r *tagResource) ImportState(ctx context.Context, req resource.ImportStateR
 
 	var state tagResourceModel
 	state.Directory = types.String{Value: directory}
-	state.Id = types.String{Value: id}
+	state.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, tagName)}
 	state.Name = types.String{Value: tagName}
 	state.Revision = types.String{Value: revision}
 	state.SHA1 = types.String{Value: tagReference.Hash().String()}
