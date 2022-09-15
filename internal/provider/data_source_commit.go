@@ -15,12 +15,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-type commitDataSource struct{}
+type CommitDataSource struct{}
 
 var (
-	_ datasource.DataSource              = (*commitDataSource)(nil)
-	_ datasource.DataSourceWithGetSchema = (*commitDataSource)(nil)
-	_ datasource.DataSourceWithMetadata  = (*commitDataSource)(nil)
+	_ datasource.DataSource              = (*CommitDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*CommitDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*CommitDataSource)(nil)
 )
 
 type commitDataSourceModel struct {
@@ -37,14 +37,14 @@ type commitDataSourceModel struct {
 }
 
 func NewCommitDataSource() datasource.DataSource {
-	return &commitDataSource{}
+	return &CommitDataSource{}
 }
 
-func (d *commitDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *CommitDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_commit"
 }
 
-func (d *commitDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (d *CommitDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Fetches information about a single commit.",
 		MarkdownDescription: "Fetches information about a single commit.",
@@ -159,7 +159,7 @@ func (d *commitDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diag
 	}, nil
 }
 
-func (d *commitDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *CommitDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_commit")
 
 	var inputs commitDataSourceModel

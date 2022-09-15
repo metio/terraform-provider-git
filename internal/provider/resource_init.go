@@ -20,13 +20,13 @@ import (
 	"os"
 )
 
-type initResource struct{}
+type InitResource struct{}
 
 var (
-	_ resource.Resource                = (*initResource)(nil)
-	_ resource.ResourceWithMetadata    = (*initResource)(nil)
-	_ resource.ResourceWithGetSchema   = (*initResource)(nil)
-	_ resource.ResourceWithImportState = (*initResource)(nil)
+	_ resource.Resource                = (*InitResource)(nil)
+	_ resource.ResourceWithMetadata    = (*InitResource)(nil)
+	_ resource.ResourceWithGetSchema   = (*InitResource)(nil)
+	_ resource.ResourceWithImportState = (*InitResource)(nil)
 )
 
 type initResourceModel struct {
@@ -36,14 +36,14 @@ type initResourceModel struct {
 }
 
 func NewInitResource() resource.Resource {
-	return &initResource{}
+	return &InitResource{}
 }
 
-func (r *initResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *InitResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_init"
 }
 
-func (r *initResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (r *InitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Initializes a Git repository similar to 'git init'.",
 		MarkdownDescription: "Initializes a Git repository similar to `git init`.",
@@ -81,7 +81,7 @@ func (r *initResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnost
 	}, nil
 }
 
-func (r *initResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *InitResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "Create resource git_init")
 
 	var inputs initResourceModel
@@ -126,7 +126,7 @@ func (r *initResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 }
 
-func (r *initResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *InitResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	tflog.Debug(ctx, "Read resource git_init")
 
 	var state initResourceModel
@@ -160,12 +160,12 @@ func (r *initResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	}
 }
 
-func (r *initResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *InitResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	tflog.Debug(ctx, "Update resource git_init")
 	updatedUsingPlan(ctx, &req, resp, &initResourceModel{})
 }
 
-func (r *initResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *InitResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	tflog.Debug(ctx, "Delete resource git_init")
 
 	var state initResourceModel
@@ -198,7 +198,7 @@ func (r *initResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 	}
 }
 
-func (r *initResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *InitResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	tflog.Debug(ctx, "ImportState resource git_init")
 
 	if req.ID == "" {

@@ -17,12 +17,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-type branchDataSource struct{}
+type BranchDataSource struct{}
 
 var (
-	_ datasource.DataSource              = (*branchDataSource)(nil)
-	_ datasource.DataSourceWithGetSchema = (*branchDataSource)(nil)
-	_ datasource.DataSourceWithMetadata  = (*branchDataSource)(nil)
+	_ datasource.DataSource              = (*BranchDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*BranchDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*BranchDataSource)(nil)
 )
 
 type branchDataSourceModel struct {
@@ -35,14 +35,14 @@ type branchDataSourceModel struct {
 }
 
 func NewBranchDataSource() datasource.DataSource {
-	return &branchDataSource{}
+	return &BranchDataSource{}
 }
 
-func (d *branchDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *BranchDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_branch"
 }
 
-func (d *branchDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (d *BranchDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Fetches information about a specific branch of a Git repository.",
 		MarkdownDescription: "Fetches information about a specific branch of a Git repository.",
@@ -93,7 +93,7 @@ func (d *branchDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diag
 	}, nil
 }
 
-func (d *branchDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *BranchDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_branch")
 
 	var inputs branchDataSourceModel

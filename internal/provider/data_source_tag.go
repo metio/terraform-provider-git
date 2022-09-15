@@ -15,12 +15,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-type tagDataSource struct{}
+type TagDataSource struct{}
 
 var (
-	_ datasource.DataSource              = (*tagDataSource)(nil)
-	_ datasource.DataSourceWithGetSchema = (*tagDataSource)(nil)
-	_ datasource.DataSourceWithMetadata  = (*tagDataSource)(nil)
+	_ datasource.DataSource              = (*TagDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*TagDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*TagDataSource)(nil)
 )
 
 type tagDataSourceModel struct {
@@ -34,14 +34,14 @@ type tagDataSourceModel struct {
 }
 
 func NewTagDataSource() datasource.DataSource {
-	return &tagDataSource{}
+	return &TagDataSource{}
 }
 
-func (d *tagDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *TagDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_tag"
 }
 
-func (d *tagDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (d *TagDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Reads information about a specific tag of a Git repository.",
 		MarkdownDescription: "Reads information about a specific tag of a Git repository.",
@@ -98,7 +98,7 @@ func (d *tagDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnos
 	}, nil
 }
 
-func (d *tagDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *TagDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Reading Git repository tag")
 
 	var inputs tagDataSourceModel

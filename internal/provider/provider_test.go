@@ -3,29 +3,32 @@
  * SPDX-License-Identifier: 0BSD
  */
 
-package provider
+package provider_test
 
 import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
+	internal "github.com/metio/terraform-provider-git/internal/provider"
+	"github.com/metio/terraform-provider-git/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestGitProvider_Metadata(t *testing.T) {
-	p := &gitProvider{}
+	t.Parallel()
+	p := &internal.GitProvider{}
 	request := provider.MetadataRequest{}
 	response := &provider.MetadataResponse{}
 	p.Metadata(context.TODO(), request, response)
 
-	assert.Equal(t, "git", response.TypeName)
+	assert.Equal(t, "git", response.TypeName, "TypeName")
 }
 
 func TestGitProvider_GetSchema(t *testing.T) {
-	p := &gitProvider{}
+	t.Parallel()
+	p := &internal.GitProvider{}
 	schema, _ := p.GetSchema(context.TODO())
 
-	assert.NotNil(t, schema.Description)
-	assert.NotNil(t, schema.MarkdownDescription)
-	assert.Nil(t, schema.Attributes)
+	testutils.VerifySchemaDescriptions(t, schema)
+	assert.Nil(t, schema.Attributes, "should require no configuration")
 }

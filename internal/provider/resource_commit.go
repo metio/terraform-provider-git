@@ -16,12 +16,12 @@ import (
 	"github.com/metio/terraform-provider-git/internal/modifiers"
 )
 
-type commitResource struct{}
+type CommitResource struct{}
 
 var (
-	_ resource.Resource              = (*commitResource)(nil)
-	_ resource.ResourceWithMetadata  = (*commitResource)(nil)
-	_ resource.ResourceWithGetSchema = (*commitResource)(nil)
+	_ resource.Resource              = (*CommitResource)(nil)
+	_ resource.ResourceWithMetadata  = (*CommitResource)(nil)
+	_ resource.ResourceWithGetSchema = (*CommitResource)(nil)
 )
 
 type commitResourceModel struct {
@@ -35,14 +35,14 @@ type commitResourceModel struct {
 }
 
 func NewCommitResource() resource.Resource {
-	return &commitResource{}
+	return &CommitResource{}
 }
 
-func (r *commitResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *CommitResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_commit"
 }
 
-func (r *commitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (r *CommitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Record changes to the repository similar to 'git commit'",
 		MarkdownDescription: "Record changes to the repository with `git commit`",
@@ -142,7 +142,7 @@ func (r *commitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagno
 	}, nil
 }
 
-func (r *commitResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "Create resource git_commit")
 
 	var inputs commitResourceModel
@@ -214,17 +214,17 @@ func (r *commitResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 }
 
-func (r *commitResource) Read(ctx context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
+func (r *CommitResource) Read(ctx context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
 	tflog.Debug(ctx, "Read resource git_add")
 	// NO-OP: All data is already in Terraform state
 }
 
-func (r *commitResource) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
+func (r *CommitResource) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
 	tflog.Debug(ctx, "Update resource git_add")
 	// NO-OP: All attributes require replacement, thus delete/create will be called
 }
 
-func (r *commitResource) Delete(ctx context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
+func (r *CommitResource) Delete(ctx context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
 	tflog.Debug(ctx, "Delete resource git_add")
 	// NO-OP: Terraform removes the state automatically for us
 }

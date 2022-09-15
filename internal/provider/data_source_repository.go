@@ -16,12 +16,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-type repositoryDataSource struct{}
+type RepositoryDataSource struct{}
 
 var (
-	_ datasource.DataSource              = (*repositoryDataSource)(nil)
-	_ datasource.DataSourceWithGetSchema = (*repositoryDataSource)(nil)
-	_ datasource.DataSourceWithMetadata  = (*repositoryDataSource)(nil)
+	_ datasource.DataSource              = (*RepositoryDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*RepositoryDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*RepositoryDataSource)(nil)
 )
 
 type repositoryDataSourceModel struct {
@@ -32,14 +32,14 @@ type repositoryDataSourceModel struct {
 }
 
 func NewRepositoryDataSource() datasource.DataSource {
-	return &repositoryDataSource{}
+	return &RepositoryDataSource{}
 }
 
-func (d *repositoryDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *RepositoryDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_repository"
 }
 
-func (d *repositoryDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (d *RepositoryDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Reads information about a specific Git repository.",
 		MarkdownDescription: "Reads information about a specific Git repository.",
@@ -75,7 +75,7 @@ func (d *repositoryDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.
 	}, nil
 }
 
-func (d *repositoryDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *RepositoryDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_repository")
 
 	var inputs repositoryDataSourceModel

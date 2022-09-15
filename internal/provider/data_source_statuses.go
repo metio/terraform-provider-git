@@ -16,12 +16,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-type statusesDataSource struct{}
+type StatusesDataSource struct{}
 
 var (
-	_ datasource.DataSource              = (*statusesDataSource)(nil)
-	_ datasource.DataSourceWithGetSchema = (*statusesDataSource)(nil)
-	_ datasource.DataSourceWithMetadata  = (*statusesDataSource)(nil)
+	_ datasource.DataSource              = (*StatusesDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*StatusesDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*StatusesDataSource)(nil)
 )
 
 type statusesDataSourceModel struct {
@@ -32,14 +32,14 @@ type statusesDataSourceModel struct {
 }
 
 func NewStatusesDataSource() datasource.DataSource {
-	return &statusesDataSource{}
+	return &StatusesDataSource{}
 }
 
-func (d *statusesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *StatusesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_statuses"
 }
 
-func (d *statusesDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (d *StatusesDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Fetches the status of all files in a Git repository.",
 		MarkdownDescription: "Fetches the status of all files in a Git repository.",
@@ -88,7 +88,7 @@ func (d *statusesDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Di
 	}, nil
 }
 
-func (d *statusesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *StatusesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_statuses")
 
 	var inputs statusesDataSourceModel

@@ -18,12 +18,12 @@ import (
 	"github.com/metio/terraform-provider-git/internal/modifiers"
 )
 
-type logDataSource struct{}
+type LogDataSource struct{}
 
 var (
-	_ datasource.DataSource              = (*logDataSource)(nil)
-	_ datasource.DataSourceWithGetSchema = (*logDataSource)(nil)
-	_ datasource.DataSourceWithMetadata  = (*logDataSource)(nil)
+	_ datasource.DataSource              = (*LogDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*LogDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*LogDataSource)(nil)
 )
 
 type logDataSourceModel struct {
@@ -41,14 +41,14 @@ type logDataSourceModel struct {
 }
 
 func NewLogDataSource() datasource.DataSource {
-	return &logDataSource{}
+	return &LogDataSource{}
 }
 
-func (d *logDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *LogDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_log"
 }
 
-func (d *logDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (d *LogDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Fetches the commit log of a Git repository similar to 'git log'.",
 		MarkdownDescription: "Fetches the commit log of a Git repository similar to `git log`.",
@@ -157,7 +157,7 @@ func (d *logDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnos
 	}, nil
 }
 
-func (d *logDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *LogDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_log")
 
 	var inputs logDataSourceModel
