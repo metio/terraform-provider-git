@@ -6,12 +6,22 @@
 package provider_test
 
 import (
+	"context"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/provider"
 	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"testing"
 )
+
+func TestDataSourceGitStatus_GetSchema(t *testing.T) {
+	t.Parallel()
+	r := &provider.StatusDataSource{}
+	schema, _ := r.GetSchema(context.TODO())
+
+	testutils.VerifySchemaDescriptions(t, schema)
+}
 
 func TestDataSourceGitStatus_StagedFile(t *testing.T) {
 	t.Parallel()

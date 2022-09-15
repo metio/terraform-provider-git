@@ -9,8 +9,11 @@ package testutils
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func CheckExactLength(expectedLength int) func(input string) error {
@@ -63,5 +66,22 @@ func CheckResourceAttrInstanceState(attributeName, attributeValue string) resour
 		}
 
 		return nil
+	}
+}
+
+func VerifySchemaDescriptions(t *testing.T, schema tfsdk.Schema) {
+	assert.NotEmpty(t, schema.Description, "schema.Description")
+	assert.NotEmpty(t, schema.MarkdownDescription, "schema.MarkdownDescription")
+
+	for name, attribute := range schema.Attributes {
+		assert.NotEmpty(t, attribute.Description, fmt.Sprintf("%s.Description", name))
+		assert.NotEmpty(t, attribute.MarkdownDescription, fmt.Sprintf("%s.MarkdownDescription", name))
+
+		if attribute.Attributes != nil {
+			for nn, nv := range attribute.Attributes.GetAttributes() {
+				assert.NotEmpty(t, nv.GetDescription(), fmt.Sprintf("%s.Description", nn))
+				assert.NotEmpty(t, nv.GetMarkdownDescription(), fmt.Sprintf("%s.MarkdownDescription", nn))
+			}
+		}
 	}
 }

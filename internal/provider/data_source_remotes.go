@@ -16,12 +16,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-type remotesDataSource struct{}
+type RemotesDataSource struct{}
 
 var (
-	_ datasource.DataSource              = (*remotesDataSource)(nil)
-	_ datasource.DataSourceWithGetSchema = (*remotesDataSource)(nil)
-	_ datasource.DataSourceWithMetadata  = (*remotesDataSource)(nil)
+	_ datasource.DataSource              = (*RemotesDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*RemotesDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*RemotesDataSource)(nil)
 )
 
 type remotesDataSourceModel struct {
@@ -31,14 +31,14 @@ type remotesDataSourceModel struct {
 }
 
 func NewRemotesDataSource() datasource.DataSource {
-	return &remotesDataSource{}
+	return &RemotesDataSource{}
 }
 
-func (d *remotesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *RemotesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_remotes"
 }
 
-func (d *remotesDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (d *RemotesDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Reads all configured remotes of a Git repository.",
 		MarkdownDescription: "Reads all configured remotes of a Git repository.",
@@ -77,7 +77,7 @@ func (d *remotesDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Dia
 	}, nil
 }
 
-func (d *remotesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *RemotesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_remotes")
 
 	var inputs remotesDataSourceModel

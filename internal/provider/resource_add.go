@@ -19,13 +19,13 @@ import (
 	"time"
 )
 
-type addResource struct{}
+type AddResource struct{}
 
 var (
-	_ resource.Resource               = (*addResource)(nil)
-	_ resource.ResourceWithMetadata   = (*addResource)(nil)
-	_ resource.ResourceWithGetSchema  = (*addResource)(nil)
-	_ resource.ResourceWithModifyPlan = (*addResource)(nil)
+	_ resource.Resource               = (*AddResource)(nil)
+	_ resource.ResourceWithMetadata   = (*AddResource)(nil)
+	_ resource.ResourceWithGetSchema  = (*AddResource)(nil)
+	_ resource.ResourceWithModifyPlan = (*AddResource)(nil)
 )
 
 type addResourceModel struct {
@@ -35,14 +35,14 @@ type addResourceModel struct {
 }
 
 func NewAddResource() resource.Resource {
-	return &addResource{}
+	return &AddResource{}
 }
 
-func (r *addResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *AddResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_add"
 }
 
-func (r *addResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (r *AddResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Add file contents to the index similar to 'git add'.",
 		MarkdownDescription: "Add file contents to the index similar to `git add`.",
@@ -78,7 +78,7 @@ func (r *addResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnosti
 	}, nil
 }
 
-func (r *addResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *AddResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "Create resource git_add")
 
 	var inputs addResourceModel
@@ -153,22 +153,22 @@ func (r *addResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 }
 
-func (r *addResource) Read(ctx context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
+func (r *AddResource) Read(ctx context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
 	tflog.Debug(ctx, "Read resource git_add")
 	// NO-OP: All data is already in Terraform state
 }
 
-func (r *addResource) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
+func (r *AddResource) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
 	tflog.Debug(ctx, "Update resource git_add")
 	// NO-OP: All attributes require replacement, thus delete/create will be called
 }
 
-func (r *addResource) Delete(ctx context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
+func (r *AddResource) Delete(ctx context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
 	tflog.Debug(ctx, "Delete resource git_add")
 	// NO-OP: Terraform removes the state automatically for us
 }
 
-func (r *addResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+func (r *AddResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	tflog.Debug(ctx, "ModifyPlan resource git_add")
 
 	if req.State.Raw.IsNull() {

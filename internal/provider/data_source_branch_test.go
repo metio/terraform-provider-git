@@ -6,14 +6,24 @@
 package provider_test
 
 import (
+	"context"
 	"fmt"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/provider"
 	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"regexp"
 	"testing"
 )
+
+func TestDataSourceGitBranch_GetSchema(t *testing.T) {
+	t.Parallel()
+	r := &provider.BranchDataSource{}
+	schema, _ := r.GetSchema(context.TODO())
+
+	testutils.VerifySchemaDescriptions(t, schema)
+}
 
 func TestDataSourceGitBranch(t *testing.T) {
 	t.Parallel()

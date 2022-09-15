@@ -16,12 +16,12 @@ import (
 	"github.com/metio/terraform-provider-git/internal/modifiers"
 )
 
-type configDataSource struct{}
+type ConfigDataSource struct{}
 
 var (
-	_ datasource.DataSource              = (*configDataSource)(nil)
-	_ datasource.DataSourceWithGetSchema = (*configDataSource)(nil)
-	_ datasource.DataSourceWithMetadata  = (*configDataSource)(nil)
+	_ datasource.DataSource              = (*ConfigDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*ConfigDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*ConfigDataSource)(nil)
 )
 
 type configDataSourceModel struct {
@@ -37,14 +37,14 @@ type configDataSourceModel struct {
 }
 
 func NewConfigDataSource() datasource.DataSource {
-	return &configDataSource{}
+	return &ConfigDataSource{}
 }
 
-func (d *configDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *ConfigDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_config"
 }
 
-func (d *configDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (d *ConfigDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Reads the configuration of a Git repository.",
 		MarkdownDescription: "Reads the configuration of a Git repository.",
@@ -121,7 +121,7 @@ func (d *configDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diag
 	}, nil
 }
 
-func (d *configDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *ConfigDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_config")
 
 	var inputs configDataSourceModel

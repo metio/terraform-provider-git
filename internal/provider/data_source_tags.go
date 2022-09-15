@@ -18,12 +18,12 @@ import (
 	"github.com/metio/terraform-provider-git/internal/modifiers"
 )
 
-type tagsDataSource struct{}
+type TagsDataSource struct{}
 
 var (
-	_ datasource.DataSource              = (*tagsDataSource)(nil)
-	_ datasource.DataSourceWithGetSchema = (*tagsDataSource)(nil)
-	_ datasource.DataSourceWithMetadata  = (*tagsDataSource)(nil)
+	_ datasource.DataSource              = (*TagsDataSource)(nil)
+	_ datasource.DataSourceWithGetSchema = (*TagsDataSource)(nil)
+	_ datasource.DataSourceWithMetadata  = (*TagsDataSource)(nil)
 )
 
 type tagsDataSourceModel struct {
@@ -35,14 +35,14 @@ type tagsDataSourceModel struct {
 }
 
 func NewTagsDataSource() datasource.DataSource {
-	return &tagsDataSource{}
+	return &TagsDataSource{}
 }
 
-func (d *tagsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *TagsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_tags"
 }
 
-func (d *tagsDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (d *TagsDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Reads information about all tags of a Git repository.",
 		MarkdownDescription: "Reads information about all tags of a Git repository.",
@@ -111,7 +111,7 @@ func (d *tagsDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagno
 	}, nil
 }
 
-func (d *tagsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *TagsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Debug(ctx, "Read data source git_tags")
 
 	var inputs tagsDataSourceModel

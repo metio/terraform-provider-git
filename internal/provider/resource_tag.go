@@ -18,12 +18,12 @@ import (
 	"strings"
 )
 
-type tagResource struct{}
+type TagResource struct{}
 
 var (
-	_ resource.Resource              = (*tagResource)(nil)
-	_ resource.ResourceWithMetadata  = (*tagResource)(nil)
-	_ resource.ResourceWithGetSchema = (*tagResource)(nil)
+	_ resource.Resource              = (*TagResource)(nil)
+	_ resource.ResourceWithMetadata  = (*TagResource)(nil)
+	_ resource.ResourceWithGetSchema = (*TagResource)(nil)
 )
 
 type tagResourceModel struct {
@@ -36,14 +36,14 @@ type tagResourceModel struct {
 }
 
 func NewTagResource() resource.Resource {
-	return &tagResource{}
+	return &TagResource{}
 }
 
-func (r *tagResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *TagResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_tag"
 }
 
-func (r *tagResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (r *TagResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Manage Git tags similar to 'git tag'.",
 		MarkdownDescription: "Manage Git tags similar to `git tag`.",
@@ -108,7 +108,7 @@ func (r *tagResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnosti
 	}, nil
 }
 
-func (r *tagResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *TagResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "Create resource git_tag")
 
 	var inputs tagResourceModel
@@ -165,7 +165,7 @@ func (r *tagResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 }
 
-func (r *tagResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *TagResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	tflog.Debug(ctx, "Read resource git_tag")
 
 	var state tagResourceModel
@@ -214,12 +214,12 @@ func (r *tagResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	}
 }
 
-func (r *tagResource) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
+func (r *TagResource) Update(ctx context.Context, _ resource.UpdateRequest, _ *resource.UpdateResponse) {
 	tflog.Debug(ctx, "Update resource git_tag")
 	// NO-OP: all attributes require replace, thus Delete and Create methods will be called
 }
 
-func (r *tagResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *TagResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	tflog.Debug(ctx, "Delete resource git_tag")
 
 	var state tagResourceModel
@@ -243,7 +243,7 @@ func (r *tagResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 	}
 }
 
-func (r *tagResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *TagResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	tflog.Debug(ctx, "ImportState resource git_tag")
 
 	id := req.ID
