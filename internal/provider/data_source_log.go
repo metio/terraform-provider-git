@@ -21,9 +21,7 @@ import (
 type LogDataSource struct{}
 
 var (
-	_ datasource.DataSource              = (*LogDataSource)(nil)
-	_ datasource.DataSourceWithGetSchema = (*LogDataSource)(nil)
-	_ datasource.DataSourceWithMetadata  = (*LogDataSource)(nil)
+	_ datasource.DataSource = (*LogDataSource)(nil)
 )
 
 type logDataSourceModel struct {

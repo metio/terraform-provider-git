@@ -22,8 +22,6 @@ type RemoteResource struct{}
 
 var (
 	_ resource.Resource                = (*RemoteResource)(nil)
-	_ resource.ResourceWithMetadata    = (*RemoteResource)(nil)
-	_ resource.ResourceWithGetSchema   = (*RemoteResource)(nil)
 	_ resource.ResourceWithImportState = (*RemoteResource)(nil)
 )
 

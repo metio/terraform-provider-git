@@ -18,9 +18,7 @@ import (
 type CommitDataSource struct{}
 
 var (
-	_ datasource.DataSource              = (*CommitDataSource)(nil)
-	_ datasource.DataSourceWithGetSchema = (*CommitDataSource)(nil)
-	_ datasource.DataSourceWithMetadata  = (*CommitDataSource)(nil)
+	_ datasource.DataSource = (*CommitDataSource)(nil)
 )
 
 type commitDataSourceModel struct {

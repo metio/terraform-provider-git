@@ -19,9 +19,7 @@ import (
 type CommitResource struct{}
 
 var (
-	_ resource.Resource              = (*CommitResource)(nil)
-	_ resource.ResourceWithMetadata  = (*CommitResource)(nil)
-	_ resource.ResourceWithGetSchema = (*CommitResource)(nil)
+	_ resource.Resource = (*CommitResource)(nil)
 )
 
 type commitResourceModel struct {

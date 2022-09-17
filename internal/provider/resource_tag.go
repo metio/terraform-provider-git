@@ -21,9 +21,7 @@ import (
 type TagResource struct{}
 
 var (
-	_ resource.Resource              = (*TagResource)(nil)
-	_ resource.ResourceWithMetadata  = (*TagResource)(nil)
-	_ resource.ResourceWithGetSchema = (*TagResource)(nil)
+	_ resource.Resource = (*TagResource)(nil)
 )
 
 type tagResourceModel struct {

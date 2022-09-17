@@ -21,9 +21,7 @@ import (
 type TagsDataSource struct{}
 
 var (
-	_ datasource.DataSource              = (*TagsDataSource)(nil)
-	_ datasource.DataSourceWithGetSchema = (*TagsDataSource)(nil)
-	_ datasource.DataSourceWithMetadata  = (*TagsDataSource)(nil)
+	_ datasource.DataSource = (*TagsDataSource)(nil)
 )
 
 type tagsDataSourceModel struct {
