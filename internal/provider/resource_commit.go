@@ -7,24 +7,28 @@ package provider
 
 import (
 	"context"
+	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/metio/terraform-provider-git/internal/modifiers"
+	"time"
 )
 
 type CommitResource struct{}
 
 var (
-	_ resource.Resource = (*CommitResource)(nil)
+	_ resource.Resource               = (*CommitResource)(nil)
+	_ resource.ResourceWithModifyPlan = (*CommitResource)(nil)
 )
 
 type commitResourceModel struct {
 	Directory types.String `tfsdk:"directory"`
-	Id        types.String `tfsdk:"id"`
+	Id        types.Int64  `tfsdk:"id"`
 	Message   types.String `tfsdk:"message"`
 	All       types.Bool   `tfsdk:"all"`
 	Author    types.Object `tfsdk:"author"`
@@ -58,9 +62,9 @@ func (r *CommitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagno
 				},
 			},
 			"id": {
-				Description:         "The same value as the 'directory' attribute.",
-				MarkdownDescription: "The same value as the `directory` attribute.",
-				Type:                types.StringType,
+				Description:         "The timestamp of the last addition in Unix nanoseconds.",
+				MarkdownDescription: "The timestamp of the last addition in Unix nanoseconds.",
+				Type:                types.Int64Type,
 				Computed:            true,
 			},
 			"message": {
@@ -181,7 +185,7 @@ func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	var state commitResourceModel
 	state.Directory = inputs.Directory
-	state.Id = inputs.Directory
+	state.Id = types.Int64{Value: time.Now().UnixNano()}
 	state.All = inputs.All
 	state.Message = inputs.Message
 	state.Author = inputs.Author
@@ -225,4 +229,53 @@ func (r *CommitResource) Update(ctx context.Context, _ resource.UpdateRequest, _
 func (r *CommitResource) Delete(ctx context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
 	tflog.Debug(ctx, "Delete resource git_add")
 	// NO-OP: Terraform removes the state automatically for us
+}
+
+func (r *CommitResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	tflog.Debug(ctx, "ModifyPlan resource git_commit")
+
+	if req.State.Raw.IsNull() {
+		// if we're creating the resource, no need to modify it
+		return
+	}
+
+	if req.Plan.Raw.IsNull() {
+		// if we're deleting the resource, no need to modify it
+		return
+	}
+
+	var inputs commitResourceModel
+	diags := req.Config.Get(ctx, &inputs)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	directory := inputs.Directory.Value
+	all := inputs.All.Value
+
+	repository := openRepository(ctx, directory, &resp.Diagnostics)
+	if repository == nil {
+		return
+	}
+
+	worktree, err := getWorktree(repository, &resp.Diagnostics)
+	if err != nil || worktree == nil {
+		return
+	}
+
+	status := getStatus(ctx, worktree, &resp.Diagnostics)
+	if status == nil {
+		return
+	}
+
+	for _, val := range status {
+		if (val.Staging != git.Unmodified && val.Staging != git.Untracked) ||
+			(all && (val.Worktree == git.Modified || val.Worktree == git.Deleted)) {
+			id := path.Root("id")
+			resp.Plan.SetAttribute(ctx, id, time.Now().UnixNano())
+			resp.RequiresReplace = append(resp.RequiresReplace, id)
+			break
+		}
+	}
 }
