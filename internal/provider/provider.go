@@ -17,10 +17,8 @@ import (
 type GitProvider struct{}
 
 var (
-	_ provider.Provider                = (*GitProvider)(nil)
-	_ provider.ProviderWithMetadata    = (*GitProvider)(nil)
-	_ provider.ProviderWithDataSources = (*GitProvider)(nil)
-	_ provider.ProviderWithResources   = (*GitProvider)(nil)
+	_ provider.Provider             = (*GitProvider)(nil)
+	_ provider.ProviderWithMetadata = (*GitProvider)(nil)
 )
 
 func New() provider.Provider {

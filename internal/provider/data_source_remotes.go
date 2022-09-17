@@ -19,9 +19,7 @@ import (
 type RemotesDataSource struct{}
 
 var (
-	_ datasource.DataSource              = (*RemotesDataSource)(nil)
-	_ datasource.DataSourceWithGetSchema = (*RemotesDataSource)(nil)
-	_ datasource.DataSourceWithMetadata  = (*RemotesDataSource)(nil)
+	_ datasource.DataSource = (*RemotesDataSource)(nil)
 )
 
 type remotesDataSourceModel struct {

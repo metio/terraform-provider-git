@@ -19,9 +19,7 @@ import (
 type StatusesDataSource struct{}
 
 var (
-	_ datasource.DataSource              = (*StatusesDataSource)(nil)
-	_ datasource.DataSourceWithGetSchema = (*StatusesDataSource)(nil)
-	_ datasource.DataSourceWithMetadata  = (*StatusesDataSource)(nil)
+	_ datasource.DataSource = (*StatusesDataSource)(nil)
 )
 
 type statusesDataSourceModel struct {

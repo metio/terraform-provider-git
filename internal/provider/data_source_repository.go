@@ -19,9 +19,7 @@ import (
 type RepositoryDataSource struct{}
 
 var (
-	_ datasource.DataSource              = (*RepositoryDataSource)(nil)
-	_ datasource.DataSourceWithGetSchema = (*RepositoryDataSource)(nil)
-	_ datasource.DataSourceWithMetadata  = (*RepositoryDataSource)(nil)
+	_ datasource.DataSource = (*RepositoryDataSource)(nil)
 )
 
 type repositoryDataSourceModel struct {
