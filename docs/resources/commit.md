@@ -70,7 +70,7 @@ resource "git_commit" "commit_on_change" {
 
 ### Read-Only
 
-- `id` (String) The same value as the `directory` attribute.
+- `id` (Number) The timestamp of the last addition in Unix nanoseconds.
 - `sha1` (String) The SHA1 hash of the created commit.
 
 <a id="nestedatt--author"></a>

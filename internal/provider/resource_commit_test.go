@@ -46,7 +46,7 @@ func TestResourceGitCommit(t *testing.T) {
 				`, directory),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_commit.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_commit.test", "id", directory),
+					resource.TestCheckResourceAttrWith("git_commit.test", "id", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
 					resource.TestCheckResourceAttr("git_commit.test", "author.name", cfg.Author.Name),
@@ -157,7 +157,7 @@ func TestResourceGitCommit_Author_Partial_Name(t *testing.T) {
 				`, directory),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_commit.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_commit.test", "id", directory),
+					resource.TestCheckResourceAttrWith("git_commit.test", "id", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
 					resource.TestCheckResourceAttr("git_commit.test", "author.name", "test"),
@@ -192,7 +192,7 @@ func TestResourceGitCommit_Author_Partial_Email(t *testing.T) {
 				`, directory),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_commit.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_commit.test", "id", directory),
+					resource.TestCheckResourceAttrWith("git_commit.test", "id", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
 					resource.TestCheckResourceAttr("git_commit.test", "author.email", "someone@example.com"),
@@ -221,7 +221,7 @@ func TestResourceGitCommit_WithoutChanges(t *testing.T) {
 				`, directory),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_commit.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_commit.test", "id", directory),
+					resource.TestCheckResourceAttrWith("git_commit.test", "id", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
 					resource.TestCheckResourceAttr("git_commit.test", "sha1", ""),
@@ -250,7 +250,7 @@ func TestResourceGitCommit_WithoutChanges_AllEnabled(t *testing.T) {
 				`, directory),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_commit.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_commit.test", "id", directory),
+					resource.TestCheckResourceAttrWith("git_commit.test", "id", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("git_commit.test", "all", "true"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
 					resource.TestCheckResourceAttr("git_commit.test", "sha1", ""),
@@ -282,7 +282,7 @@ func TestResourceGitCommit_WithUnstagedChanges_AllEnabled(t *testing.T) {
 				`, directory),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_commit.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_commit.test", "id", directory),
+					resource.TestCheckResourceAttrWith("git_commit.test", "id", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("git_commit.test", "all", "true"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
 					resource.TestCheckResourceAttrWith("git_commit.test", "sha1", testutils.CheckExactLength(40)),
@@ -316,7 +316,7 @@ func TestResourceGitCommit_WithStagedChanges_AllEnabled(t *testing.T) {
 				`, directory),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("git_commit.test", "directory", directory),
-					resource.TestCheckResourceAttr("git_commit.test", "id", directory),
+					resource.TestCheckResourceAttrWith("git_commit.test", "id", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("git_commit.test", "all", "true"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
 					resource.TestCheckResourceAttrWith("git_commit.test", "sha1", testutils.CheckExactLength(40)),
