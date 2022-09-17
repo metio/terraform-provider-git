@@ -16,7 +16,7 @@ import (
 )
 
 // Run the documentation generation tool
-//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
+//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --provider-name=terraform-provider-git
 
 func main() {
 	var debug bool
