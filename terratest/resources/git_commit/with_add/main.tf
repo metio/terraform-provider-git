@@ -27,6 +27,10 @@ resource "git_commit" "commit" {
     name  = "terraform"
     email = "automation@example.com"
   }
+
+  lifecycle {
+    replace_triggered_by = [git_add.add.id]
+  }
 }
 
 data "git_commit" "commit" {

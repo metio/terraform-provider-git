@@ -23,3 +23,17 @@ resource "git_commit" "committer" {
     email = "automation@example.com"
   }
 }
+
+# commit on every change
+resource "git_add" "add" {
+  directory = "/path/to/git/repository"
+  add_paths = ["some/important/file"]
+}
+resource "git_commit" "commit_on_change" {
+  directory = "/path/to/git/repository"
+  message   = "committed with terraform"
+
+  lifecycle {
+    replace_triggered_by = [git_add.add.id]
+  }
+}
