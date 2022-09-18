@@ -12,6 +12,7 @@ import (
 	"github.com/metio/terraform-provider-git/internal/provider"
 	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
+	"path/filepath"
 	"regexp"
 	"testing"
 )
@@ -32,7 +33,7 @@ func TestResourceGitPush(t *testing.T) {
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
-	testutils.CreateRemoteWithUrls(t, repository, "origin", []string{directory2})
+	testutils.CreateRemoteWithUrls(t, repository, "origin", []string{"file://" + filepath.FromSlash(directory2)})
 	head := testutils.GetRepositoryHead(t, repository)
 
 	resource.UnitTest(t, resource.TestCase{
