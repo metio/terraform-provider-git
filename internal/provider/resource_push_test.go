@@ -33,7 +33,7 @@ func TestResourceGitPush(t *testing.T) {
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
-	testutils.CreateRemoteWithUrls(t, repository, "origin", []string{"file://" + filepath.FromSlash(directory2)})
+	testutils.CreateRemoteWithUrls(t, repository, "origin", []string{filepath.FromSlash(directory2)})
 	head := testutils.GetRepositoryHead(t, repository)
 
 	resource.UnitTest(t, resource.TestCase{
