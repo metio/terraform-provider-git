@@ -62,6 +62,7 @@ func (p *GitProvider) Resources(_ context.Context) []func() resource.Resource {
 		NewAddResource,
 		NewCommitResource,
 		NewInitResource,
+		NewPushResource,
 		NewRemoteResource,
 		NewTagResource,
 	}
