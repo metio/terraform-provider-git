@@ -3,12 +3,12 @@
 page_title: "git_commit Resource - terraform-provider-git"
 subcategory: ""
 description: |-
-  Record changes to the repository with git commit
+  Record changes to the repository similar to git commit
 ---
 
 # git_commit (Resource)
 
-Record changes to the repository with `git commit`
+Record changes to the repository similar to `git commit`
 
 ## Example Usage
 
@@ -70,7 +70,7 @@ resource "git_commit" "commit_on_change" {
 
 ### Read-Only
 
-- `id` (Number) The timestamp of the last addition in Unix nanoseconds.
+- `id` (Number) The timestamp of the last commit in Unix nanoseconds.
 - `sha1` (String) The SHA1 hash of the created commit.
 
 <a id="nestedatt--author"></a>
