@@ -39,6 +39,13 @@ out/tests-sentinel: $(shell find internal -type f -name '*.go')
 	gotestsum --format=testname -- -v -cover -timeout=120s -parallel=4 -tags=testing ./internal/provider
 	touch $@
 
+out/coverage.out: $(shell find internal -type f -name '*.go')
+	mkdir --parents $(@D)
+	gotestsum --format=testname -- -v -cover -coverprofile=out/coverage.out -timeout=120s -parallel=4 -tags=testing ./internal/provider
+
+out/coverage.html: out/coverage.out
+	go tool cover -html=out/coverage.out -o out/coverage.html
+
 out/go-format-sentinel: $(shell find . -type f -name '*.go')
 	mkdir --parents $(@D)
 	gofmt -s -w -e .
@@ -74,6 +81,9 @@ tests: out/tests-sentinel ## run the unit tests
 .PHONY: test
 test: ## run specific unit tests
 	go test -v -timeout=120s -tags testing -run $(filter-out $@,$(MAKECMDGOALS)) ./internal/provider
+
+.PHONY: coverage
+coverage: out/coverage.html ## generate coverage report
 
 .PHONY: format
 format: out/go-format-sentinel out/tf-format-sentinel ## format Go code and Terraform config
