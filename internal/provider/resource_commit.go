@@ -47,7 +47,7 @@ func (r *CommitResource) Metadata(_ context.Context, req resource.MetadataReques
 func (r *CommitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description:         "Record changes to the repository similar to 'git commit'",
-		MarkdownDescription: "Record changes to the repository with `git commit`",
+		MarkdownDescription: "Record changes to the repository similar to `git commit`",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
 				Description:         "The path to the local Git repository.",
@@ -62,8 +62,8 @@ func (r *CommitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagno
 				},
 			},
 			"id": {
-				Description:         "The timestamp of the last addition in Unix nanoseconds.",
-				MarkdownDescription: "The timestamp of the last addition in Unix nanoseconds.",
+				Description:         "The timestamp of the last commit in Unix nanoseconds.",
+				MarkdownDescription: "The timestamp of the last commit in Unix nanoseconds.",
 				Type:                types.Int64Type,
 				Computed:            true,
 			},
