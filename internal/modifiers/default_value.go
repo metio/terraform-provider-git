@@ -11,14 +11,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 )
 
+type defaultValueAttributePlanModifier struct {
+	defaultValue attr.Value
+}
+
+var (
+	_ tfsdk.AttributePlanModifier = (*defaultValueAttributePlanModifier)(nil)
+)
+
 // DefaultValue accepts an attr.Value and uses the supplied value to set a default if the config for
 // the attribute is null.
 func DefaultValue(val attr.Value) tfsdk.AttributePlanModifier {
 	return &defaultValueAttributePlanModifier{val}
-}
-
-type defaultValueAttributePlanModifier struct {
-	defaultValue attr.Value
 }
 
 func (d *defaultValueAttributePlanModifier) Description(_ context.Context) string {
@@ -33,10 +37,7 @@ func (d *defaultValueAttributePlanModifier) MarkdownDescription(ctx context.Cont
 // the value in the config is null. This is a destructive operation in that it will overwrite any value
 // present in the plan.
 func (d *defaultValueAttributePlanModifier) Modify(_ context.Context, req tfsdk.ModifyAttributePlanRequest, resp *tfsdk.ModifyAttributePlanResponse) {
-	if !req.AttributeConfig.IsNull() {
-		// If the attribute configuration is not null, we are done here
-		return
+	if req.AttributeConfig.IsNull() {
+		resp.AttributePlan = d.defaultValue
 	}
-
-	resp.AttributePlan = d.defaultValue
 }
