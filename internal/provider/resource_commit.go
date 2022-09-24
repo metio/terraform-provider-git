@@ -34,6 +34,7 @@ type commitResourceModel struct {
 	Author    types.Object `tfsdk:"author"`
 	Committer types.Object `tfsdk:"committer"`
 	SHA1      types.String `tfsdk:"sha1"`
+	Files     types.List   `tfsdk:"files"`
 }
 
 func NewCommitResource() resource.Resource {
@@ -140,6 +141,14 @@ func (r *CommitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagno
 				Type:                types.StringType,
 				Computed:            true,
 			},
+			"files": {
+				Description:         "The files updated by the commit.",
+				MarkdownDescription: "The files updated by the commit.",
+				Type: types.ListType{
+					ElemType: types.StringType,
+				},
+				Computed: true,
+			},
 		},
 	}, nil
 }
@@ -190,6 +199,7 @@ func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest,
 	state.Message = inputs.Message
 	state.Author = inputs.Author
 	state.Committer = inputs.Committer
+	state.Files = types.List{ElemType: types.StringType}
 
 	if !status.IsClean() {
 		options := createCommitOptions(ctx, inputs)
@@ -206,6 +216,7 @@ func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest,
 
 		state.Author = signatureToObjectWithoutTimestamp(&commitObject.Author)
 		state.Committer = signatureToObjectWithoutTimestamp(&commitObject.Committer)
+		state.Files = stringsToList(extractModifiedFiles(commitObject))
 		state.SHA1 = types.String{Value: hash.String()}
 	}
 

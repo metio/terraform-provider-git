@@ -70,6 +70,7 @@ resource "git_commit" "commit_on_change" {
 
 ### Read-Only
 
+- `files` (List of String) The files updated by the commit.
 - `id` (Number) The timestamp of the last commit in Unix nanoseconds.
 - `sha1` (String) The SHA1 hash of the created commit.
 
