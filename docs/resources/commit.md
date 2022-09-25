@@ -3,12 +3,15 @@
 page_title: "git_commit Resource - terraform-provider-git"
 subcategory: ""
 description: |-
-  Record changes to the repository similar to git commit
+  Record changes to the repository similar to git commit.
+  -> Note Configuration changes to this resource which cause a replacement will create a new commit and keep the previous commit as-is.
 ---
 
 # git_commit (Resource)
 
-Record changes to the repository similar to `git commit`
+Record changes to the repository similar to `git commit`.
+
+-> **Note** Configuration changes to this resource which cause a replacement will create a new commit and keep the previous commit as-is.
 
 ## Example Usage
 

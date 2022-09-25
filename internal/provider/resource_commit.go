@@ -47,8 +47,9 @@ func (r *CommitResource) Metadata(_ context.Context, req resource.MetadataReques
 
 func (r *CommitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		Description:         "Record changes to the repository similar to 'git commit'",
-		MarkdownDescription: "Record changes to the repository similar to `git commit`",
+		Description: "Record changes to the repository similar to 'git commit'. Note that configuration changes to this resource which cause a replacement will create a new commit and keep the previous commit as-is.",
+		MarkdownDescription: "Record changes to the repository similar to `git commit`.\n\n" +
+			"-> **Note** Configuration changes to this resource which cause a replacement will create a new commit and keep the previous commit as-is.",
 		Attributes: map[string]tfsdk.Attribute{
 			"directory": {
 				Description:         "The path to the local Git repository.",
