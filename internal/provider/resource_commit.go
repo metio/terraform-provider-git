@@ -112,6 +112,9 @@ func (r *CommitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagno
 						Optional:            true,
 					},
 				}),
+				PlanModifiers: []tfsdk.AttributePlanModifier{
+					resource.RequiresReplace(),
+				},
 			},
 			"committer": {
 				Description:         "The person performing the commit. If none is specified, the author is used as committer.",
@@ -134,6 +137,9 @@ func (r *CommitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagno
 						Optional:            true,
 					},
 				}),
+				PlanModifiers: []tfsdk.AttributePlanModifier{
+					resource.RequiresReplace(),
+				},
 			},
 			"sha1": {
 				Description:         "The SHA1 hash of the created commit.",
