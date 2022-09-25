@@ -47,11 +47,8 @@ resource "git_add" "glob_pattern" {
 
 ### Required
 
-- `directory` (String) The path to the local Git repository.
-
-### Optional
-
 - `add_paths` (List of String) The paths to add to the Git index. Values can be exact paths or glob patterns.
+- `directory` (String) The path to the local Git repository.
 
 ### Read-Only
 

@@ -69,8 +69,7 @@ func (r *AddResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnosti
 				Type: types.ListType{
 					ElemType: types.StringType,
 				},
-				Computed: true,
-				Optional: true,
+				Required: true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
 					resource.RequiresReplace(),
 				},
