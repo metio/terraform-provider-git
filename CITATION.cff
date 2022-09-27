@@ -12,6 +12,8 @@ authors:
 url: https://registry.terraform.io/providers/metio/git/
 license: 0BSD
 keywords:
+  - git
   - go
   - make
   - terraform
+  - terraform-provider
