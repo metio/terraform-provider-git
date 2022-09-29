@@ -33,6 +33,64 @@ resource "git_push" "remote" {
   force     = true
 }
 
+# push with basic auth
+resource "git_push" "remote" {
+  directory = "/path/to/git/repository"
+  refspecs  = ["refs/heads/master:refs/heads/master"]
+
+  auth = {
+    basic = {
+      username = "some-username"
+      password = "topsecret123"
+    }
+  }
+}
+
+# push with HTTP bearer token
+resource "git_push" "remote" {
+  directory = "/path/to/git/repository"
+  refspecs  = ["refs/heads/master:refs/heads/master"]
+
+  auth = {
+    bearer = "some bearer token here"
+  }
+}
+
+# push with SSH key
+resource "git_push" "remote" {
+  directory = "/path/to/git/repository"
+  refspecs  = ["refs/heads/master:refs/heads/master"]
+
+  auth = {
+    ssh_key = {
+      private_key_path = pathexpand("~/.ssh/id_rsa")
+    }
+  }
+}
+
+# push with SSH password
+resource "git_push" "remote" {
+  directory = "/path/to/git/repository"
+  refspecs  = ["refs/heads/master:refs/heads/master"]
+
+  auth = {
+    ssh_password = {
+      username = "bob"
+      password = "hunter2"
+    }
+  }
+}
+
+# push with SSH agent
+resource "git_push" "remote" {
+  directory = "/path/to/git/repository"
+  refspecs  = ["refs/heads/master:refs/heads/master"]
+
+  auth = {
+    ssh_agent = {}
+  }
+}
+
 # push on new commits
 resource "git_commit" "commit" {
   directory = "/path/to/git/repository"
@@ -58,6 +116,7 @@ resource "git_push" "push_on_commit" {
 
 ### Optional
 
+- `auth` (Attributes) The authentication credentials, if required, to use with the remote repository. (see [below for nested schema](#nestedatt--auth))
 - `force` (Boolean) Allow updating a remote ref that is not an ancestor of the local ref used to overwrite it. Can cause the remote repository to lose commits; use it with care. Defaults to `false`.
 - `prune` (Boolean) Remove remote branches that don’t have a local counterpart. Defaults to `false`.
 - `remote` (String) The name of the remote to push into. Defaults to `origin`.
@@ -65,5 +124,58 @@ resource "git_push" "push_on_commit" {
 ### Read-Only
 
 - `id` (Number) The timestamp of the last push in Unix nanoseconds.
+
+<a id="nestedatt--auth"></a>
+### Nested Schema for `auth`
+
+Optional:
+
+- `basic` (Attributes) Configure basic auth authentication. (see [below for nested schema](#nestedatt--auth--basic))
+- `bearer` (String) Configure HTTP bearer token authentication. **Note**: Services like GitHub use basic auth with your OAuth2 personal access token as the password.
+- `ssh_agent` (Attributes) Configure SSH agent based authentication. (see [below for nested schema](#nestedatt--auth--ssh_agent))
+- `ssh_key` (Attributes) Configure SSH public/private key authentication. (see [below for nested schema](#nestedatt--auth--ssh_key))
+- `ssh_password` (Attributes) Configure password based SSH authentication. (see [below for nested schema](#nestedatt--auth--ssh_password))
+
+<a id="nestedatt--auth--basic"></a>
+### Nested Schema for `auth.basic`
+
+Required:
+
+- `password` (String) The basic auth password.
+- `username` (String) The basic auth username.
+
+
+<a id="nestedatt--auth--ssh_agent"></a>
+### Nested Schema for `auth.ssh_agent`
+
+Optional:
+
+- `known_hosts` (Set of String) The list of known hosts to accept. If none are specified, system defaults will be used.
+- `username` (String) The system username of the user talking to the SSH agent. Use an empty string in order to automatically fetch this.
+
+
+<a id="nestedatt--auth--ssh_key"></a>
+### Nested Schema for `auth.ssh_key`
+
+Optional:
+
+- `known_hosts` (Set of String) The list of known hosts to accept. If none are specified, system defaults will be used.
+- `password` (String) The SSH key password.
+- `private_key_path` (String) The absolute path to the private SSH key.
+- `private_key_pem` (String) The private SSH key in PEM format.
+- `username` (String) The SSH auth username.
+
+
+<a id="nestedatt--auth--ssh_password"></a>
+### Nested Schema for `auth.ssh_password`
+
+Required:
+
+- `password` (String) The SSH password.
+- `username` (String) The SSH username.
+
+Optional:
+
+- `known_hosts` (Set of String) The list of known hosts to accept. If none are specified, system defaults will be used.
 
 

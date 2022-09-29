@@ -8,9 +8,10 @@ package provider
 import (
 	"context"
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/config"
+	"github.com/hashicorp/terraform-plugin-framework-validators/schemavalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -25,13 +26,14 @@ var (
 	_ resource.Resource = (*PushResource)(nil)
 )
 
-type pushResourceModel struct {
+type PushResourceModel struct {
 	Directory types.String `tfsdk:"directory"`
 	Id        types.Int64  `tfsdk:"id"`
 	Remote    types.String `tfsdk:"remote"`
 	RefSpecs  types.List   `tfsdk:"refspecs"`
 	Prune     types.Bool   `tfsdk:"prune"`
 	Force     types.Bool   `tfsdk:"force"`
+	Auth      types.Object `tfsdk:"auth"`
 }
 
 func NewPushResource() resource.Resource {
@@ -112,6 +114,256 @@ func (r *PushResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnost
 					resource.RequiresReplace(),
 				},
 			},
+			"auth": {
+				Description:         "The authentication credentials, if required, to use with the remote repository.",
+				MarkdownDescription: "The authentication credentials, if required, to use with the remote repository.",
+				Optional:            true,
+				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
+					"basic": {
+						Description:         "Configure basic auth authentication.",
+						MarkdownDescription: "Configure basic auth authentication.",
+						Optional:            true,
+						Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
+							"username": {
+								Description:         "The basic auth username.",
+								MarkdownDescription: "The basic auth username.",
+								Type:                types.StringType,
+								Required:            true,
+								PlanModifiers: []tfsdk.AttributePlanModifier{
+									resource.RequiresReplace(),
+								},
+							},
+							"password": {
+								Description:         "The basic auth password.",
+								MarkdownDescription: "The basic auth password.",
+								Type:                types.StringType,
+								Required:            true,
+								PlanModifiers: []tfsdk.AttributePlanModifier{
+									resource.RequiresReplace(),
+								},
+							},
+						}),
+						Validators: []tfsdk.AttributeValidator{
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("bearer")),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ssh_key")),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ssh_password")),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ssh_agent")),
+							schemavalidator.ExactlyOneOf(
+								path.MatchRelative().AtParent().AtName("basic"),
+								path.MatchRelative().AtParent().AtName("bearer"),
+								path.MatchRelative().AtParent().AtName("ssh_key"),
+								path.MatchRelative().AtParent().AtName("ssh_password"),
+								path.MatchRelative().AtParent().AtName("ssh_agent"),
+							),
+						},
+						PlanModifiers: []tfsdk.AttributePlanModifier{
+							resource.RequiresReplace(),
+						},
+					},
+					"bearer": {
+						Description:         "Configure HTTP bearer token authentication. Note that services like GitHub use basic auth with your OAuth2 personal access token as the password.",
+						MarkdownDescription: "Configure HTTP bearer token authentication. **Note**: Services like GitHub use basic auth with your OAuth2 personal access token as the password.",
+						Type:                types.StringType,
+						Optional:            true,
+						Validators: []tfsdk.AttributeValidator{
+							stringvalidator.LengthAtLeast(1),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("basic")),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ssh_key")),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ssh_password")),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ssh_agent")),
+							schemavalidator.ExactlyOneOf(
+								path.MatchRelative().AtParent().AtName("basic"),
+								path.MatchRelative().AtParent().AtName("bearer"),
+								path.MatchRelative().AtParent().AtName("ssh_key"),
+								path.MatchRelative().AtParent().AtName("ssh_password"),
+								path.MatchRelative().AtParent().AtName("ssh_agent"),
+							),
+						},
+						PlanModifiers: []tfsdk.AttributePlanModifier{
+							resource.RequiresReplace(),
+						},
+					},
+					"ssh_key": {
+						Description:         "Configure SSH public/private key authentication.",
+						MarkdownDescription: "Configure SSH public/private key authentication.",
+						Optional:            true,
+						Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
+							"username": {
+								Description:         "The SSH auth username.",
+								MarkdownDescription: "The SSH auth username.",
+								Type:                types.StringType,
+								Optional:            true,
+								Computed:            true,
+								PlanModifiers: []tfsdk.AttributePlanModifier{
+									modifiers.DefaultValue(types.String{Value: "git"}),
+									resource.RequiresReplace(),
+								},
+							},
+							"password": {
+								Description:         "The SSH key password.",
+								MarkdownDescription: "The SSH key password.",
+								Type:                types.StringType,
+								Optional:            true,
+								Computed:            true,
+								PlanModifiers: []tfsdk.AttributePlanModifier{
+									modifiers.DefaultValue(types.String{Value: ""}),
+									resource.RequiresReplace(),
+								},
+							},
+							"private_key_path": {
+								Description:         "The absolute path to the private SSH key.",
+								MarkdownDescription: "The absolute path to the private SSH key.",
+								Type:                types.StringType,
+								Optional:            true,
+								Validators: []tfsdk.AttributeValidator{
+									schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("private_key_pem")),
+									schemavalidator.AtLeastOneOf(path.MatchRelative().AtParent().AtName("private_key_pem")),
+								},
+								PlanModifiers: []tfsdk.AttributePlanModifier{
+									resource.RequiresReplace(),
+								},
+							},
+							"private_key_pem": {
+								Description:         "The private SSH key in PEM format.",
+								MarkdownDescription: "The private SSH key in PEM format.",
+								Type:                types.StringType,
+								Optional:            true,
+								Validators: []tfsdk.AttributeValidator{
+									schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("private_key_path")),
+									schemavalidator.AtLeastOneOf(path.MatchRelative().AtParent().AtName("private_key_path")),
+								},
+								PlanModifiers: []tfsdk.AttributePlanModifier{
+									resource.RequiresReplace(),
+								},
+							},
+							"known_hosts": {
+								Description:         "The list of known hosts to accept. If none are specified, system defaults will be used.",
+								MarkdownDescription: "The list of known hosts to accept. If none are specified, system defaults will be used.",
+								Type: types.SetType{
+									ElemType: types.StringType,
+								},
+								Optional: true,
+								PlanModifiers: []tfsdk.AttributePlanModifier{
+									resource.RequiresReplace(),
+								},
+							},
+						}),
+						Validators: []tfsdk.AttributeValidator{
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("basic")),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("bearer")),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ssh_password")),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ssh_agent")),
+							schemavalidator.ExactlyOneOf(
+								path.MatchRelative().AtParent().AtName("basic"),
+								path.MatchRelative().AtParent().AtName("bearer"),
+								path.MatchRelative().AtParent().AtName("ssh_key"),
+								path.MatchRelative().AtParent().AtName("ssh_password"),
+								path.MatchRelative().AtParent().AtName("ssh_agent"),
+							),
+						},
+					},
+					"ssh_password": {
+						Description:         "Configure password based SSH authentication.",
+						MarkdownDescription: "Configure password based SSH authentication.",
+						Optional:            true,
+						Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
+							"username": {
+								Description:         "The SSH username.",
+								MarkdownDescription: "The SSH username.",
+								Type:                types.StringType,
+								Required:            true,
+								PlanModifiers: []tfsdk.AttributePlanModifier{
+									resource.RequiresReplace(),
+								},
+							},
+							"password": {
+								Description:         "The SSH password.",
+								MarkdownDescription: "The SSH password.",
+								Type:                types.StringType,
+								Required:            true,
+								PlanModifiers: []tfsdk.AttributePlanModifier{
+									resource.RequiresReplace(),
+								},
+							},
+							"known_hosts": {
+								Description:         "The list of known hosts to accept. If none are specified, system defaults will be used.",
+								MarkdownDescription: "The list of known hosts to accept. If none are specified, system defaults will be used.",
+								Type: types.SetType{
+									ElemType: types.StringType,
+								},
+								Optional: true,
+								PlanModifiers: []tfsdk.AttributePlanModifier{
+									resource.RequiresReplace(),
+								},
+							},
+						}),
+						Validators: []tfsdk.AttributeValidator{
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("basic")),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("bearer")),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ssh_key")),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ssh_agent")),
+							schemavalidator.ExactlyOneOf(
+								path.MatchRelative().AtParent().AtName("basic"),
+								path.MatchRelative().AtParent().AtName("bearer"),
+								path.MatchRelative().AtParent().AtName("ssh_key"),
+								path.MatchRelative().AtParent().AtName("ssh_password"),
+								path.MatchRelative().AtParent().AtName("ssh_agent"),
+							),
+						},
+						PlanModifiers: []tfsdk.AttributePlanModifier{
+							resource.RequiresReplace(),
+						},
+					},
+					"ssh_agent": {
+						Description:         "Configure SSH agent based authentication.",
+						MarkdownDescription: "Configure SSH agent based authentication.",
+						Optional:            true,
+						Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
+							"username": {
+								Description:         "The system username of the user talking to the SSH agent. Use an empty string in order to automatically fetch this.",
+								MarkdownDescription: "The system username of the user talking to the SSH agent. Use an empty string in order to automatically fetch this.",
+								Type:                types.StringType,
+								Optional:            true,
+								Computed:            true,
+								PlanModifiers: []tfsdk.AttributePlanModifier{
+									modifiers.DefaultValue(types.String{Value: ""}),
+									resource.RequiresReplace(),
+								},
+							},
+							"known_hosts": {
+								Description:         "The list of known hosts to accept. If none are specified, system defaults will be used.",
+								MarkdownDescription: "The list of known hosts to accept. If none are specified, system defaults will be used.",
+								Type: types.SetType{
+									ElemType: types.StringType,
+								},
+								Optional: true,
+								PlanModifiers: []tfsdk.AttributePlanModifier{
+									resource.RequiresReplace(),
+								},
+							},
+						}),
+						Validators: []tfsdk.AttributeValidator{
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("basic")),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("bearer")),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ssh_key")),
+							schemavalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("ssh_password")),
+							schemavalidator.ExactlyOneOf(
+								path.MatchRelative().AtParent().AtName("basic"),
+								path.MatchRelative().AtParent().AtName("bearer"),
+								path.MatchRelative().AtParent().AtName("ssh_key"),
+								path.MatchRelative().AtParent().AtName("ssh_password"),
+								path.MatchRelative().AtParent().AtName("ssh_agent"),
+							),
+						},
+						PlanModifiers: []tfsdk.AttributePlanModifier{
+							resource.RequiresReplace(),
+						},
+					},
+				}),
+				PlanModifiers: []tfsdk.AttributePlanModifier{
+					resource.RequiresReplace(),
+				},
+			},
 		},
 	}, nil
 }
@@ -119,7 +371,7 @@ func (r *PushResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnost
 func (r *PushResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "Create resource git_push")
 
-	var inputs pushResourceModel
+	var inputs PushResourceModel
 	diags := req.Config.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -144,18 +396,12 @@ func (r *PushResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
-	refspecs := make([]config.RefSpec, len(inputs.RefSpecs.Elems))
-	resp.Diagnostics.Append(inputs.RefSpecs.ElementsAs(ctx, &refspecs, false)...)
-	if resp.Diagnostics.HasError() {
+	options := CreatePushOptions(ctx, &inputs, &resp.Diagnostics)
+	if options == nil {
 		return
 	}
 
-	err := repository.PushContext(ctx, &git.PushOptions{
-		RemoteName: inputs.Remote.Value,
-		RefSpecs:   refspecs,
-		Prune:      inputs.Prune.Value,
-		Force:      inputs.Force.Value,
-	})
+	err := repository.PushContext(ctx, options)
 	if err != git.NoErrAlreadyUpToDate && err != nil {
 		resp.Diagnostics.AddError(
 			"Cannot push commits",
@@ -164,13 +410,14 @@ func (r *PushResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
-	var state pushResourceModel
+	var state PushResourceModel
 	state.Directory = inputs.Directory
 	state.Id = types.Int64{Value: time.Now().UnixNano()}
 	state.Remote = inputs.Remote
 	state.RefSpecs = inputs.RefSpecs
 	state.Prune = inputs.Prune
 	state.Force = inputs.Force
+	state.Auth = inputs.Auth
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
