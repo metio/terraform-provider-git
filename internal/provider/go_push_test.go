@@ -375,35 +375,6 @@ func TestCreatePushOptions_Auth_SshAgentAuth_Null(t *testing.T) {
 	assert.Nil(t, options.Auth)
 }
 
-func TestCreatePushOptions_Auth_SshAgentAuth_Username_Empty(t *testing.T) {
-	ctx := context.TODO()
-	model := &provider.PushResourceModel{}
-	diagnostics := &diag.Diagnostics{}
-
-	model.RefSpecs = provider.StringsToList([]string{"refs/heads/main"})
-	model.Auth = types.Object{
-		AttrTypes: map[string]attr.Type{
-			"ssh_agent": types.ObjectType{
-				AttrTypes: map[string]attr.Type{
-					"username":    types.StringType,
-					"known_hosts": types.ListType{ElemType: types.StringType},
-				},
-			},
-		},
-		Attrs: map[string]attr.Value{
-			"ssh_agent": types.Object{
-				Attrs: map[string]attr.Value{
-					"username": types.String{Value: ""},
-				},
-			},
-		},
-	}
-	options := provider.CreatePushOptions(ctx, model, diagnostics)
-
-	assert.Nil(t, options)
-	assert.True(t, diagnostics.HasError())
-}
-
 func TestCreatePushOptions_Auth_SshPasswordAuth_Null(t *testing.T) {
 	ctx := context.TODO()
 	model := &provider.PushResourceModel{}
