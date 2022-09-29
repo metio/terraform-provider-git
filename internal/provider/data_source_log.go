@@ -227,7 +227,7 @@ func (d *LogDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	state.Skip = inputs.Skip
 	state.Order = inputs.Order
 	state.FilterPaths = inputs.FilterPaths
-	state.Commits = stringsToList(hashes)
+	state.Commits = StringsToList(hashes)
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

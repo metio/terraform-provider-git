@@ -171,7 +171,7 @@ func (r *RemoteResource) Read(ctx context.Context, req resource.ReadRequest, res
 	newState.Directory = state.Directory
 	newState.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, name)}
 	newState.Name = state.Name
-	newState.Urls = stringsToList(remote.Config().URLs)
+	newState.Urls = StringsToList(remote.Config().URLs)
 
 	diags = resp.State.Set(ctx, &newState)
 	resp.Diagnostics.Append(diags...)
@@ -315,7 +315,7 @@ func (r *RemoteResource) ImportState(ctx context.Context, req resource.ImportSta
 	state.Directory = types.String{Value: directory}
 	state.Id = types.String{Value: id}
 	state.Name = types.String{Value: name}
-	state.Urls = stringsToList(remote.Config().URLs)
+	state.Urls = StringsToList(remote.Config().URLs)
 
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

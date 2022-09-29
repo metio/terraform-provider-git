@@ -116,7 +116,7 @@ func (d *RemotesDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		allRemotes[remote.Config().Name] = types.Object{
 			AttrTypes: remoteType,
 			Attrs: map[string]attr.Value{
-				"urls": stringsToList(remote.Config().URLs),
+				"urls": StringsToList(remote.Config().URLs),
 			},
 		}
 	}

@@ -20,7 +20,7 @@ func updatedUsingPlan(ctx context.Context, req *resource.UpdateRequest, res *res
 	res.Diagnostics.Append(res.State.Set(ctx, model)...)
 }
 
-func stringsToList(strings []string) types.List {
+func StringsToList(strings []string) types.List {
 	var values []attr.Value
 	for _, url := range strings {
 		values = append(values, types.String{Value: url})
