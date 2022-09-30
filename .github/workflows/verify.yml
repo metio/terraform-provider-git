@@ -70,6 +70,7 @@ jobs:
           - 1.0.*
           - 1.1.*
           - 1.2.*
+          - 1.3.*
     steps:
       - id: checkout
         name: Checkout
@@ -102,6 +103,7 @@ jobs:
           - 1.0.*
           - 1.1.*
           - 1.2.*
+          - 1.3.*
     steps:
       - id: checkout
         name: Checkout
