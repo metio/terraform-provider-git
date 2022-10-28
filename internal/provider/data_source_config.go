@@ -69,7 +69,7 @@ func (d *ConfigDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diag
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.String{Value: "global"}),
+					modifiers.DefaultValue(types.StringValue("global")),
 				},
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.OneOf(
@@ -133,11 +133,11 @@ func (d *ConfigDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	// NOTE: It seems default values for data sources are not working?
 	if inputs.Scope.IsNull() {
-		inputs.Scope = types.String{Value: "global"}
+		inputs.Scope = types.StringValue("global")
 	}
 
-	directory := inputs.Directory.Value
-	scope := inputs.Scope.Value
+	directory := inputs.Directory.ValueString()
+	scope := inputs.Scope.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -161,12 +161,12 @@ func (d *ConfigDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	state.Directory = inputs.Directory
 	state.Id = inputs.Directory
 	state.Scope = inputs.Scope
-	state.UserName = types.String{Value: cfg.User.Name}
-	state.UserEmail = types.String{Value: cfg.User.Email}
-	state.AuthorName = types.String{Value: cfg.Author.Name}
-	state.AuthorEmail = types.String{Value: cfg.Author.Email}
-	state.CommitterName = types.String{Value: cfg.Committer.Name}
-	state.CommitterEmail = types.String{Value: cfg.Committer.Email}
+	state.UserName = types.StringValue(cfg.User.Name)
+	state.UserEmail = types.StringValue(cfg.User.Email)
+	state.AuthorName = types.StringValue(cfg.Author.Name)
+	state.AuthorEmail = types.StringValue(cfg.Author.Email)
+	state.CommitterName = types.StringValue(cfg.Committer.Name)
+	state.CommitterEmail = types.StringValue(cfg.Committer.Email)
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

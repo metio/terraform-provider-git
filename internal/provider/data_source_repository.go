@@ -84,7 +84,7 @@ func (d *RepositoryDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		return
 	}
 
-	directory := inputs.Directory.Value
+	directory := inputs.Directory.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -97,8 +97,8 @@ func (d *RepositoryDataSource) Read(ctx context.Context, req datasource.ReadRequ
 
 	head, err := repository.Head()
 	if err == plumbing.ErrReferenceNotFound {
-		state.SHA1 = types.String{Null: true}
-		state.Branch = types.String{Null: true}
+		state.SHA1 = types.StringNull()
+		state.Branch = types.StringNull()
 	} else if err != nil {
 		resp.Diagnostics.AddError(
 			"Error reading HEAD reference",
@@ -110,11 +110,11 @@ func (d *RepositoryDataSource) Read(ctx context.Context, req datasource.ReadRequ
 			"directory": directory,
 			"head":      head.String(),
 		})
-		state.SHA1 = types.String{Value: head.Hash().String()}
+		state.SHA1 = types.StringValue(head.Hash().String())
 		if head.Name().IsBranch() {
-			state.Branch = types.String{Value: head.Name().Short()}
+			state.Branch = types.StringValue(head.Name().Short())
 		} else {
-			state.Branch = types.String{Null: true}
+			state.Branch = types.StringNull()
 		}
 	}
 

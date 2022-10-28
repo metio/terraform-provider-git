@@ -106,8 +106,8 @@ func (d *TagDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		return
 	}
 
-	directory := inputs.Directory.Value
-	tagName := inputs.Name.Value
+	directory := inputs.Directory.ValueString()
+	tagName := inputs.Name.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -128,15 +128,15 @@ func (d *TagDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	state.Directory = inputs.Directory
 	state.Id = inputs.Name
 	state.Name = inputs.Name
-	state.SHA1 = types.String{Value: tagReference.Hash().String()}
+	state.SHA1 = types.StringValue(tagReference.Hash().String())
 	if tagObject == nil {
-		state.Annotated = types.Bool{Value: false}
-		state.Lightweight = types.Bool{Value: true}
-		state.Message = types.String{Null: true}
+		state.Annotated = types.BoolValue(false)
+		state.Lightweight = types.BoolValue(true)
+		state.Message = types.StringNull()
 	} else {
-		state.Annotated = types.Bool{Value: true}
-		state.Lightweight = types.Bool{Value: false}
-		state.Message = types.String{Value: tagObject.Message}
+		state.Annotated = types.BoolValue(true)
+		state.Lightweight = types.BoolValue(false)
+		state.Message = types.StringValue(tagObject.Message)
 	}
 
 	diags = resp.State.Set(ctx, &state)

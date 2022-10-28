@@ -87,7 +87,7 @@ func (d *RemotesDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		return
 	}
 
-	directory := inputs.Directory.Value
+	directory := inputs.Directory.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -113,22 +113,22 @@ func (d *RemotesDataSource) Read(ctx context.Context, req datasource.ReadRequest
 
 	allRemotes := make(map[string]attr.Value)
 	for _, remote := range remotes {
-		allRemotes[remote.Config().Name] = types.Object{
-			AttrTypes: remoteType,
-			Attrs: map[string]attr.Value{
+		allRemotes[remote.Config().Name] = types.ObjectValueMust(
+			remoteType,
+			map[string]attr.Value{
 				"urls": StringsToList(remote.Config().URLs),
 			},
-		}
+		)
 	}
 
 	state.Directory = inputs.Directory
 	state.Id = inputs.Directory
-	state.Remotes = types.Map{
-		ElemType: types.ObjectType{
+	state.Remotes = types.MapValueMust(
+		types.ObjectType{
 			AttrTypes: remoteType,
 		},
-		Elems: allRemotes,
-	}
+		allRemotes,
+	)
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

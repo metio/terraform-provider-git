@@ -99,7 +99,7 @@ func (d *BranchesDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
-	directory := inputs.Directory.Value
+	directory := inputs.Directory.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -130,24 +130,24 @@ func (d *BranchesDataSource) Read(ctx context.Context, req datasource.ReadReques
 		branch, err := repository.Branch(reference.Name().Short())
 
 		if branch != nil {
-			allBranches[reference.Name().Short()] = types.Object{
-				AttrTypes: branchType,
-				Attrs: map[string]attr.Value{
-					"sha1":   types.String{Value: reference.Hash().String()},
-					"remote": types.String{Value: branch.Remote},
-					"rebase": types.String{Value: branch.Rebase},
+			allBranches[reference.Name().Short()] = types.ObjectValueMust(
+				branchType,
+				map[string]attr.Value{
+					"sha1":   types.StringValue(reference.Hash().String()),
+					"remote": types.StringValue(branch.Remote),
+					"rebase": types.StringValue(branch.Rebase),
 				},
-			}
+			)
 		}
 		if err == git.ErrBranchNotFound {
-			allBranches[reference.Name().Short()] = types.Object{
-				AttrTypes: branchType,
-				Attrs: map[string]attr.Value{
-					"sha1":   types.String{Value: reference.Hash().String()},
-					"remote": types.String{Null: true},
-					"rebase": types.String{Null: true},
+			allBranches[reference.Name().Short()] = types.ObjectValueMust(
+				branchType,
+				map[string]attr.Value{
+					"sha1":   types.StringValue(reference.Hash().String()),
+					"remote": types.StringNull(),
+					"rebase": types.StringNull(),
 				},
-			}
+			)
 			return nil
 		} else {
 			return err
@@ -162,12 +162,12 @@ func (d *BranchesDataSource) Read(ctx context.Context, req datasource.ReadReques
 
 	state.Directory = inputs.Directory
 	state.Id = inputs.Directory
-	state.Branches = types.Map{
-		ElemType: types.ObjectType{
+	state.Branches = types.MapValueMust(
+		types.ObjectType{
 			AttrTypes: branchType,
 		},
-		Elems: allBranches,
-	}
+		allBranches,
+	)
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

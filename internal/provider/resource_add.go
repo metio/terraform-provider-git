@@ -88,7 +88,7 @@ func (r *AddResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	directory := inputs.Directory.Value
+	directory := inputs.Directory.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -112,7 +112,7 @@ func (r *AddResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	paths := make([]string, len(inputs.Paths.Elems))
+	paths := make([]string, len(inputs.Paths.Elements()))
 	resp.Diagnostics.Append(inputs.Paths.ElementsAs(ctx, &paths, false)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -143,7 +143,7 @@ func (r *AddResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 	var state addResourceModel
 	state.Directory = inputs.Directory
-	state.Id = types.Int64{Value: time.Now().UnixNano()}
+	state.Id = types.Int64Value(time.Now().UnixNano())
 	state.Paths = inputs.Paths
 
 	diags = resp.State.Set(ctx, &state)
@@ -188,7 +188,7 @@ func (r *AddResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReq
 		return
 	}
 
-	directory := inputs.Directory.Value
+	directory := inputs.Directory.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -205,7 +205,7 @@ func (r *AddResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReq
 		return
 	}
 
-	paths := make([]string, len(inputs.Paths.Elems))
+	paths := make([]string, len(inputs.Paths.Elements()))
 	resp.Diagnostics.Append(inputs.Paths.ElementsAs(ctx, &paths, false)...)
 	if resp.Diagnostics.HasError() {
 		return

@@ -80,7 +80,7 @@ func (d *LogDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnos
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.String{Value: "time"}),
+					modifiers.DefaultValue(types.StringValue("time")),
 				},
 				Validators: []tfsdk.AttributeValidator{
 					stringvalidator.OneOf(
@@ -97,7 +97,7 @@ func (d *LogDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnos
 				Computed:            true,
 				Optional:            true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.Bool{Value: false}),
+					modifiers.DefaultValue(types.BoolValue(false)),
 				},
 			},
 			"since": {
@@ -167,7 +167,7 @@ func (d *LogDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		return
 	}
 
-	directory := inputs.Directory.Value
+	directory := inputs.Directory.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -191,11 +191,11 @@ func (d *LogDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	err = commits.ForEach(func(c *object.Commit) error {
 		if !inputs.MaxCount.IsNull() && !inputs.MaxCount.IsUnknown() {
 			if !inputs.Skip.IsNull() && !inputs.Skip.IsUnknown() {
-				if int64(len(hashes)) < inputs.MaxCount.Value+inputs.Skip.Value {
+				if int64(len(hashes)) < inputs.MaxCount.ValueInt64()+inputs.Skip.ValueInt64() {
 					hashes = append(hashes, c.Hash.String())
 				}
 			} else {
-				if int64(len(hashes)) < inputs.MaxCount.Value {
+				if int64(len(hashes)) < inputs.MaxCount.ValueInt64() {
 					hashes = append(hashes, c.Hash.String())
 				}
 			}
@@ -212,8 +212,8 @@ func (d *LogDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		return
 	}
 	if !inputs.Skip.IsNull() && !inputs.Skip.IsUnknown() {
-		if int64(len(hashes)) >= inputs.Skip.Value {
-			hashes = hashes[inputs.Skip.Value:]
+		if int64(len(hashes)) >= inputs.Skip.ValueInt64() {
+			hashes = hashes[inputs.Skip.ValueInt64():]
 		}
 	}
 

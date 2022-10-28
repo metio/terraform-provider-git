@@ -89,8 +89,8 @@ func (d *RemoteDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	directory := inputs.Directory.Value
-	remoteName := inputs.Name.Value
+	directory := inputs.Directory.ValueString()
+	remoteName := inputs.Name.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {

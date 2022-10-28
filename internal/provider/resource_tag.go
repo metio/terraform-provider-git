@@ -83,7 +83,7 @@ func (r *TagResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnosti
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.String{Value: "HEAD"}),
+					modifiers.DefaultValue(types.StringValue("HEAD")),
 					resource.RequiresReplace(),
 				},
 			},
@@ -116,8 +116,8 @@ func (r *TagResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	directory := inputs.Directory.Value
-	tagName := inputs.Name.Value
+	directory := inputs.Directory.ValueString()
+	tagName := inputs.Name.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -126,10 +126,10 @@ func (r *TagResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 	// NOTE: It seems default values are not working?
 	if inputs.Revision.IsNull() {
-		inputs.Revision = types.String{Value: "HEAD"}
+		inputs.Revision = types.StringValue("HEAD")
 	}
 
-	hash := resolveRevision(ctx, repository, inputs.Revision.Value, &resp.Diagnostics)
+	hash := resolveRevision(ctx, repository, inputs.Revision.ValueString(), &resp.Diagnostics)
 	if hash == nil {
 		return
 	}
@@ -150,11 +150,11 @@ func (r *TagResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 	var state tagResourceModel
 	state.Directory = inputs.Directory
-	state.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, tagName)}
+	state.Id = types.StringValue(fmt.Sprintf("%s|%s", directory, tagName))
 	state.Name = inputs.Name
 	state.Message = inputs.Message
 	state.Revision = inputs.Revision
-	state.SHA1 = types.String{Value: hash.String()}
+	state.SHA1 = types.StringValue(hash.String())
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -173,8 +173,8 @@ func (r *TagResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	directory := state.Directory.Value
-	tagName := state.Name.Value
+	directory := state.Directory.ValueString()
+	tagName := state.Name.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -195,14 +195,14 @@ func (r *TagResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 
 	var newState tagResourceModel
 	newState.Directory = state.Directory
-	newState.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, tagName)}
+	newState.Id = types.StringValue(fmt.Sprintf("%s|%s", directory, tagName))
 	newState.Name = state.Name
 	newState.Revision = state.Revision
-	newState.SHA1 = types.String{Value: tagReference.Hash().String()}
+	newState.SHA1 = types.StringValue(tagReference.Hash().String())
 	if tagObject == nil {
-		newState.Message = types.String{Null: true}
+		newState.Message = types.StringNull()
 	} else {
-		newState.Message = types.String{Value: strings.TrimSpace(tagObject.Message)}
+		newState.Message = types.StringValue(strings.TrimSpace(tagObject.Message))
 	}
 
 	diags = resp.State.Set(ctx, &newState)
@@ -227,8 +227,8 @@ func (r *TagResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
-	directory := state.Directory.Value
-	tagName := state.Name.Value
+	directory := state.Directory.ValueString()
+	tagName := state.Name.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	err := repository.DeleteTag(tagName)
@@ -281,15 +281,15 @@ func (r *TagResource) ImportState(ctx context.Context, req resource.ImportStateR
 	}
 
 	var state tagResourceModel
-	state.Directory = types.String{Value: directory}
-	state.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, tagName)}
-	state.Name = types.String{Value: tagName}
-	state.Revision = types.String{Value: revision}
-	state.SHA1 = types.String{Value: tagReference.Hash().String()}
+	state.Directory = types.StringValue(directory)
+	state.Id = types.StringValue(fmt.Sprintf("%s|%s", directory, tagName))
+	state.Name = types.StringValue(tagName)
+	state.Revision = types.StringValue(revision)
+	state.SHA1 = types.StringValue(tagReference.Hash().String())
 	if tagObject == nil {
-		state.Message = types.String{Null: true}
+		state.Message = types.StringNull()
 	} else {
-		state.Message = types.String{Value: strings.TrimSpace(tagObject.Message)}
+		state.Message = types.StringValue(strings.TrimSpace(tagObject.Message))
 	}
 
 	diags := resp.State.Set(ctx, &state)

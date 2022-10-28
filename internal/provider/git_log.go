@@ -17,13 +17,13 @@ import (
 func createLogOptions(ctx context.Context, repository *git.Repository, inputs *logDataSourceModel, diag *diag.Diagnostics) *git.LogOptions {
 	logOptions := &git.LogOptions{}
 
-	logOptions.All = inputs.All.Value
+	logOptions.All = inputs.All.ValueBool()
 	tflog.Trace(ctx, "using 'All'", map[string]interface{}{
 		"all": logOptions.All,
 	})
 
 	if !inputs.From.IsNull() && !inputs.From.IsUnknown() {
-		hash := resolveRevision(ctx, repository, inputs.From.Value, diag)
+		hash := resolveRevision(ctx, repository, inputs.From.ValueString(), diag)
 		if hash == nil {
 			return nil
 		}
@@ -34,11 +34,11 @@ func createLogOptions(ctx context.Context, repository *git.Repository, inputs *l
 	}
 
 	if !inputs.Since.IsNull() && !inputs.Since.IsUnknown() {
-		since, err := time.Parse(time.RFC3339, inputs.Since.Value)
+		since, err := time.Parse(time.RFC3339, inputs.Since.ValueString())
 		if err != nil {
 			diag.AddError(
 				"Cannot parse given time",
-				"Could not parse 'since' with value ["+inputs.Since.Value+"] because of: "+err.Error(),
+				"Could not parse 'since' with value ["+inputs.Since.ValueString()+"] because of: "+err.Error(),
 			)
 			return nil
 		}
@@ -49,11 +49,11 @@ func createLogOptions(ctx context.Context, repository *git.Repository, inputs *l
 	}
 
 	if !inputs.Until.IsNull() && !inputs.Until.IsUnknown() {
-		until, err := time.Parse(time.RFC3339, inputs.Until.Value)
+		until, err := time.Parse(time.RFC3339, inputs.Until.ValueString())
 		if err != nil {
 			diag.AddError(
 				"Cannot parse given time",
-				"Could not parse 'until' with value ["+inputs.Until.Value+"] because of: "+err.Error(),
+				"Could not parse 'until' with value ["+inputs.Until.ValueString()+"] because of: "+err.Error(),
 			)
 			return nil
 		}
@@ -64,7 +64,7 @@ func createLogOptions(ctx context.Context, repository *git.Repository, inputs *l
 	}
 
 	if !inputs.Order.IsNull() && !inputs.Order.IsUnknown() {
-		switch inputs.Order.Value {
+		switch inputs.Order.ValueString() {
 		case "depth":
 			logOptions.Order = git.LogOrderDFS
 		case "breadth":
@@ -78,7 +78,7 @@ func createLogOptions(ctx context.Context, repository *git.Repository, inputs *l
 	}
 
 	if !inputs.FilterPaths.IsNull() && !inputs.FilterPaths.IsUnknown() {
-		paths := make([]string, len(inputs.FilterPaths.Elems))
+		paths := make([]string, len(inputs.FilterPaths.Elements()))
 		diag.Append(inputs.FilterPaths.ElementsAs(ctx, &paths, false)...)
 		if diag.HasError() {
 			return nil

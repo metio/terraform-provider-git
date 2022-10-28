@@ -98,15 +98,15 @@ func (r *RemoteResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	directory := inputs.Directory.Value
-	name := inputs.Name.Value
+	directory := inputs.Directory.ValueString()
+	name := inputs.Name.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
 		return
 	}
 
-	urls := make([]string, len(inputs.Urls.Elems))
+	urls := make([]string, len(inputs.Urls.Elements()))
 	resp.Diagnostics.Append(inputs.Urls.ElementsAs(ctx, &urls, false)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -131,7 +131,7 @@ func (r *RemoteResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	var state remoteResourceModel
 	state.Directory = inputs.Directory
-	state.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, name)}
+	state.Id = types.StringValue(fmt.Sprintf("%s|%s", directory, name))
 	state.Name = inputs.Name
 	state.Urls = inputs.Urls
 
@@ -152,8 +152,8 @@ func (r *RemoteResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	directory := state.Directory.Value
-	name := state.Name.Value
+	directory := state.Directory.ValueString()
+	name := state.Name.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -169,7 +169,7 @@ func (r *RemoteResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	var newState remoteResourceModel
 	newState.Directory = state.Directory
-	newState.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, name)}
+	newState.Id = types.StringValue(fmt.Sprintf("%s|%s", directory, name))
 	newState.Name = state.Name
 	newState.Urls = StringsToList(remote.Config().URLs)
 
@@ -191,8 +191,8 @@ func (r *RemoteResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	directory := inputs.Directory.Value
-	name := inputs.Name.Value
+	directory := inputs.Directory.ValueString()
+	name := inputs.Name.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -216,7 +216,7 @@ func (r *RemoteResource) Update(ctx context.Context, req resource.UpdateRequest,
 		"directory": directory,
 	})
 
-	urls := make([]string, len(inputs.Urls.Elems))
+	urls := make([]string, len(inputs.Urls.Elements()))
 	resp.Diagnostics.Append(inputs.Urls.ElementsAs(ctx, &urls, false)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -240,7 +240,7 @@ func (r *RemoteResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	var state remoteResourceModel
 	state.Directory = inputs.Directory
-	state.Id = types.String{Value: fmt.Sprintf("%s|%s", directory, name)}
+	state.Id = types.StringValue(fmt.Sprintf("%s|%s", directory, name))
 	state.Name = inputs.Name
 	state.Urls = inputs.Urls
 
@@ -262,8 +262,8 @@ func (r *RemoteResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	directory := state.Directory.Value
-	name := state.Name.Value
+	directory := state.Directory.ValueString()
+	name := state.Name.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	err := repository.DeleteRemote(name)
@@ -312,9 +312,9 @@ func (r *RemoteResource) ImportState(ctx context.Context, req resource.ImportSta
 	}
 
 	var state remoteResourceModel
-	state.Directory = types.String{Value: directory}
-	state.Id = types.String{Value: id}
-	state.Name = types.String{Value: name}
+	state.Directory = types.StringValue(directory)
+	state.Id = types.StringValue(id)
+	state.Name = types.StringValue(name)
 	state.Urls = StringsToList(remote.Config().URLs)
 
 	diags := resp.State.Set(ctx, &state)

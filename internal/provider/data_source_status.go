@@ -95,8 +95,8 @@ func (d *StatusDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	directory := inputs.Directory.Value
-	fileName := inputs.File.Value
+	directory := inputs.Directory.ValueString()
+	fileName := inputs.File.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -143,8 +143,8 @@ func (d *StatusDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			"staging":   fileStatus.Staging,
 			"worktree":  fileStatus.Worktree,
 		})
-		state.Staging = types.String{Value: string(fileStatus.Staging)}
-		state.Worktree = types.String{Value: string(fileStatus.Worktree)}
+		state.Staging = types.StringValue(string(fileStatus.Staging))
+		state.Worktree = types.StringValue(string(fileStatus.Worktree))
 	}
 
 	diags = resp.State.Set(ctx, &state)

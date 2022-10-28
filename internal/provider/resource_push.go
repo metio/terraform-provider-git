@@ -77,7 +77,7 @@ func (r *PushResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnost
 					stringvalidator.LengthAtLeast(1),
 				},
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.String{Value: "origin"}),
+					modifiers.DefaultValue(types.StringValue("origin")),
 					resource.RequiresReplace(),
 				},
 			},
@@ -99,7 +99,7 @@ func (r *PushResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnost
 				Computed:            true,
 				Optional:            true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.Bool{Value: false}),
+					modifiers.DefaultValue(types.BoolValue(false)),
 					resource.RequiresReplace(),
 				},
 			},
@@ -110,7 +110,7 @@ func (r *PushResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnost
 				Computed:            true,
 				Optional:            true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.Bool{Value: false}),
+					modifiers.DefaultValue(types.BoolValue(false)),
 					resource.RequiresReplace(),
 				},
 			},
@@ -195,7 +195,7 @@ func (r *PushResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnost
 								Optional:            true,
 								Computed:            true,
 								PlanModifiers: []tfsdk.AttributePlanModifier{
-									modifiers.DefaultValue(types.String{Value: "git"}),
+									modifiers.DefaultValue(types.StringValue("git")),
 									resource.RequiresReplace(),
 								},
 							},
@@ -206,7 +206,7 @@ func (r *PushResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnost
 								Optional:            true,
 								Computed:            true,
 								PlanModifiers: []tfsdk.AttributePlanModifier{
-									modifiers.DefaultValue(types.String{Value: ""}),
+									modifiers.DefaultValue(types.StringValue("")),
 									resource.RequiresReplace(),
 								},
 							},
@@ -380,16 +380,16 @@ func (r *PushResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 	// NOTE: It seems default values are not working?
 	if inputs.Remote.IsNull() {
-		inputs.Remote = types.String{Value: "origin"}
+		inputs.Remote = types.StringValue("origin")
 	}
 	if inputs.Prune.IsNull() {
-		inputs.Prune = types.Bool{Value: false}
+		inputs.Prune = types.BoolValue(false)
 	}
 	if inputs.Force.IsNull() {
-		inputs.Force = types.Bool{Value: false}
+		inputs.Force = types.BoolValue(false)
 	}
 
-	directory := inputs.Directory.Value
+	directory := inputs.Directory.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -412,7 +412,7 @@ func (r *PushResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 	var state PushResourceModel
 	state.Directory = inputs.Directory
-	state.Id = types.Int64{Value: time.Now().UnixNano()}
+	state.Id = types.Int64Value(time.Now().UnixNano())
 	state.Remote = inputs.Remote
 	state.RefSpecs = inputs.RefSpecs
 	state.Prune = inputs.Prune

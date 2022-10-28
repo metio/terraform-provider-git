@@ -88,7 +88,7 @@ func (r *CommitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagno
 				Computed:            true,
 				Optional:            true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.Bool{Value: false}),
+					modifiers.DefaultValue(types.BoolValue(false)),
 					resource.RequiresReplace(),
 				},
 			},
@@ -170,7 +170,7 @@ func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	directory := inputs.Directory.Value
+	directory := inputs.Directory.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -191,7 +191,7 @@ func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	// NOTE: It seems default values are not working?
 	if inputs.All.IsNull() {
-		inputs.All = types.Bool{Value: false}
+		inputs.All = types.BoolValue(false)
 	}
 
 	status, err := worktree.Status()
@@ -201,17 +201,17 @@ func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	var state commitResourceModel
 	state.Directory = inputs.Directory
-	state.Id = types.Int64{Value: time.Now().UnixNano()}
+	state.Id = types.Int64Value(time.Now().UnixNano())
 	state.All = inputs.All
 	state.Message = inputs.Message
 	state.Author = inputs.Author
 	state.Committer = inputs.Committer
-	state.Files = types.List{ElemType: types.StringType}
+	state.Files = types.ListNull(types.StringType)
 
 	if !status.IsClean() {
 		options := createCommitOptions(ctx, inputs)
 
-		hash := createCommit(worktree, inputs.Message.Value, options, &resp.Diagnostics)
+		hash := createCommit(worktree, inputs.Message.ValueString(), options, &resp.Diagnostics)
 		if hash == nil {
 			return
 		}
@@ -224,7 +224,7 @@ func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest,
 		state.Author = signatureToObjectWithoutTimestamp(&commitObject.Author)
 		state.Committer = signatureToObjectWithoutTimestamp(&commitObject.Committer)
 		state.Files = StringsToList(extractModifiedFiles(commitObject))
-		state.SHA1 = types.String{Value: hash.String()}
+		state.SHA1 = types.StringValue(hash.String())
 	}
 
 	diags = resp.State.Set(ctx, &state)
@@ -269,8 +269,8 @@ func (r *CommitResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 		return
 	}
 
-	directory := inputs.Directory.Value
-	all := inputs.All.Value
+	directory := inputs.Directory.ValueString()
+	all := inputs.All.ValueBool()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {

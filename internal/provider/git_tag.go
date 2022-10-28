@@ -19,7 +19,7 @@ func createTagOptions(inputs tagResourceModel) *git.CreateTagOptions {
 		return nil
 	}
 	return &git.CreateTagOptions{
-		Message: inputs.Message.Value,
+		Message: inputs.Message.ValueString(),
 	}
 }
 
