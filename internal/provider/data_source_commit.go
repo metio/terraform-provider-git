@@ -168,8 +168,8 @@ func (d *CommitDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	directory := inputs.Directory.Value
-	revision := inputs.Revision.Value
+	directory := inputs.Directory.ValueString()
+	revision := inputs.Revision.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -190,10 +190,10 @@ func (d *CommitDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	state.Directory = inputs.Directory
 	state.Id = inputs.Revision
 	state.Revision = inputs.Revision
-	state.SHA1 = types.String{Value: commitObject.Hash.String()}
-	state.Message = types.String{Value: commitObject.Message}
-	state.Signature = types.String{Value: commitObject.PGPSignature}
-	state.TreeSHA1 = types.String{Value: commitObject.TreeHash.String()}
+	state.SHA1 = types.StringValue(commitObject.Hash.String())
+	state.Message = types.StringValue(commitObject.Message)
+	state.Signature = types.StringValue(commitObject.PGPSignature)
+	state.TreeSHA1 = types.StringValue(commitObject.TreeHash.String())
 	state.Author = signatureToObject(&commitObject.Author)
 	state.Committer = signatureToObject(&commitObject.Committer)
 	state.Files = StringsToList(extractModifiedFiles(commitObject))

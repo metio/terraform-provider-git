@@ -67,7 +67,7 @@ func (d *TagsDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagno
 				Required:            false,
 				Optional:            true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.Bool{Value: true}),
+					modifiers.DefaultValue(types.BoolValue(true)),
 				},
 			},
 			"lightweight": {
@@ -77,7 +77,7 @@ func (d *TagsDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagno
 				Required:            false,
 				Optional:            true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.Bool{Value: true}),
+					modifiers.DefaultValue(types.BoolValue(true)),
 				},
 			},
 			"tags": {
@@ -121,7 +121,7 @@ func (d *TagsDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		return
 	}
 
-	directory := inputs.Directory.Value
+	directory := inputs.Directory.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -143,10 +143,10 @@ func (d *TagsDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 
 	// NOTE: It seems default values for data sources are not working?
 	if inputs.Annotated.IsNull() {
-		inputs.Annotated = types.Bool{Value: true}
+		inputs.Annotated = types.BoolValue(true)
 	}
 	if inputs.Lightweight.IsNull() {
-		inputs.Lightweight = types.Bool{Value: true}
+		inputs.Lightweight = types.BoolValue(true)
 	}
 
 	tagType := map[string]attr.Type{
@@ -162,25 +162,25 @@ func (d *TagsDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 			return err
 		}
 
-		if inputs.Annotated.Value && tagObject != nil {
-			allTags[ref.Name().Short()] = types.Object{
-				AttrTypes: tagType,
-				Attrs: map[string]attr.Value{
-					"annotated":   types.Bool{Value: true},
-					"lightweight": types.Bool{Value: false},
-					"sha1":        types.String{Value: ref.Hash().String()},
+		if inputs.Annotated.ValueBool() && tagObject != nil {
+			allTags[ref.Name().Short()] = types.ObjectValueMust(
+				tagType,
+				map[string]attr.Value{
+					"annotated":   types.BoolValue(true),
+					"lightweight": types.BoolValue(false),
+					"sha1":        types.StringValue(ref.Hash().String()),
 				},
-			}
+			)
 		}
-		if inputs.Lightweight.Value && tagObject == nil {
-			allTags[ref.Name().Short()] = types.Object{
-				AttrTypes: tagType,
-				Attrs: map[string]attr.Value{
-					"annotated":   types.Bool{Value: false},
-					"lightweight": types.Bool{Value: true},
-					"sha1":        types.String{Value: ref.Hash().String()},
+		if inputs.Lightweight.ValueBool() && tagObject == nil {
+			allTags[ref.Name().Short()] = types.ObjectValueMust(
+				tagType,
+				map[string]attr.Value{
+					"annotated":   types.BoolValue(false),
+					"lightweight": types.BoolValue(true),
+					"sha1":        types.StringValue(ref.Hash().String()),
 				},
-			}
+			)
 		}
 
 		return nil
@@ -196,12 +196,12 @@ func (d *TagsDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 	state.Id = inputs.Directory
 	state.Annotated = inputs.Annotated
 	state.Lightweight = inputs.Lightweight
-	state.Tags = types.Map{
-		ElemType: types.ObjectType{
+	state.Tags = types.MapValueMust(
+		types.ObjectType{
 			AttrTypes: tagType,
 		},
-		Elems: allTags,
-	}
+		allTags,
+	)
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

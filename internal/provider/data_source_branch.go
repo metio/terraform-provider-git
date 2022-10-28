@@ -103,8 +103,8 @@ func (d *BranchDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	directory := inputs.Directory.Value
-	name := inputs.Name.Value
+	directory := inputs.Directory.ValueString()
+	name := inputs.Name.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -119,18 +119,18 @@ func (d *BranchDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		)
 		return
 	}
-	state.SHA1 = types.String{Unknown: true}
+	state.SHA1 = types.StringUnknown()
 	if err := branches.ForEach(func(ref *plumbing.Reference) error {
 		if ref.Name().Short() == name {
-			state.SHA1 = types.String{Value: ref.Hash().String()}
+			state.SHA1 = types.StringValue(ref.Hash().String())
 
 			branch, err := repository.Branch(name)
 			if branch != nil {
-				state.Remote = types.String{Value: branch.Remote}
-				state.Rebase = types.String{Value: branch.Rebase}
+				state.Remote = types.StringValue(branch.Remote)
+				state.Rebase = types.StringValue(branch.Rebase)
 			} else if err == git.ErrBranchNotFound {
-				state.Remote = types.String{Null: true}
-				state.Rebase = types.String{Null: true}
+				state.Remote = types.StringNull()
+				state.Rebase = types.StringNull()
 			} else if err != nil {
 				resp.Diagnostics.AddError(
 					"Cannot read branch",

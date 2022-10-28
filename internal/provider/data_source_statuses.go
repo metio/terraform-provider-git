@@ -98,7 +98,7 @@ func (d *StatusesDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
-	directory := inputs.Directory.Value
+	directory := inputs.Directory.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
@@ -120,13 +120,13 @@ func (d *StatusesDataSource) Read(ctx context.Context, req datasource.ReadReques
 		tflog.Trace(ctx, "read worktree of bare repository", map[string]interface{}{
 			"directory": directory,
 		})
-		state.IsClean = types.Bool{Value: true}
-		state.Files = types.Map{
-			ElemType: types.ObjectType{
+		state.IsClean = types.BoolValue(true)
+		state.Files = types.MapValueMust(
+			types.ObjectType{
 				AttrTypes: statusType,
 			},
-			Elems: map[string]attr.Value{},
-		}
+			map[string]attr.Value{},
+		)
 	} else {
 		tflog.Trace(ctx, "read worktree", map[string]interface{}{
 			"directory": directory,
@@ -144,24 +144,24 @@ func (d *StatusesDataSource) Read(ctx context.Context, req datasource.ReadReques
 			"directory": directory,
 			"status":    status.String(),
 		})
-		state.IsClean = types.Bool{Value: status.IsClean()}
+		state.IsClean = types.BoolValue(status.IsClean())
 
 		allFiles := make(map[string]attr.Value)
 		for key, val := range status {
-			allFiles[key] = types.Object{
-				AttrTypes: statusType,
-				Attrs: map[string]attr.Value{
+			allFiles[key] = types.ObjectValueMust(
+				statusType,
+				map[string]attr.Value{
 					"staging":  types.String{Value: string(val.Staging)},
 					"worktree": types.String{Value: string(val.Worktree)},
 				},
-			}
+			)
 		}
-		state.Files = types.Map{
-			ElemType: types.ObjectType{
+		state.Files = types.MapValueMust(
+			types.ObjectType{
 				AttrTypes: statusType,
 			},
-			Elems: allFiles,
-		}
+			allFiles,
+		)
 	}
 
 	diags = resp.State.Set(ctx, &state)

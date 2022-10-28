@@ -21,8 +21,8 @@ import (
 func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *diag.Diagnostics) *git.PushOptions {
 	options := &git.PushOptions{}
 
-	if len(inputs.RefSpecs.Elems) > 0 {
-		refSpecs := make([]config.RefSpec, len(inputs.RefSpecs.Elems))
+	if len(inputs.RefSpecs.Elements()) > 0 {
+		refSpecs := make([]config.RefSpec, len(inputs.RefSpecs.Elements()))
 		diag.Append(inputs.RefSpecs.ElementsAs(ctx, &refSpecs, false)...)
 		if diag.HasError() {
 			return nil
@@ -35,52 +35,52 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 		return nil
 	}
 
-	options.RemoteName = inputs.Remote.Value
+	options.RemoteName = inputs.Remote.ValueString()
 	tflog.Trace(ctx, "using 'RemoteName'", map[string]interface{}{
-		"RemoteName": inputs.Remote.Value,
+		"RemoteName": inputs.Remote.ValueString(),
 	})
 
-	options.Prune = inputs.Prune.Value
+	options.Prune = inputs.Prune.ValueBool()
 	tflog.Trace(ctx, "using 'Prune'", map[string]interface{}{
-		"Prune": inputs.Prune.Value,
+		"Prune": inputs.Prune.ValueBool(),
 	})
 
-	options.Force = inputs.Force.Value
+	options.Force = inputs.Force.ValueBool()
 	tflog.Trace(ctx, "using 'Force'", map[string]interface{}{
-		"Force": inputs.Force.Value,
+		"Force": inputs.Force.ValueBool(),
 	})
 
 	if !inputs.Auth.IsNull() {
-		basicAuth, basicOk := inputs.Auth.Attrs["basic"].(types.Object)
-		bearerAuth, bearerOk := inputs.Auth.Attrs["bearer"].(types.String)
-		sshKeyAuth, sshKeyOk := inputs.Auth.Attrs["ssh_key"].(types.Object)
-		sshAgentAuth, sshAgentOk := inputs.Auth.Attrs["ssh_agent"].(types.Object)
-		sshPasswordAuth, sshPasswordOk := inputs.Auth.Attrs["ssh_password"].(types.Object)
+		basicAuth, basicOk := inputs.Auth.Attributes()["basic"].(types.Object)
+		bearerAuth, bearerOk := inputs.Auth.Attributes()["bearer"].(types.String)
+		sshKeyAuth, sshKeyOk := inputs.Auth.Attributes()["ssh_key"].(types.Object)
+		sshAgentAuth, sshAgentOk := inputs.Auth.Attributes()["ssh_agent"].(types.Object)
+		sshPasswordAuth, sshPasswordOk := inputs.Auth.Attributes()["ssh_password"].(types.Object)
 
 		if basicOk && !basicAuth.IsNull() {
-			username := basicAuth.Attrs["username"].(types.String)
-			password := basicAuth.Attrs["password"].(types.String)
+			username := basicAuth.Attributes()["username"].(types.String)
+			password := basicAuth.Attributes()["password"].(types.String)
 
 			options.Auth = &http.BasicAuth{
-				Username: username.Value,
-				Password: password.Value,
+				Username: username.ValueString(),
+				Password: password.ValueString(),
 			}
 		} else if bearerOk && !bearerAuth.IsNull() {
 			options.Auth = &http.TokenAuth{
-				Token: bearerAuth.Value,
+				Token: bearerAuth.ValueString(),
 			}
 		} else if sshKeyOk && !sshKeyAuth.IsNull() {
-			username := sshKeyAuth.Attrs["username"].(types.String)
-			password := sshKeyAuth.Attrs["password"].(types.String)
+			username := sshKeyAuth.Attributes()["username"].(types.String)
+			password := sshKeyAuth.Attributes()["password"].(types.String)
 
 			var sshKeys *ssh.PublicKeys
 			var err error
-			if sshKeyAuth.Attrs["private_key_path"] != nil {
-				keyPath := sshKeyAuth.Attrs["private_key_path"].(types.String)
-				sshKeys, err = ssh.NewPublicKeysFromFile(username.Value, keyPath.Value, password.Value)
-			} else if sshKeyAuth.Attrs["private_key_pem"] != nil {
-				keyPem := sshKeyAuth.Attrs["private_key_pem"].(types.String)
-				sshKeys, err = ssh.NewPublicKeys(username.Value, []byte(keyPem.Value), password.Value)
+			if sshKeyAuth.Attributes()["private_key_path"] != nil {
+				keyPath := sshKeyAuth.Attributes()["private_key_path"].(types.String)
+				sshKeys, err = ssh.NewPublicKeysFromFile(username.ValueString(), keyPath.ValueString(), password.ValueString())
+			} else if sshKeyAuth.Attributes()["private_key_pem"] != nil {
+				keyPem := sshKeyAuth.Attributes()["private_key_pem"].(types.String)
+				sshKeys, err = ssh.NewPublicKeys(username.ValueString(), []byte(keyPem.ValueString()), password.ValueString())
 			} else {
 				diag.AddError(
 					"Invalid SSH key configuration",
@@ -102,9 +102,9 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 
 			options.Auth = sshKeys
 		} else if sshAgentOk && !sshAgentAuth.IsNull() {
-			username := sshAgentAuth.Attrs["username"].(types.String)
+			username := sshAgentAuth.Attributes()["username"].(types.String)
 
-			agentAuth, err := ssh.NewSSHAgentAuth(username.Value)
+			agentAuth, err := ssh.NewSSHAgentAuth(username.ValueString())
 			if err != nil {
 				diag.AddError(
 					"Cannot use SSH agent authentication",
@@ -119,12 +119,12 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 
 			options.Auth = agentAuth
 		} else if sshPasswordOk && !sshPasswordAuth.IsNull() {
-			username := sshPasswordAuth.Attrs["username"].(types.String)
-			password := sshPasswordAuth.Attrs["password"].(types.String)
+			username := sshPasswordAuth.Attributes()["username"].(types.String)
+			password := sshPasswordAuth.Attributes()["password"].(types.String)
 
 			passwordAuth := &ssh.Password{
-				User:     username.Value,
-				Password: password.Value,
+				User:     username.ValueString(),
+				Password: password.ValueString(),
 			}
 
 			if callback := knownHostsCallback(ctx, sshPasswordAuth, diag); callback != nil {
@@ -139,9 +139,9 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 }
 
 func knownHostsCallback(ctx context.Context, object types.Object, diag *diag.Diagnostics) ssh2.HostKeyCallback {
-	knownHosts, ok := object.Attrs["known_hosts"].(types.Set)
+	knownHosts, ok := object.Attributes()["known_hosts"].(types.Set)
 	if ok && !knownHosts.IsNull() {
-		hosts := make([]string, len(knownHosts.Elems))
+		hosts := make([]string, len(knownHosts.Elements()))
 		diag.Append(knownHosts.ElementsAs(ctx, &hosts, false)...)
 		if diag.HasError() {
 			return nil

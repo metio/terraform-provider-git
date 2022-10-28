@@ -71,7 +71,7 @@ func (r *InitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnost
 				Computed:            true,
 				Optional:            true,
 				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.Bool{Value: false}),
+					modifiers.DefaultValue(types.BoolValue(false)),
 					resource.RequiresReplace(),
 				},
 			},
@@ -93,11 +93,11 @@ func (r *InitResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 	// NOTE: It seems default values are not working?
 	if inputs.Bare.IsNull() {
-		inputs.Bare = types.Bool{Value: false}
+		inputs.Bare = types.BoolValue(false)
 	}
 
-	directory := inputs.Directory.Value
-	bare := inputs.Bare.Value
+	directory := inputs.Directory.ValueString()
+	bare := inputs.Bare.ValueBool()
 
 	_, err := git.PlainInit(directory, bare)
 	if err != nil {
@@ -134,7 +134,7 @@ func (r *InitResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	directory := state.Directory.Value
+	directory := state.Directory.ValueString()
 
 	var newState initResourceModel
 	newState.Directory = state.Directory
@@ -149,7 +149,7 @@ func (r *InitResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	if err != nil {
 		return
 	}
-	newState.Bare = types.Bool{Value: worktree == nil}
+	newState.Bare = types.BoolValue(worktree == nil)
 
 	diags = resp.State.Set(ctx, &newState)
 	resp.Diagnostics.Append(diags...)
@@ -173,8 +173,8 @@ func (r *InitResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 		return
 	}
 
-	directory := state.Directory.Value
-	bare := state.Bare.Value
+	directory := state.Directory.ValueString()
+	bare := state.Bare.ValueBool()
 
 	if !bare {
 		repository := openRepository(ctx, directory, &resp.Diagnostics)
@@ -208,8 +208,8 @@ func (r *InitResource) ImportState(ctx context.Context, req resource.ImportState
 	}
 
 	var state initResourceModel
-	state.Directory = types.String{Value: req.ID}
-	state.Id = types.String{Value: req.ID}
+	state.Directory = types.StringValue(req.ID)
+	state.Id = types.StringValue(req.ID)
 
 	repository := openRepository(ctx, req.ID, &resp.Diagnostics)
 	if repository == nil {
@@ -219,7 +219,7 @@ func (r *InitResource) ImportState(ctx context.Context, req resource.ImportState
 	if err != nil {
 		return
 	}
-	state.Bare = types.Bool{Value: worktree == nil}
+	state.Bare = types.BoolValue(worktree == nil)
 
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

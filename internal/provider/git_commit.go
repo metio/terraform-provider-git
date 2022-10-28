@@ -19,53 +19,53 @@ func signatureToObject(signature *object.Signature) types.Object {
 	data := make(map[string]attr.Value)
 
 	if signature != nil {
-		data["name"] = types.String{Value: signature.Name}
-		data["email"] = types.String{Value: signature.Email}
-		data["timestamp"] = types.String{Value: signature.When.Format(time.RFC3339)}
+		data["name"] = types.StringValue(signature.Name)
+		data["email"] = types.StringValue(signature.Email)
+		data["timestamp"] = types.StringValue(signature.When.Format(time.RFC3339))
 	} else {
-		data["name"] = types.String{Null: true}
-		data["email"] = types.String{Null: true}
-		data["timestamp"] = types.String{Null: true}
+		data["name"] = types.StringNull()
+		data["email"] = types.StringNull()
+		data["timestamp"] = types.StringNull()
 	}
 
-	return types.Object{
-		AttrTypes: map[string]attr.Type{
+	return types.ObjectValueMust(
+		map[string]attr.Type{
 			"name":      types.StringType,
 			"email":     types.StringType,
 			"timestamp": types.StringType,
 		},
-		Attrs: data,
-	}
+		data,
+	)
 }
 
 func signatureToObjectWithoutTimestamp(signature *object.Signature) types.Object {
 	data := make(map[string]attr.Value)
 
-	data["name"] = types.String{Null: true}
-	data["email"] = types.String{Null: true}
+	data["name"] = types.StringNull()
+	data["email"] = types.StringNull()
 
 	if signature != nil {
 		if signature.Name != "" {
-			data["name"] = types.String{Value: signature.Name}
+			data["name"] = types.StringValue(signature.Name)
 		}
 		if signature.Email != "" {
-			data["email"] = types.String{Value: signature.Email}
+			data["email"] = types.StringValue(signature.Email)
 		}
 	}
 
-	return types.Object{
-		AttrTypes: map[string]attr.Type{
+	return types.ObjectValueMust(
+		map[string]attr.Type{
 			"name":  types.StringType,
 			"email": types.StringType,
 		},
-		Attrs: data,
-	}
+		data,
+	)
 }
 
 func createCommitOptions(ctx context.Context, inputs commitResourceModel) *git.CommitOptions {
 	options := &git.CommitOptions{}
 
-	options.All = inputs.All.Value
+	options.All = inputs.All.ValueBool()
 	tflog.Trace(ctx, "using 'All'", map[string]interface{}{
 		"all": options.All,
 	})
@@ -92,14 +92,14 @@ func createCommitOptions(ctx context.Context, inputs commitResourceModel) *git.C
 func objectToSignature(obj *types.Object) *object.Signature {
 	sig := &object.Signature{When: time.Now()}
 
-	name := obj.Attrs["name"].(types.String)
+	name := obj.Attributes()["name"].(types.String)
 	if !name.IsNull() {
-		sig.Name = name.Value
+		sig.Name = name.ValueString()
 	}
 
-	email := obj.Attrs["email"].(types.String)
+	email := obj.Attributes()["email"].(types.String)
 	if !email.IsNull() {
-		sig.Email = email.Value
+		sig.Email = email.ValueString()
 	}
 
 	return sig
