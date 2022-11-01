@@ -139,22 +139,21 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 }
 
 func knownHostsCallback(ctx context.Context, object types.Object, diag *diag.Diagnostics) ssh2.HostKeyCallback {
+	var hosts []string
 	knownHosts, ok := object.Attributes()["known_hosts"].(types.Set)
 	if ok && !knownHosts.IsNull() {
-		hosts := make([]string, len(knownHosts.Elements()))
 		diag.Append(knownHosts.ElementsAs(ctx, &hosts, false)...)
 		if diag.HasError() {
 			return nil
 		}
-		callback, err := knownhosts.New(hosts...)
-		if err != nil {
-			diag.AddError(
-				"Cannot use given known hosts",
-				"Known hosts configuration failed because of: "+err.Error(),
-			)
-			return nil
-		}
-		return callback
 	}
-	return nil
+	callback, err := knownhosts.New(hosts...)
+	if err != nil {
+		diag.AddError(
+			"Cannot use given known hosts",
+			"Known hosts configuration failed because of: "+err.Error(),
+		)
+		return nil
+	}
+	return callback
 }
