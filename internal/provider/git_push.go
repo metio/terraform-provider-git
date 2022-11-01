@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	ssh2 "golang.org/x/crypto/ssh"
-	"golang.org/x/crypto/ssh/knownhosts"
 )
 
 func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *diag.Diagnostics) *git.PushOptions {
@@ -139,21 +138,21 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 }
 
 func knownHostsCallback(ctx context.Context, object types.Object, diag *diag.Diagnostics) ssh2.HostKeyCallback {
-	var hosts []string
+	var files []string
 	knownHosts, ok := object.Attributes()["known_hosts"].(types.Set)
 	if ok && !knownHosts.IsNull() {
-		diag.Append(knownHosts.ElementsAs(ctx, &hosts, false)...)
+		diag.Append(knownHosts.ElementsAs(ctx, &files, false)...)
 		if diag.HasError() {
 			return nil
 		}
 	}
-	callback, err := knownhosts.New(hosts...)
+	callback, err := ssh.NewKnownHostsCallback(files...)
 	if err != nil {
-		diag.AddError(
-			"Cannot use given known hosts",
+		diag.AddWarning(
+			"Cannot use given known hosts - ",
 			"Known hosts configuration failed because of: "+err.Error(),
 		)
-		return nil
+		return ssh2.InsecureIgnoreHostKey()
 	}
 	return callback
 }
