@@ -137,26 +137,18 @@ func (d *ConfigDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 
 	directory := inputs.Directory.ValueString()
-	scope := inputs.Scope.ValueString()
 
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
 		return
 	}
 
-	cfg, err := repository.ConfigScoped(mapConfigScope(scope))
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error reading config",
-			"Could not read git config because of: "+err.Error(),
-		)
+	scope := inputs.Scope.ValueString()
+
+	cfg := readConfig(ctx, repository, scope, &resp.Diagnostics)
+	if cfg == nil {
 		return
 	}
-
-	tflog.Trace(ctx, "read config", map[string]interface{}{
-		"directory": directory,
-		"scope":     scope,
-	})
 
 	state.Directory = inputs.Directory
 	state.Id = inputs.Directory

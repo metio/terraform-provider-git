@@ -110,7 +110,7 @@ func (r *TagResource) Create(ctx context.Context, req resource.CreateRequest, re
 	tflog.Debug(ctx, "Create resource git_tag")
 
 	var inputs tagResourceModel
-	diags := req.Config.Get(ctx, &inputs)
+	diags := req.Plan.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -122,11 +122,6 @@ func (r *TagResource) Create(ctx context.Context, req resource.CreateRequest, re
 	repository := openRepository(ctx, directory, &resp.Diagnostics)
 	if repository == nil {
 		return
-	}
-
-	// NOTE: It seems default values are not working?
-	if inputs.Revision.IsNull() {
-		inputs.Revision = types.StringValue("HEAD")
 	}
 
 	hash := resolveRevision(ctx, repository, inputs.Revision.ValueString(), &resp.Diagnostics)

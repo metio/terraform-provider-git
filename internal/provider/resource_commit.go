@@ -223,7 +223,7 @@ func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest,
 
 		state.Author = signatureToObjectWithoutTimestamp(&commitObject.Author)
 		state.Committer = signatureToObjectWithoutTimestamp(&commitObject.Committer)
-		state.Files = StringsToList(extractModifiedFiles(commitObject))
+		state.Files, _ = types.ListValueFrom(ctx, types.StringType, extractModifiedFiles(commitObject))
 		state.SHA1 = types.StringValue(hash.String())
 	}
 

@@ -92,7 +92,7 @@ func (r *RemoteResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	var inputs remoteResourceModel
 
-	diags := req.Config.Get(ctx, &inputs)
+	diags := req.Plan.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -171,7 +171,7 @@ func (r *RemoteResource) Read(ctx context.Context, req resource.ReadRequest, res
 	newState.Directory = state.Directory
 	newState.Id = types.StringValue(fmt.Sprintf("%s|%s", directory, name))
 	newState.Name = state.Name
-	newState.Urls = StringsToList(remote.Config().URLs)
+	newState.Urls, _ = types.ListValueFrom(ctx, types.StringType, remote.Config().URLs)
 
 	diags = resp.State.Set(ctx, &newState)
 	resp.Diagnostics.Append(diags...)
@@ -185,7 +185,7 @@ func (r *RemoteResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	var inputs remoteResourceModel
 
-	diags := req.Config.Get(ctx, &inputs)
+	diags := req.Plan.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -315,7 +315,7 @@ func (r *RemoteResource) ImportState(ctx context.Context, req resource.ImportSta
 	state.Directory = types.StringValue(directory)
 	state.Id = types.StringValue(id)
 	state.Name = types.StringValue(name)
-	state.Urls = StringsToList(remote.Config().URLs)
+	state.Urls, _ = types.ListValueFrom(ctx, types.StringType, remote.Config().URLs)
 
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
