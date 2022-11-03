@@ -113,10 +113,15 @@ func (d *RemotesDataSource) Read(ctx context.Context, req datasource.ReadRequest
 
 	allRemotes := make(map[string]attr.Value)
 	for _, remote := range remotes {
+		list, diags := types.ListValueFrom(ctx, types.StringType, remote.Config().URLs)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 		allRemotes[remote.Config().Name] = types.ObjectValueMust(
 			remoteType,
 			map[string]attr.Value{
-				"urls": StringsToList(remote.Config().URLs),
+				"urls": list,
 			},
 		)
 	}

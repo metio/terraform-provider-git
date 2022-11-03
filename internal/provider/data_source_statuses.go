@@ -151,8 +151,8 @@ func (d *StatusesDataSource) Read(ctx context.Context, req datasource.ReadReques
 			allFiles[key] = types.ObjectValueMust(
 				statusType,
 				map[string]attr.Value{
-					"staging":  types.String{Value: string(val.Staging)},
-					"worktree": types.String{Value: string(val.Worktree)},
+					"staging":  types.StringValue(string(val.Staging)),
+					"worktree": types.StringValue(string(val.Worktree)),
 				},
 			)
 		}

@@ -196,7 +196,7 @@ func (d *CommitDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	state.TreeSHA1 = types.StringValue(commitObject.TreeHash.String())
 	state.Author = signatureToObject(&commitObject.Author)
 	state.Committer = signatureToObject(&commitObject.Committer)
-	state.Files = StringsToList(extractModifiedFiles(commitObject))
+	state.Files, _ = types.ListValueFrom(ctx, types.StringType, extractModifiedFiles(commitObject))
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

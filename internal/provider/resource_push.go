@@ -326,7 +326,7 @@ func (r *PushResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnost
 								Optional:            true,
 								Computed:            true,
 								PlanModifiers: []tfsdk.AttributePlanModifier{
-									modifiers.DefaultValue(types.String{Value: ""}),
+									modifiers.DefaultValue(types.StringValue("")),
 									resource.RequiresReplace(),
 								},
 							},
@@ -372,21 +372,10 @@ func (r *PushResource) Create(ctx context.Context, req resource.CreateRequest, r
 	tflog.Debug(ctx, "Create resource git_push")
 
 	var inputs PushResourceModel
-	diags := req.Config.Get(ctx, &inputs)
+	diags := req.Plan.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
-	}
-
-	// NOTE: It seems default values are not working?
-	if inputs.Remote.IsNull() {
-		inputs.Remote = types.StringValue("origin")
-	}
-	if inputs.Prune.IsNull() {
-		inputs.Prune = types.BoolValue(false)
-	}
-	if inputs.Force.IsNull() {
-		inputs.Force = types.BoolValue(false)
 	}
 
 	directory := inputs.Directory.ValueString()

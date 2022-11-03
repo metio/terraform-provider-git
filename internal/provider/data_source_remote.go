@@ -105,7 +105,7 @@ func (d *RemoteDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	state.Directory = inputs.Directory
 	state.Id = inputs.Name
 	state.Name = inputs.Name
-	state.URLs = StringsToList(remote.Config().URLs)
+	state.URLs, _ = types.ListValueFrom(ctx, types.StringType, remote.Config().URLs)
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

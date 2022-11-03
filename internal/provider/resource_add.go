@@ -82,7 +82,7 @@ func (r *AddResource) Create(ctx context.Context, req resource.CreateRequest, re
 	tflog.Debug(ctx, "Create resource git_add")
 
 	var inputs addResourceModel
-	diags := req.Config.Get(ctx, &inputs)
+	diags := req.Plan.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -182,7 +182,7 @@ func (r *AddResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReq
 	}
 
 	var inputs addResourceModel
-	diags := req.Config.Get(ctx, &inputs)
+	diags := req.Plan.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

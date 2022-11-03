@@ -85,15 +85,10 @@ func (r *InitResource) Create(ctx context.Context, req resource.CreateRequest, r
 	var inputs initResourceModel
 	var state initResourceModel
 
-	diags := req.Config.Get(ctx, &inputs)
+	diags := req.Plan.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
-	}
-
-	// NOTE: It seems default values are not working?
-	if inputs.Bare.IsNull() {
-		inputs.Bare = types.BoolValue(false)
 	}
 
 	directory := inputs.Directory.ValueString()
