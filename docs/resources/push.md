@@ -150,7 +150,7 @@ Required:
 
 Optional:
 
-- `known_hosts` (Set of String) The list of known hosts to accept. If none are specified, system defaults will be used.
+- `known_hosts` (Set of String) The list of known hosts files to accept. If none are specified, system defaults will be used.
 - `username` (String) The system username of the user talking to the SSH agent. Use an empty string in order to automatically fetch this.
 
 
@@ -159,7 +159,7 @@ Optional:
 
 Optional:
 
-- `known_hosts` (Set of String) The list of known hosts to accept. If none are specified, system defaults will be used.
+- `known_hosts` (Set of String) The list of known hosts files to accept. If none are specified, system defaults will be used.
 - `password` (String) The SSH key password.
 - `private_key_path` (String) The absolute path to the private SSH key.
 - `private_key_pem` (String) The private SSH key in PEM format.
@@ -176,6 +176,6 @@ Required:
 
 Optional:
 
-- `known_hosts` (Set of String) The list of known hosts to accept. If none are specified, system defaults will be used.
+- `known_hosts` (Set of String) The list of known hosts files to accept. If none are specified, system defaults will be used.
 
 

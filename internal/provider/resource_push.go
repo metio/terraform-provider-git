@@ -237,8 +237,8 @@ func (r *PushResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnost
 								},
 							},
 							"known_hosts": {
-								Description:         "The list of known hosts to accept. If none are specified, system defaults will be used.",
-								MarkdownDescription: "The list of known hosts to accept. If none are specified, system defaults will be used.",
+								Description:         "The list of known hosts files to accept. If none are specified, system defaults will be used.",
+								MarkdownDescription: "The list of known hosts files to accept. If none are specified, system defaults will be used.",
 								Type: types.SetType{
 									ElemType: types.StringType,
 								},
@@ -286,8 +286,8 @@ func (r *PushResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnost
 								},
 							},
 							"known_hosts": {
-								Description:         "The list of known hosts to accept. If none are specified, system defaults will be used.",
-								MarkdownDescription: "The list of known hosts to accept. If none are specified, system defaults will be used.",
+								Description:         "The list of known hosts files to accept. If none are specified, system defaults will be used.",
+								MarkdownDescription: "The list of known hosts files to accept. If none are specified, system defaults will be used.",
 								Type: types.SetType{
 									ElemType: types.StringType,
 								},
@@ -331,8 +331,8 @@ func (r *PushResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnost
 								},
 							},
 							"known_hosts": {
-								Description:         "The list of known hosts to accept. If none are specified, system defaults will be used.",
-								MarkdownDescription: "The list of known hosts to accept. If none are specified, system defaults will be used.",
+								Description:         "The list of known hosts files to accept. If none are specified, system defaults will be used.",
+								MarkdownDescription: "The list of known hosts files to accept. If none are specified, system defaults will be used.",
 								Type: types.SetType{
 									ElemType: types.StringType,
 								},
