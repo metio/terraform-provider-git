@@ -207,6 +207,7 @@ func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest,
 	state.Author = inputs.Author
 	state.Committer = inputs.Committer
 	state.Files = types.ListNull(types.StringType)
+	state.SHA1 = types.StringNull()
 
 	if !status.IsClean() {
 		options := createCommitOptions(ctx, inputs)

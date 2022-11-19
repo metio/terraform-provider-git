@@ -106,6 +106,8 @@ func (d *StatusDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	state.Directory = inputs.Directory
 	state.Id = inputs.File
 	state.File = inputs.File
+	state.Staging = types.StringNull()
+	state.Worktree = types.StringNull()
 
 	worktree, err := repository.Worktree()
 	if err == git.ErrIsBareRepository {
