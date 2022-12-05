@@ -96,7 +96,8 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 			}
 
 			if callback := knownHostsCallback(ctx, sshKeyAuth, diag); callback != nil {
-				sshKeys.HostKeyCallback = callback
+				cfg, _ := sshKeys.ClientConfig()
+				cfg.HostKeyCallback = callback
 			}
 
 			options.Auth = sshKeys
@@ -113,7 +114,8 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 			}
 
 			if callback := knownHostsCallback(ctx, sshAgentAuth, diag); callback != nil {
-				agentAuth.HostKeyCallback = callback
+				cfg, _ := agentAuth.ClientConfig()
+				cfg.HostKeyCallback = callback
 			}
 
 			options.Auth = agentAuth
@@ -127,7 +129,8 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 			}
 
 			if callback := knownHostsCallback(ctx, sshPasswordAuth, diag); callback != nil {
-				passwordAuth.HostKeyCallback = callback
+				cfg, _ := passwordAuth.ClientConfig()
+				cfg.HostKeyCallback = callback
 			}
 
 			options.Auth = passwordAuth
