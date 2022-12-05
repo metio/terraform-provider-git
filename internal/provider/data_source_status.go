@@ -10,8 +10,8 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -19,7 +19,8 @@ import (
 type StatusDataSource struct{}
 
 var (
-	_ datasource.DataSource = (*StatusDataSource)(nil)
+	_ datasource.DataSource           = (*StatusDataSource)(nil)
+	_ datasource.DataSourceWithSchema = (*StatusDataSource)(nil)
 )
 
 type statusDataSourceModel struct {
@@ -38,49 +39,44 @@ func (d *StatusDataSource) Metadata(_ context.Context, req datasource.MetadataRe
 	resp.TypeName = req.ProviderTypeName + "_status"
 }
 
-func (d *StatusDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (d *StatusDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description:         "Fetches the status of a single files in a Git repository.",
 		MarkdownDescription: "Fetches the status of a single files in a Git repository.",
-		Attributes: map[string]tfsdk.Attribute{
-			"directory": {
+		Attributes: map[string]schema.Attribute{
+			"directory": schema.StringAttribute{
 				Description:         "The path to the local Git repository.",
 				MarkdownDescription: "The path to the local Git repository.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"id": {
+			"id": schema.StringAttribute{
 				Description:         "The same value as the 'file' attribute.",
 				MarkdownDescription: "The same value as the `file` attribute.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"file": {
+			"file": schema.StringAttribute{
 				Description:         "The file to get status information about.",
 				MarkdownDescription: "The file to get status information about.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"staging": {
+			"staging": schema.StringAttribute{
 				Description:         "The status of the file in the staging area.",
 				MarkdownDescription: "The status of the file in the staging area.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"worktree": {
+			"worktree": schema.StringAttribute{
 				Description:         "The status of the file in the worktree",
 				MarkdownDescription: "The status of the file in the worktree",
-				Type:                types.StringType,
 				Computed:            true,
 			},
 		},
-	}, nil
+	}
 }
 
 func (d *StatusDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

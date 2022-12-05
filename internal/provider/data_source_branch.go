@@ -11,8 +11,8 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -20,7 +20,8 @@ import (
 type BranchDataSource struct{}
 
 var (
-	_ datasource.DataSource = (*BranchDataSource)(nil)
+	_ datasource.DataSource           = (*BranchDataSource)(nil)
+	_ datasource.DataSourceWithSchema = (*BranchDataSource)(nil)
 )
 
 type branchDataSourceModel struct {
@@ -40,55 +41,49 @@ func (d *BranchDataSource) Metadata(_ context.Context, req datasource.MetadataRe
 	resp.TypeName = req.ProviderTypeName + "_branch"
 }
 
-func (d *BranchDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (d *BranchDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description:         "Fetches information about a specific branch of a Git repository.",
 		MarkdownDescription: "Fetches information about a specific branch of a Git repository.",
-		Attributes: map[string]tfsdk.Attribute{
-			"directory": {
+		Attributes: map[string]schema.Attribute{
+			"directory": schema.StringAttribute{
 				Description:         "The path to the local Git repository.",
 				MarkdownDescription: "The path to the local Git repository.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"name": {
+			"name": schema.StringAttribute{
 				Description:         "The name of the Git branch.",
 				MarkdownDescription: "The name of the Git branch.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"id": {
+			"id": schema.StringAttribute{
 				Description:         "The same value as the 'name' attribute.",
 				MarkdownDescription: "The same value as the `name` attribute.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"sha1": {
+			"sha1": schema.StringAttribute{
 				Description:         "The SHA1 checksum of the 'HEAD' commit in the specified Git branch.",
 				MarkdownDescription: "The SHA1 checksum of the `HEAD` commit in the specified Git branch.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"remote": {
+			"remote": schema.StringAttribute{
 				Description:         "The configured remote for the specified Git branch.",
 				MarkdownDescription: "The configured remote for the specified Git branch.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"rebase": {
+			"rebase": schema.StringAttribute{
 				Description:         "The rebase configuration for the specified Git branch. Possible values are 'true', 'interactive', and 'false'.",
 				MarkdownDescription: "The rebase configuration for the specified Git branch. Possible values are `true`, `interactive`, and `false`.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
 		},
-	}, nil
+	}
 }
 
 func (d *BranchDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

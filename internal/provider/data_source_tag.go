@@ -9,8 +9,8 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -18,7 +18,8 @@ import (
 type TagDataSource struct{}
 
 var (
-	_ datasource.DataSource = (*TagDataSource)(nil)
+	_ datasource.DataSource           = (*TagDataSource)(nil)
+	_ datasource.DataSourceWithSchema = (*TagDataSource)(nil)
 )
 
 type tagDataSourceModel struct {
@@ -39,61 +40,54 @@ func (d *TagDataSource) Metadata(_ context.Context, req datasource.MetadataReque
 	resp.TypeName = req.ProviderTypeName + "_tag"
 }
 
-func (d *TagDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (d *TagDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description:         "Reads information about a specific tag of a Git repository.",
 		MarkdownDescription: "Reads information about a specific tag of a Git repository.",
-		Attributes: map[string]tfsdk.Attribute{
-			"directory": {
+		Attributes: map[string]schema.Attribute{
+			"directory": schema.StringAttribute{
 				Description:         "The path to the local Git repository.",
 				MarkdownDescription: "The path to the local Git repository.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"id": {
+			"id": schema.StringAttribute{
 				Description:         "The same value as the 'name' attribute.",
 				MarkdownDescription: "The same value as the `name` attribute.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"name": {
+			"name": schema.StringAttribute{
 				Description:         "The name of the tag to gather information about.",
 				MarkdownDescription: "The name of the tag to gather information about.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"annotated": {
+			"annotated": schema.BoolAttribute{
 				Description:         "Whether the given tag is an annotated tag.",
 				MarkdownDescription: "Whether the given tag is an annotated tag.",
-				Type:                types.BoolType,
 				Computed:            true,
 			},
-			"lightweight": {
+			"lightweight": schema.BoolAttribute{
 				Description:         "Whether the given tag is a lightweight tag.",
 				MarkdownDescription: "Whether the given tag is a lightweight tag.",
-				Type:                types.BoolType,
 				Computed:            true,
 			},
-			"sha1": {
+			"sha1": schema.StringAttribute{
 				Description:         "The SHA1 checksum of the commit the given tag is pointing at.",
 				MarkdownDescription: "The SHA1 checksum of the commit the given tag is pointing at.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"message": {
+			"message": schema.StringAttribute{
 				Description:         "The associated message of an annotated tag.",
 				MarkdownDescription: "The associated message of an annotated tag.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
 		},
-	}, nil
+	}
 }
 
 func (d *TagDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

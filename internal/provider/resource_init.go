@@ -11,9 +11,12 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/storage/filesystem"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/metio/terraform-provider-git/internal/modifiers"
@@ -24,6 +27,7 @@ type InitResource struct{}
 
 var (
 	_ resource.Resource                = (*InitResource)(nil)
+	_ resource.ResourceWithSchema      = (*InitResource)(nil)
 	_ resource.ResourceWithImportState = (*InitResource)(nil)
 )
 
@@ -41,42 +45,39 @@ func (r *InitResource) Metadata(_ context.Context, req resource.MetadataRequest,
 	resp.TypeName = req.ProviderTypeName + "_init"
 }
 
-func (r *InitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (r *InitResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description:         "Initializes a Git repository similar to 'git init'.",
 		MarkdownDescription: "Initializes a Git repository similar to `git init`.",
-		Attributes: map[string]tfsdk.Attribute{
-			"directory": {
+		Attributes: map[string]schema.Attribute{
+			"directory": schema.StringAttribute{
 				Description:         "The path to the local Git repository.",
 				MarkdownDescription: "The path to the local Git repository.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"id": {
+			"id": schema.StringAttribute{
 				Description:         "The import ID to import this resource which is equal to the value of the 'directory' attribute.",
 				MarkdownDescription: "The import ID to import this resource which is equal to the value of the `directory` attribute.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"bare": {
+			"bare": schema.BoolAttribute{
 				Description:         "Whether the created Git repository is bare or not. Defaults to 'false'.",
 				MarkdownDescription: "Whether the created Git repository is bare or not. Defaults to `false`.",
-				Type:                types.BoolType,
 				Computed:            true,
 				Optional:            true,
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.BoolValue(false)),
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.Bool{
+					modifiers.DefaultBool(false),
+					boolplanmodifier.RequiresReplace(),
 				},
 			},
 		},
-	}, nil
+	}
 }
 
 func (r *InitResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

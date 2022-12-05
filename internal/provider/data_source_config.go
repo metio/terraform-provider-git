@@ -9,17 +9,17 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/metio/terraform-provider-git/internal/modifiers"
 )
 
 type ConfigDataSource struct{}
 
 var (
-	_ datasource.DataSource = (*ConfigDataSource)(nil)
+	_ datasource.DataSource           = (*ConfigDataSource)(nil)
+	_ datasource.DataSourceWithSchema = (*ConfigDataSource)(nil)
 )
 
 type configDataSourceModel struct {
@@ -42,36 +42,30 @@ func (d *ConfigDataSource) Metadata(_ context.Context, req datasource.MetadataRe
 	resp.TypeName = req.ProviderTypeName + "_config"
 }
 
-func (d *ConfigDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (d *ConfigDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description:         "Reads the configuration of a Git repository.",
 		MarkdownDescription: "Reads the configuration of a Git repository.",
-		Attributes: map[string]tfsdk.Attribute{
-			"directory": {
+		Attributes: map[string]schema.Attribute{
+			"directory": schema.StringAttribute{
 				Description:         "The path to the local Git repository.",
 				MarkdownDescription: "The path to the local Git repository.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"id": {
+			"id": schema.StringAttribute{
 				Description:         "The same value as the 'directory' attribute.",
 				MarkdownDescription: "The same value as the `directory` attribute.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"scope": {
+			"scope": schema.StringAttribute{
 				Description:         "The configuration scope to read. Possible values are 'local', 'global', and 'system'. Defaults to 'global'.",
 				MarkdownDescription: "The configuration scope to read. Possible values are `local`, `global`, and `system`. Defaults to `global`.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.StringValue("global")),
-				},
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"local",
 						"global",
@@ -79,44 +73,38 @@ func (d *ConfigDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diag
 					),
 				},
 			},
-			"user_name": {
+			"user_name": schema.StringAttribute{
 				Description:         "The name of the author and the committer of a commit.",
 				MarkdownDescription: "The name of the author and the committer of a commit.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"user_email": {
+			"user_email": schema.StringAttribute{
 				Description:         "The email address of the author and the committer of a commit.",
 				MarkdownDescription: "The email address of the author and the committer of a commit.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"author_name": {
+			"author_name": schema.StringAttribute{
 				Description:         "The name of the author of a commit.",
 				MarkdownDescription: "The name of the author of a commit.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"author_email": {
+			"author_email": schema.StringAttribute{
 				Description:         "The email address of the author of a commit.",
 				MarkdownDescription: "The email address of the author of a commit.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"committer_name": {
+			"committer_name": schema.StringAttribute{
 				Description:         "The name of the committer of a commit.",
 				MarkdownDescription: "The name of the committer of a commit.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"committer_email": {
+			"committer_email": schema.StringAttribute{
 				Description:         "The email address of the committer of a commit.",
 				MarkdownDescription: "The email address of the committer of a commit.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
 		},
-	}, nil
+	}
 }
 
 func (d *ConfigDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -131,7 +119,6 @@ func (d *ConfigDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	// NOTE: It seems default values for data sources are not working?
 	if inputs.Scope.IsNull() {
 		inputs.Scope = types.StringValue("global")
 	}

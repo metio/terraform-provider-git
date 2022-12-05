@@ -9,10 +9,14 @@ import (
 	"context"
 	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/metio/terraform-provider-git/internal/modifiers"
@@ -23,6 +27,7 @@ type CommitResource struct{}
 
 var (
 	_ resource.Resource               = (*CommitResource)(nil)
+	_ resource.ResourceWithSchema     = (*CommitResource)(nil)
 	_ resource.ResourceWithModifyPlan = (*CommitResource)(nil)
 )
 
@@ -45,119 +50,108 @@ func (r *CommitResource) Metadata(_ context.Context, req resource.MetadataReques
 	resp.TypeName = req.ProviderTypeName + "_commit"
 }
 
-func (r *CommitResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (r *CommitResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description: "Record changes to the repository similar to 'git commit'. Note that configuration changes to this resource which cause a replacement will create a new commit and keep the previous commit as-is.",
 		MarkdownDescription: "Record changes to the repository similar to `git commit`.\n\n" +
 			"-> **Note** Configuration changes to this resource which cause a replacement will create a new commit and keep the previous commit as-is.",
-		Attributes: map[string]tfsdk.Attribute{
-			"directory": {
+		Attributes: map[string]schema.Attribute{
+			"directory": schema.StringAttribute{
 				Description:         "The path to the local Git repository.",
 				MarkdownDescription: "The path to the local Git repository.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"id": {
+			"id": schema.Int64Attribute{
 				Description:         "The timestamp of the last commit in Unix nanoseconds.",
 				MarkdownDescription: "The timestamp of the last commit in Unix nanoseconds.",
-				Type:                types.Int64Type,
 				Computed:            true,
 			},
-			"message": {
+			"message": schema.StringAttribute{
 				Description:         "The commit message to use.",
 				MarkdownDescription: "The commit message to use.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"all": {
+			"all": schema.BoolAttribute{
 				Description:         "Automatically stage files that have been modified and deleted, but new files you have not told Git about are not affected. Defaults to 'false'.",
 				MarkdownDescription: "Automatically stage files that have been modified and deleted, but new files you have not told Git about are not affected. Defaults to `false`.",
-				Type:                types.BoolType,
 				Computed:            true,
 				Optional:            true,
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.BoolValue(false)),
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.Bool{
+					modifiers.DefaultBool(false),
+					boolplanmodifier.RequiresReplace(),
 				},
 			},
-			"author": {
+			"author": schema.SingleNestedAttribute{
 				Description:         "The original author of the commit. If none is specified, the author will be read from the Git configuration.",
 				MarkdownDescription: "The original author of the commit. If none is specified, the author will be read from the Git configuration.",
 				Computed:            true,
 				Optional:            true,
-				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
-					"name": {
+				Attributes: map[string]schema.Attribute{
+					"name": schema.StringAttribute{
 						Description:         "The name of the author.",
 						MarkdownDescription: "The name of the author.",
-						Type:                types.StringType,
 						Computed:            true,
 						Optional:            true,
 					},
-					"email": {
+					"email": schema.StringAttribute{
 						Description:         "The email address of the author.",
 						MarkdownDescription: "The email address of the author.",
-						Type:                types.StringType,
 						Computed:            true,
 						Optional:            true,
 					},
-				}),
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				},
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.RequiresReplace(),
 				},
 			},
-			"committer": {
+			"committer": schema.SingleNestedAttribute{
 				Description:         "The person performing the commit. If none is specified, the author is used as committer.",
 				MarkdownDescription: "The person performing the commit. If none is specified, the author is used as committer.",
 				Computed:            true,
 				Optional:            true,
-				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
-					"name": {
+				Attributes: map[string]schema.Attribute{
+					"name": schema.StringAttribute{
 						Description:         "The name of the committer.",
 						MarkdownDescription: "The name of the committer.",
-						Type:                types.StringType,
 						Computed:            true,
 						Optional:            true,
 					},
-					"email": {
+					"email": schema.StringAttribute{
 						Description:         "The email address of the committer.",
 						MarkdownDescription: "The email address of the committer.",
-						Type:                types.StringType,
 						Computed:            true,
 						Optional:            true,
 					},
-				}),
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				},
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.RequiresReplace(),
 				},
 			},
-			"sha1": {
+			"sha1": schema.StringAttribute{
 				Description:         "The SHA1 hash of the created commit.",
 				MarkdownDescription: "The SHA1 hash of the created commit.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"files": {
+			"files": schema.ListAttribute{
 				Description:         "The files updated by the commit.",
 				MarkdownDescription: "The files updated by the commit.",
-				Type: types.ListType{
-					ElemType: types.StringType,
-				},
-				Computed: true,
+				ElementType:         types.StringType,
+				Computed:            true,
 			},
 		},
-	}, nil
+	}
 }
 
 func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
