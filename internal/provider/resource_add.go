@@ -9,10 +9,13 @@ import (
 	"context"
 	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"path/filepath"
@@ -23,6 +26,7 @@ type AddResource struct{}
 
 var (
 	_ resource.Resource               = (*AddResource)(nil)
+	_ resource.ResourceWithSchema     = (*AddResource)(nil)
 	_ resource.ResourceWithModifyPlan = (*AddResource)(nil)
 )
 
@@ -40,42 +44,38 @@ func (r *AddResource) Metadata(_ context.Context, req resource.MetadataRequest, 
 	resp.TypeName = req.ProviderTypeName + "_add"
 }
 
-func (r *AddResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (r *AddResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description:         "Add file contents to the index similar to 'git add'.",
 		MarkdownDescription: "Add file contents to the index similar to `git add`.",
-		Attributes: map[string]tfsdk.Attribute{
-			"directory": {
+		Attributes: map[string]schema.Attribute{
+			"directory": schema.StringAttribute{
 				Description:         "The path to the local Git repository.",
 				MarkdownDescription: "The path to the local Git repository.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"id": {
+			"id": schema.Int64Attribute{
 				Description:         "The timestamp of the last addition in Unix nanoseconds.",
 				MarkdownDescription: "The timestamp of the last addition in Unix nanoseconds.",
-				Type:                types.Int64Type,
 				Computed:            true,
 			},
-			"add_paths": {
+			"add_paths": schema.ListAttribute{
 				Description:         "The paths to add to the Git index. Values can be exact paths or glob patterns.",
 				MarkdownDescription: "The paths to add to the Git index. Values can be exact paths or glob patterns.",
-				Type: types.ListType{
-					ElemType: types.StringType,
-				},
-				Required: true,
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				ElementType:         types.StringType,
+				Required:            true,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
 				},
 			},
 		},
-	}, nil
+	}
 }
 
 func (r *AddResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

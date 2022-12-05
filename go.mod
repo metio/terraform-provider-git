@@ -10,7 +10,7 @@ require (
 	github.com/gruntwork-io/terratest v0.41.4
 	github.com/hashicorp/terraform-plugin-docs v0.13.0
 	github.com/hashicorp/terraform-plugin-framework v0.17.0
-	github.com/hashicorp/terraform-plugin-framework-validators v0.6.0
+	github.com/hashicorp/terraform-plugin-framework-validators v0.7.0
 	github.com/hashicorp/terraform-plugin-go v0.14.2
 	github.com/hashicorp/terraform-plugin-log v0.7.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.24.1

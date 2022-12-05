@@ -9,8 +9,8 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -18,7 +18,8 @@ import (
 type RemoteDataSource struct{}
 
 var (
-	_ datasource.DataSource = (*RemoteDataSource)(nil)
+	_ datasource.DataSource           = (*RemoteDataSource)(nil)
+	_ datasource.DataSourceWithSchema = (*RemoteDataSource)(nil)
 )
 
 type remoteDataSourceModel struct {
@@ -36,45 +37,40 @@ func (d *RemoteDataSource) Metadata(_ context.Context, req datasource.MetadataRe
 	resp.TypeName = req.ProviderTypeName + "_remote"
 }
 
-func (d *RemoteDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (d *RemoteDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description:         "Reads information about a specific remote of a Git repository.",
 		MarkdownDescription: "Reads information about a specific remote of a Git repository.",
-		Attributes: map[string]tfsdk.Attribute{
-			"directory": {
+		Attributes: map[string]schema.Attribute{
+			"directory": schema.StringAttribute{
 				Description:         "The path to the local Git repository.",
 				MarkdownDescription: "The path to the local Git repository.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"id": {
+			"id": schema.StringAttribute{
 				Description:         "The same value as the 'name' attribute.",
 				MarkdownDescription: "The same value as the `name` attribute.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"name": {
+			"name": schema.StringAttribute{
 				Description:         "The name of the remote to gather information about.",
 				MarkdownDescription: "The name of the remote to gather information about.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"urls": {
+			"urls": schema.ListAttribute{
 				Description:         "The configured URLs of the given remote.",
 				MarkdownDescription: "The configured URLs of the given remote.",
-				Type: types.ListType{
-					ElemType: types.StringType,
-				},
-				Computed: true,
+				ElementType:         types.StringType,
+				Computed:            true,
 			},
 		},
-	}, nil
+	}
 }
 
 func (d *RemoteDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

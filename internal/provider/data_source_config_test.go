@@ -6,23 +6,13 @@
 package provider_test
 
 import (
-	"context"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/metio/terraform-provider-git/internal/provider"
 	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"regexp"
 	"testing"
 )
-
-func TestDataSourceGitConfig_GetSchema(t *testing.T) {
-	t.Parallel()
-	r := &provider.ConfigDataSource{}
-	schema, _ := r.GetSchema(context.TODO())
-
-	testutils.VerifySchemaDescriptions(t, schema)
-}
 
 func TestDataSourceGitConfig(t *testing.T) {
 	t.Parallel()

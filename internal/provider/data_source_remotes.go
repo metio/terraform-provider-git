@@ -10,8 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -19,7 +19,8 @@ import (
 type RemotesDataSource struct{}
 
 var (
-	_ datasource.DataSource = (*RemotesDataSource)(nil)
+	_ datasource.DataSource           = (*RemotesDataSource)(nil)
+	_ datasource.DataSourceWithSchema = (*RemotesDataSource)(nil)
 )
 
 type remotesDataSourceModel struct {
@@ -36,43 +37,41 @@ func (d *RemotesDataSource) Metadata(_ context.Context, req datasource.MetadataR
 	resp.TypeName = req.ProviderTypeName + "_remotes"
 }
 
-func (d *RemotesDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (d *RemotesDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description:         "Reads all configured remotes of a Git repository.",
 		MarkdownDescription: "Reads all configured remotes of a Git repository.",
-		Attributes: map[string]tfsdk.Attribute{
-			"directory": {
+		Attributes: map[string]schema.Attribute{
+			"directory": schema.StringAttribute{
 				Description:         "The path to the local Git repository.",
 				MarkdownDescription: "The path to the local Git repository.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"id": {
+			"id": schema.StringAttribute{
 				Description:         "The same value as the 'directory' attribute.",
 				MarkdownDescription: "The same value as the `directory` attribute.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"remotes": {
+			"remotes": schema.MapNestedAttribute{
 				Description:         "All configured remotes of the given Git repository.",
 				MarkdownDescription: "All configured remotes of the given Git repository.",
 				Computed:            true,
-				Attributes: tfsdk.MapNestedAttributes(map[string]tfsdk.Attribute{
-					"urls": {
-						Description:         "The URLs for the remote.",
-						MarkdownDescription: "The URLs for the remote.",
-						Type: types.ListType{
-							ElemType: types.StringType,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"urls": schema.ListAttribute{
+							Description:         "The URLs for the remote.",
+							MarkdownDescription: "The URLs for the remote.",
+							ElementType:         types.StringType,
+							Computed:            true,
 						},
-						Computed: true,
 					},
-				}),
+				},
 			},
 		},
-	}, nil
+	}
 }
 
 func (d *RemotesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

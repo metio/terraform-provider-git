@@ -10,8 +10,8 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -19,7 +19,8 @@ import (
 type RepositoryDataSource struct{}
 
 var (
-	_ datasource.DataSource = (*RepositoryDataSource)(nil)
+	_ datasource.DataSource           = (*RepositoryDataSource)(nil)
+	_ datasource.DataSourceWithSchema = (*RepositoryDataSource)(nil)
 )
 
 type repositoryDataSourceModel struct {
@@ -37,40 +38,36 @@ func (d *RepositoryDataSource) Metadata(_ context.Context, req datasource.Metada
 	resp.TypeName = req.ProviderTypeName + "_repository"
 }
 
-func (d *RepositoryDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (d *RepositoryDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description:         "Reads information about a specific Git repository.",
 		MarkdownDescription: "Reads information about a specific Git repository.",
-		Attributes: map[string]tfsdk.Attribute{
-			"directory": {
+		Attributes: map[string]schema.Attribute{
+			"directory": schema.StringAttribute{
 				Description:         "The path to the local Git repository.",
 				MarkdownDescription: "The path to the local Git repository.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"id": {
+			"id": schema.StringAttribute{
 				Description:         "The same value as the 'directory' attribute.",
 				MarkdownDescription: "The same value as the `directory` attribute.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"branch": {
+			"branch": schema.StringAttribute{
 				Description:         "The name of the current branch of the given Git repository. Note that repositories in detached state might not have a branch associated with them.",
 				MarkdownDescription: "The name of the current branch of the given Git repository. Note that repositories in detached state might not have a branch associated with them.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"sha1": {
+			"sha1": schema.StringAttribute{
 				Description:         "The SHA1 of the current 'HEAD' of the given Git repository.",
 				MarkdownDescription: "The SHA1 of the current `HEAD` of the given Git repository.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
 		},
-	}, nil
+	}
 }
 
 func (d *RepositoryDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

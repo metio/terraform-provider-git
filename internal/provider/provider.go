@@ -8,16 +8,16 @@ package provider
 import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 )
 
 type GitProvider struct{}
 
 var (
 	_ provider.Provider             = (*GitProvider)(nil)
+	_ provider.ProviderWithSchema   = (*GitProvider)(nil)
 	_ provider.ProviderWithMetadata = (*GitProvider)(nil)
 )
 
@@ -29,11 +29,11 @@ func (p *GitProvider) Metadata(_ context.Context, _ provider.MetadataRequest, re
 	resp.TypeName = "git"
 }
 
-func (p *GitProvider) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (p *GitProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description:         "Provider for local Git operations. Requires Terraform 1.0 or later.",
 		MarkdownDescription: "Provider for local [Git](https://git-scm.com/) operations. Requires Terraform 1.0 or later.",
-	}, nil
+	}
 }
 
 func (p *GitProvider) Configure(_ context.Context, _ provider.ConfigureRequest, _ *provider.ConfigureResponse) {

@@ -11,17 +11,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/metio/terraform-provider-git/internal/modifiers"
 )
 
 type TagsDataSource struct{}
 
 var (
-	_ datasource.DataSource = (*TagsDataSource)(nil)
+	_ datasource.DataSource           = (*TagsDataSource)(nil)
+	_ datasource.DataSourceWithSchema = (*TagsDataSource)(nil)
 )
 
 type tagsDataSourceModel struct {
@@ -40,73 +40,62 @@ func (d *TagsDataSource) Metadata(_ context.Context, req datasource.MetadataRequ
 	resp.TypeName = req.ProviderTypeName + "_tags"
 }
 
-func (d *TagsDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (d *TagsDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description:         "Reads information about all tags of a Git repository.",
 		MarkdownDescription: "Reads information about all tags of a Git repository.",
-		Attributes: map[string]tfsdk.Attribute{
-			"directory": {
+		Attributes: map[string]schema.Attribute{
+			"directory": schema.StringAttribute{
 				Description:         "The path to the local Git repository.",
 				MarkdownDescription: "The path to the local Git repository.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"id": {
+			"id": schema.StringAttribute{
 				Description:         "The same value as the 'directory' attribute.",
 				MarkdownDescription: "The same value as the `directory` attribute.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"annotated": {
+			"annotated": schema.BoolAttribute{
 				Description:         "Whether to request annotated tags. Defaults to 'true'.",
 				MarkdownDescription: "Whether to request annotated tags. Defaults to `true`.",
-				Type:                types.BoolType,
 				Required:            false,
 				Optional:            true,
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.BoolValue(true)),
-				},
 			},
-			"lightweight": {
+			"lightweight": schema.BoolAttribute{
 				Description:         "Whether to request lightweight tags. Defaults to 'true'.",
 				MarkdownDescription: "Whether to request lightweight tags. Defaults to `true`.",
-				Type:                types.BoolType,
 				Required:            false,
 				Optional:            true,
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.BoolValue(true)),
-				},
 			},
-			"tags": {
+			"tags": schema.MapNestedAttribute{
 				Description:         "All existing tags.",
 				MarkdownDescription: "All existing tags.",
 				Computed:            true,
-				Attributes: tfsdk.MapNestedAttributes(map[string]tfsdk.Attribute{
-					"annotated": {
-						Description:         "Whether the tag is an annotated tag or not.",
-						MarkdownDescription: "Whether the tag is an annotated tag or not.",
-						Type:                types.BoolType,
-						Computed:            true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"annotated": schema.BoolAttribute{
+							Description:         "Whether the tag is an annotated tag or not.",
+							MarkdownDescription: "Whether the tag is an annotated tag or not.",
+							Computed:            true,
+						},
+						"lightweight": schema.BoolAttribute{
+							Description:         "Whether the tag is a lightweight tag or not.",
+							MarkdownDescription: "Whether the tag is a lightweight tag or not.",
+							Computed:            true,
+						},
+						"sha1": schema.StringAttribute{
+							Description:         "The SHA1 checksum of the commit the tag is pointing at.",
+							MarkdownDescription: "The SHA1 checksum of the commit the tag is pointing at.",
+							Computed:            true,
+						},
 					},
-					"lightweight": {
-						Description:         "Whether the tag is a lightweight tag or not.",
-						MarkdownDescription: "Whether the tag is a lightweight tag or not.",
-						Type:                types.BoolType,
-						Computed:            true,
-					},
-					"sha1": {
-						Description:         "The SHA1 checksum of the commit the tag is pointing at.",
-						MarkdownDescription: "The SHA1 checksum of the commit the tag is pointing at.",
-						Type:                types.StringType,
-						Computed:            true,
-					},
-				}),
+				},
 			},
 		},
-	}, nil
+	}
 }
 
 func (d *TagsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

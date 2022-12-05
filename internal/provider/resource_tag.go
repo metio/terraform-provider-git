@@ -9,9 +9,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/metio/terraform-provider-git/internal/modifiers"
@@ -21,7 +23,8 @@ import (
 type TagResource struct{}
 
 var (
-	_ resource.Resource = (*TagResource)(nil)
+	_ resource.Resource           = (*TagResource)(nil)
+	_ resource.ResourceWithSchema = (*TagResource)(nil)
 )
 
 type tagResourceModel struct {
@@ -41,69 +44,63 @@ func (r *TagResource) Metadata(_ context.Context, req resource.MetadataRequest, 
 	resp.TypeName = req.ProviderTypeName + "_tag"
 }
 
-func (r *TagResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (r *TagResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description:         "Manage Git tags similar to 'git tag'.",
 		MarkdownDescription: "Manage Git tags similar to `git tag`.",
-		Attributes: map[string]tfsdk.Attribute{
-			"directory": {
+		Attributes: map[string]schema.Attribute{
+			"directory": schema.StringAttribute{
 				Description:         "The path to the local Git repository.",
 				MarkdownDescription: "The path to the local Git repository.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"id": {
+			"id": schema.StringAttribute{
 				Description:         "The import ID to import this resource which has the form 'directory|name'",
 				MarkdownDescription: "The import ID to import this resource which has the form `'directory|name'`",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"name": {
+			"name": schema.StringAttribute{
 				Description:         "The name of the Git tag to add.",
 				MarkdownDescription: "The name of the Git tag to add.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"revision": {
+			"revision": schema.StringAttribute{
 				Description:         "The revision of the commit to tag. Can be any value that 'go-git' supports. If none is specified, 'HEAD' will be tagged.",
 				MarkdownDescription: "The [revision](https://www.git-scm.com/docs/gitrevisions) of the commit to tag. Can be any value that `go-git` [supports](https://pkg.go.dev/github.com/go-git/go-git/v5#Repository.ResolveRevision). If none is specified, `HEAD` will be tagged.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					modifiers.DefaultValue(types.StringValue("HEAD")),
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.String{
+					modifiers.DefaultString("HEAD"),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"sha1": {
+			"sha1": schema.StringAttribute{
 				Description:         "The SHA1 hash of the resolved revision.",
 				MarkdownDescription: "The SHA1 hash of the resolved revision.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"message": {
+			"message": schema.StringAttribute{
 				Description:         "The tag message to use. Note that by specifying a message, an annotated tag will be created.",
 				MarkdownDescription: "The tag message to use. Note that by specifying a message, an annotated tag will be created.",
-				Type:                types.StringType,
 				Optional:            true,
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 		},
-	}, nil
+	}
 }
 
 func (r *TagResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

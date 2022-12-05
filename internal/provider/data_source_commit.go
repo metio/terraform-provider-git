@@ -9,8 +9,8 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -18,7 +18,8 @@ import (
 type CommitDataSource struct{}
 
 var (
-	_ datasource.DataSource = (*CommitDataSource)(nil)
+	_ datasource.DataSource           = (*CommitDataSource)(nil)
+	_ datasource.DataSourceWithSchema = (*CommitDataSource)(nil)
 )
 
 type commitDataSourceModel struct {
@@ -42,119 +43,104 @@ func (d *CommitDataSource) Metadata(_ context.Context, req datasource.MetadataRe
 	resp.TypeName = req.ProviderTypeName + "_commit"
 }
 
-func (d *CommitDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (d *CommitDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description:         "Fetches information about a single commit.",
 		MarkdownDescription: "Fetches information about a single commit.",
-		Attributes: map[string]tfsdk.Attribute{
-			"directory": {
+		Attributes: map[string]schema.Attribute{
+			"directory": schema.StringAttribute{
 				Description:         "The path to the local Git repository.",
 				MarkdownDescription: "The path to the local Git repository.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"id": {
+			"id": schema.StringAttribute{
 				Description:         "The same value as the 'revision' attribute.",
 				MarkdownDescription: "The same value as the `revision` attribute.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"revision": {
+			"revision": schema.StringAttribute{
 				Description:         "The revision of the commit to fetch. Note that 'go-git' does not support every revision type at the moment. See https://pkg.go.dev/github.com/go-git/go-git/v5#Repository.ResolveRevision for details.",
 				MarkdownDescription: "The [revision](https://www.git-scm.com/docs/gitrevisions) of the commit to fetch. Note that `go-git` does not [support](https://pkg.go.dev/github.com/go-git/go-git/v5#Repository.ResolveRevision) every revision type at the moment.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"sha1": {
+			"sha1": schema.StringAttribute{
 				Description:         "The SHA1 hash of the resolved revision.",
 				MarkdownDescription: "The SHA1 hash of the resolved revision.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"author": {
+			"author": schema.SingleNestedAttribute{
 				Description:         "The original author of the commit.",
 				MarkdownDescription: "The original author of the commit.",
 				Computed:            true,
-				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
-					"name": {
+				Attributes: map[string]schema.Attribute{
+					"name": schema.StringAttribute{
 						Description:         "The name of the author.",
 						MarkdownDescription: "The name of the author.",
-						Type:                types.StringType,
 						Computed:            true,
 					},
-					"email": {
+					"email": schema.StringAttribute{
 						Description:         "The email address of the author.",
 						MarkdownDescription: "The email address of the author.",
-						Type:                types.StringType,
 						Computed:            true,
 					},
-					"timestamp": {
+					"timestamp": schema.StringAttribute{
 						Description:         "The timestamp of the signature.",
 						MarkdownDescription: "The timestamp of the signature.",
-						Type:                types.StringType,
 						Computed:            true,
 					},
-				}),
+				},
 			},
-			"committer": {
+			"committer": schema.SingleNestedAttribute{
 				Description:         "The person performing the commit.",
 				MarkdownDescription: "The person performing the commit.",
 				Computed:            true,
-				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
-					"name": {
+				Attributes: map[string]schema.Attribute{
+					"name": schema.StringAttribute{
 						Description:         "The name of the committer.",
 						MarkdownDescription: "The name of the committer.",
-						Type:                types.StringType,
 						Computed:            true,
 					},
-					"email": {
+					"email": schema.StringAttribute{
 						Description:         "The email address of the committer.",
 						MarkdownDescription: "The email address of the committer.",
-						Type:                types.StringType,
 						Computed:            true,
 					},
-					"timestamp": {
+					"timestamp": schema.StringAttribute{
 						Description:         "The timestamp of the signature.",
 						MarkdownDescription: "The timestamp of the signature.",
-						Type:                types.StringType,
 						Computed:            true,
 					},
-				}),
+				},
 			},
-			"message": {
+			"message": schema.StringAttribute{
 				Description:         "The message of the commit.",
 				MarkdownDescription: "The message of the commit.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"signature": {
+			"signature": schema.StringAttribute{
 				Description:         "The signature of the commit.",
 				MarkdownDescription: "The signature of the commit.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"tree_sha1": {
+			"tree_sha1": schema.StringAttribute{
 				Description:         "The SHA1 checksum of the root tree of the commit.",
 				MarkdownDescription: "The SHA1 checksum of the root tree of the commit.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"files": {
+			"files": schema.ListAttribute{
 				Description:         "The files updated by the commit.",
 				MarkdownDescription: "The files updated by the commit.",
-				Type: types.ListType{
-					ElemType: types.StringType,
-				},
-				Computed: true,
+				ElementType:         types.StringType,
+				Computed:            true,
 			},
 		},
-	}, nil
+	}
 }
 
 func (d *CommitDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

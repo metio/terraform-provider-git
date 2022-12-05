@@ -10,9 +10,11 @@ import (
 	"fmt"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"strings"
@@ -22,6 +24,7 @@ type RemoteResource struct{}
 
 var (
 	_ resource.Resource                = (*RemoteResource)(nil)
+	_ resource.ResourceWithSchema      = (*RemoteResource)(nil)
 	_ resource.ResourceWithImportState = (*RemoteResource)(nil)
 )
 
@@ -40,51 +43,46 @@ func (r *RemoteResource) Metadata(_ context.Context, req resource.MetadataReques
 	resp.TypeName = req.ProviderTypeName + "_remote"
 }
 
-func (r *RemoteResource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (r *RemoteResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		Description:         "Manages remotes in a Git repository similar to 'git remote'.",
 		MarkdownDescription: "Manages remotes in a Git repository similar to `git remote`.",
-		Attributes: map[string]tfsdk.Attribute{
-			"directory": {
+		Attributes: map[string]schema.Attribute{
+			"directory": schema.StringAttribute{
 				Description:         "The path to the local Git repository.",
 				MarkdownDescription: "The path to the local Git repository.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"id": {
+			"id": schema.StringAttribute{
 				Description:         "The import ID to import this resource which has the form 'directory|name'",
 				MarkdownDescription: "The import ID to import this resource which has the form `'directory|name'`",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"name": {
+			"name": schema.StringAttribute{
 				Description:         "The name of the Git remote to manage.",
 				MarkdownDescription: "The name of the Git remote to manage.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
+				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
-				PlanModifiers: []tfsdk.AttributePlanModifier{
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"urls": {
+			"urls": schema.ListAttribute{
 				Description:         "The URLs of the Git remote to manage. The first URL will be a fetch/pull URL. All other URLs will be push only.",
 				MarkdownDescription: "The URLs of the Git remote to manage. The first URL will be a fetch/pull URL. All other URLs will be push only.",
-				Type: types.ListType{
-					ElemType: types.StringType,
-				},
-				Required: true,
+				ElementType:         types.StringType,
+				Required:            true,
 			},
 		},
-	}, nil
+	}
 }
 
 func (r *RemoteResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
