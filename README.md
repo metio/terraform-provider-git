@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: The terraform-provider-git Authors
 SPDX-License-Identifier: 0BSD
  -->
 
-# terraform-provider-git [![Chat](https://img.shields.io/badge/matrix-%23community.metio.wtf:matrix.org-brightgreen.svg?style=social&label=Matrix)](https://matrix.to/#/#community.metio.wtf:matrix.org)
+# terraform-provider-git [![Chat](https://img.shields.io/badge/matrix-%23talk.metio:matrix.org-brightgreen.svg?style=social&label=Matrix)](https://matrix.to/#/#talk.metio:matrix.org)
 
 [Terraform](https://www.terraform.io/) provider for local [Git](https://git-scm.com/) operations.
 
