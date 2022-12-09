@@ -55,6 +55,8 @@ jobs:
       - id: build
         name: Build Provider
         run: go build -v ./...
+        env:
+          CGO_ENABLED: 0
   test:
     name: Tests on ${{ matrix.os }} with TF ${{ matrix.terraform }}
     needs: build
