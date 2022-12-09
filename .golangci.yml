@@ -2,6 +2,6 @@
 # SPDX-License-Identifier: 0BSD
 
 run:
+  timeout: 5m
   build-tags:
     - testing
-  timeout: 5m
