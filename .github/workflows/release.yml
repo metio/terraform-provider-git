@@ -18,11 +18,11 @@ jobs:
           fetch-depth: 0
       - id: commits
         name: Count Commits
-        run: echo "::set-output name=count::$(git rev-list --count HEAD --since='last Friday' -- internal)"
+        run: echo "count=$(git rev-list --count HEAD --since='last Friday' -- internal)" >> $GITHUB_OUTPUT
       - id: release
         name: Create Release Version
         if: steps.commits.outputs.count > 0
-        run: echo "::set-output name=version::$(date +'%Y.%-m.%-d')"
+        run: echo "version=$(date +'%Y.%-m.%-d')" >> $GITHUB_OUTPUT
       - id: tag
         name: Create Release Tag
         if: steps.commits.outputs.count > 0
