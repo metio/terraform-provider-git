@@ -23,8 +23,7 @@ import (
 type TagResource struct{}
 
 var (
-	_ resource.Resource           = (*TagResource)(nil)
-	_ resource.ResourceWithSchema = (*TagResource)(nil)
+	_ resource.Resource = (*TagResource)(nil)
 )
 
 type tagResourceModel struct {

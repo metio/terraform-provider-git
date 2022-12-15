@@ -27,7 +27,6 @@ type InitResource struct{}
 
 var (
 	_ resource.Resource                = (*InitResource)(nil)
-	_ resource.ResourceWithSchema      = (*InitResource)(nil)
 	_ resource.ResourceWithImportState = (*InitResource)(nil)
 )
 

@@ -26,7 +26,6 @@ type AddResource struct{}
 
 var (
 	_ resource.Resource               = (*AddResource)(nil)
-	_ resource.ResourceWithSchema     = (*AddResource)(nil)
 	_ resource.ResourceWithModifyPlan = (*AddResource)(nil)
 )
 
