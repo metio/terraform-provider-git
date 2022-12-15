@@ -27,7 +27,6 @@ type CommitResource struct{}
 
 var (
 	_ resource.Resource               = (*CommitResource)(nil)
-	_ resource.ResourceWithSchema     = (*CommitResource)(nil)
 	_ resource.ResourceWithModifyPlan = (*CommitResource)(nil)
 )
 

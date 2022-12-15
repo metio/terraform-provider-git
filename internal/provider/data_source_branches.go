@@ -21,8 +21,7 @@ import (
 type BranchesDataSource struct{}
 
 var (
-	_ datasource.DataSource           = (*BranchesDataSource)(nil)
-	_ datasource.DataSourceWithSchema = (*BranchesDataSource)(nil)
+	_ datasource.DataSource = (*BranchesDataSource)(nil)
 )
 
 type branchesDataSourceModel struct {

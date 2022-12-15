@@ -29,8 +29,7 @@ import (
 type PushResource struct{}
 
 var (
-	_ resource.Resource           = (*PushResource)(nil)
-	_ resource.ResourceWithSchema = (*PushResource)(nil)
+	_ resource.Resource = (*PushResource)(nil)
 )
 
 type PushResourceModel struct {

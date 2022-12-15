@@ -18,8 +18,7 @@ import (
 type ConfigDataSource struct{}
 
 var (
-	_ datasource.DataSource           = (*ConfigDataSource)(nil)
-	_ datasource.DataSourceWithSchema = (*ConfigDataSource)(nil)
+	_ datasource.DataSource = (*ConfigDataSource)(nil)
 )
 
 type configDataSourceModel struct {
