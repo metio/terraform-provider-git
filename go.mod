@@ -18,8 +18,6 @@ require (
 	golang.org/x/crypto v0.4.0
 )
 
-replace github.com/pjbgf/sha1cd => github.com/pjbgf/sha1cd v0.2.3
-
 require (
 	cloud.google.com/go v0.105.0 // indirect
 	cloud.google.com/go/compute v1.12.1 // indirect
