@@ -31,14 +31,15 @@ var (
 )
 
 type commitResourceModel struct {
-	Directory types.String `tfsdk:"directory"`
-	Id        types.Int64  `tfsdk:"id"`
-	Message   types.String `tfsdk:"message"`
-	All       types.Bool   `tfsdk:"all"`
-	Author    types.Object `tfsdk:"author"`
-	Committer types.Object `tfsdk:"committer"`
-	SHA1      types.String `tfsdk:"sha1"`
-	Files     types.List   `tfsdk:"files"`
+	Directory         types.String `tfsdk:"directory"`
+	Id                types.Int64  `tfsdk:"id"`
+	Message           types.String `tfsdk:"message"`
+	All               types.Bool   `tfsdk:"all"`
+	AllowEmptyCommits types.Bool   `tfsdk:"allow_empty_commits"`
+	Author            types.Object `tfsdk:"author"`
+	Committer         types.Object `tfsdk:"committer"`
+	SHA1              types.String `tfsdk:"sha1"`
+	Files             types.List   `tfsdk:"files"`
 }
 
 func NewCommitResource() resource.Resource {
@@ -89,6 +90,16 @@ func (r *CommitResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Optional:            true,
 				PlanModifiers: []planmodifier.Bool{
 					modifiers.DefaultBool(false),
+					boolplanmodifier.RequiresReplace(),
+				},
+			},
+			"allow_empty_commits": schema.BoolAttribute{
+				Description:         "Enable empty commits to be created. Defaults to 'true'.",
+				MarkdownDescription: "Enable empty commits to be created. Defaults to `true`.",
+				Computed:            true,
+				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					modifiers.DefaultBool(true),
 					boolplanmodifier.RequiresReplace(),
 				},
 			},
@@ -186,6 +197,9 @@ func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest,
 	if inputs.All.IsNull() {
 		inputs.All = types.BoolValue(false)
 	}
+	if inputs.AllowEmptyCommits.IsNull() {
+		inputs.AllowEmptyCommits = types.BoolValue(true)
+	}
 
 	status, err := worktree.Status()
 	if err != nil {
@@ -196,6 +210,7 @@ func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest,
 	state.Directory = inputs.Directory
 	state.Id = types.Int64Value(time.Now().UnixNano())
 	state.All = inputs.All
+	state.AllowEmptyCommits = inputs.AllowEmptyCommits
 	state.Message = inputs.Message
 	state.Author = inputs.Author
 	state.Committer = inputs.Committer
