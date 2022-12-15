@@ -67,8 +67,11 @@ resource "git_commit" "commit_on_change" {
 
 ### Optional
 
-- `all` (Boolean) Automatically stage files that have been modified and deleted, but new files you have not told Git about are not affected. Defaults to `false`.
-- `author` (Attributes) The original author of the commit. If none is specified, the author will be read from the Git configuration. (see [below for nested schema](#nestedatt--author))
+- `all` (Boolean) Automatically stage files that have been modified and deleted, but new files you have not told Git
+  about are not affected. Defaults to `false`.
+- `allow_empty_commits` (Boolean) Enable empty commits to be created. Defaults to `true`.
+- `author` (Attributes) The original author of the commit. If none is specified, the author will be read from the Git
+  configuration. (see [below for nested schema](#nestedatt--author))
 - `committer` (Attributes) The person performing the commit. If none is specified, the author is used as committer. (see [below for nested schema](#nestedatt--committer))
 
 ### Read-Only
