@@ -45,12 +45,8 @@ func signatureToObjectWithoutTimestamp(signature *object.Signature) types.Object
 	data["email"] = types.StringNull()
 
 	if signature != nil {
-		if signature.Name != "" {
-			data["name"] = types.StringValue(signature.Name)
-		}
-		if signature.Email != "" {
-			data["email"] = types.StringValue(signature.Email)
-		}
+		data["name"] = types.StringValue(signature.Name)
+		data["email"] = types.StringValue(signature.Email)
 	}
 
 	return types.ObjectValueMust(
@@ -75,7 +71,7 @@ func createCommitOptions(ctx context.Context, inputs commitResourceModel) *git.C
 		"allow empty commits": options.AllowEmptyCommits,
 	})
 
-	if !inputs.Author.IsNull() {
+	if !inputs.Author.IsNull() && !inputs.Author.IsUnknown() {
 		options.Author = objectToSignature(&inputs.Author)
 		tflog.Trace(ctx, "using 'Author'", map[string]interface{}{
 			"name":  options.Author.Name,
@@ -83,7 +79,7 @@ func createCommitOptions(ctx context.Context, inputs commitResourceModel) *git.C
 		})
 	}
 
-	if !inputs.Committer.IsNull() {
+	if !inputs.Committer.IsNull() && !inputs.Committer.IsUnknown() {
 		options.Committer = objectToSignature(&inputs.Committer)
 		tflog.Trace(ctx, "using 'Committer'", map[string]interface{}{
 			"name":  options.Committer.Name,
@@ -124,4 +120,60 @@ func extractModifiedFiles(commit *object.Commit) []string {
 		return fileNames
 	}
 	return fileNames
+}
+
+func signatureObject(obj *types.Object) types.Object {
+	if obj.IsNull() || obj.IsUnknown() {
+		return types.ObjectValueMust(
+			map[string]attr.Type{
+				"name":  types.StringType,
+				"email": types.StringType,
+			},
+			map[string]attr.Value{
+				"name":  types.StringNull(),
+				"email": types.StringNull(),
+			},
+		)
+	}
+
+	if !obj.IsUnknown() && obj.Attributes()["name"].IsUnknown() && obj.Attributes()["email"].IsUnknown() {
+		return types.ObjectValueMust(
+			map[string]attr.Type{
+				"name":  types.StringType,
+				"email": types.StringType,
+			},
+			map[string]attr.Value{
+				"name":  types.StringNull(),
+				"email": types.StringNull(),
+			},
+		)
+	}
+
+	if !obj.IsUnknown() && obj.Attributes()["name"].IsUnknown() {
+		return types.ObjectValueMust(
+			map[string]attr.Type{
+				"name":  types.StringType,
+				"email": types.StringType,
+			},
+			map[string]attr.Value{
+				"name":  types.StringNull(),
+				"email": obj.Attributes()["email"],
+			},
+		)
+	}
+
+	if !obj.IsUnknown() && obj.Attributes()["email"].IsUnknown() {
+		return types.ObjectValueMust(
+			map[string]attr.Type{
+				"name":  types.StringType,
+				"email": types.StringType,
+			},
+			map[string]attr.Value{
+				"name":  obj.Attributes()["name"],
+				"email": types.StringNull(),
+			},
+		)
+	}
+
+	return *obj
 }

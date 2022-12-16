@@ -216,6 +216,9 @@ func TestResourceGitCommit_Author_Partial_Name(t *testing.T) {
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
 					resource.TestCheckResourceAttr("git_commit.test", "author.name", "test"),
+					resource.TestCheckResourceAttr("git_commit.test", "author.email", ""),
+					resource.TestCheckResourceAttr("git_commit.test", "committer.name", "test"),
+					resource.TestCheckResourceAttr("git_commit.test", "committer.email", ""),
 					resource.TestCheckResourceAttrWith("git_commit.test", "sha1", testutils.CheckExactLength(40)),
 					resource.TestCheckResourceAttr("git_commit.test", "files.#", "1"),
 				),
@@ -252,6 +255,9 @@ func TestResourceGitCommit_Author_Name_Update(t *testing.T) {
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
 					resource.TestCheckResourceAttr("git_commit.test", "author.name", "test"),
+					resource.TestCheckResourceAttr("git_commit.test", "author.email", ""),
+					resource.TestCheckResourceAttr("git_commit.test", "committer.name", "test"),
+					resource.TestCheckResourceAttr("git_commit.test", "committer.email", ""),
 					resource.TestCheckResourceAttrWith("git_commit.test", "sha1", testutils.CheckExactLength(40)),
 					resource.TestCheckResourceAttr("git_commit.test", "files.#", "1"),
 				),
@@ -272,6 +278,9 @@ func TestResourceGitCommit_Author_Name_Update(t *testing.T) {
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
 					resource.TestCheckResourceAttr("git_commit.test", "author.name", "different"),
+					resource.TestCheckNoResourceAttr("git_commit.test", "author.email"),
+					resource.TestCheckNoResourceAttr("git_commit.test", "committer.name"),
+					resource.TestCheckNoResourceAttr("git_commit.test", "committer.email"),
 					resource.TestCheckNoResourceAttr("git_commit.test", "sha1"),
 					resource.TestCheckResourceAttr("git_commit.test", "files.#", "0"),
 				),
@@ -307,7 +316,10 @@ func TestResourceGitCommit_Author_Partial_Email(t *testing.T) {
 					resource.TestCheckResourceAttrWith("git_commit.test", "id", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
+					resource.TestCheckResourceAttr("git_commit.test", "author.name", ""),
 					resource.TestCheckResourceAttr("git_commit.test", "author.email", "someone@example.com"),
+					resource.TestCheckResourceAttr("git_commit.test", "committer.name", ""),
+					resource.TestCheckResourceAttr("git_commit.test", "committer.email", "someone@example.com"),
 					resource.TestCheckResourceAttrWith("git_commit.test", "sha1", testutils.CheckExactLength(40)),
 					resource.TestCheckResourceAttr("git_commit.test", "files.#", "1"),
 				),
@@ -343,7 +355,10 @@ func TestResourceGitCommit_Author_Email_Update(t *testing.T) {
 					resource.TestCheckResourceAttrWith("git_commit.test", "id", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
+					resource.TestCheckResourceAttr("git_commit.test", "author.name", ""),
 					resource.TestCheckResourceAttr("git_commit.test", "author.email", "someone@example.com"),
+					resource.TestCheckResourceAttr("git_commit.test", "committer.name", ""),
+					resource.TestCheckResourceAttr("git_commit.test", "committer.email", "someone@example.com"),
 					resource.TestCheckResourceAttrWith("git_commit.test", "sha1", testutils.CheckExactLength(40)),
 					resource.TestCheckResourceAttr("git_commit.test", "files.#", "1"),
 				),
@@ -363,7 +378,10 @@ func TestResourceGitCommit_Author_Email_Update(t *testing.T) {
 					resource.TestCheckResourceAttrWith("git_commit.test", "id", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
+					resource.TestCheckNoResourceAttr("git_commit.test", "author.name"),
 					resource.TestCheckResourceAttr("git_commit.test", "author.email", "different@example.com"),
+					resource.TestCheckNoResourceAttr("git_commit.test", "committer.name"),
+					resource.TestCheckNoResourceAttr("git_commit.test", "committer.email"),
 					resource.TestCheckNoResourceAttr("git_commit.test", "sha1"),
 					resource.TestCheckResourceAttr("git_commit.test", "files.#", "0"),
 				),
@@ -376,7 +394,7 @@ func TestResourceGitCommit_Committer_Partial_Name(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testutils.TestConfig(t, repository)
+	cfg := testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, name)
@@ -400,7 +418,10 @@ func TestResourceGitCommit_Committer_Partial_Name(t *testing.T) {
 					resource.TestCheckResourceAttrWith("git_commit.test", "id", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
+					resource.TestCheckResourceAttr("git_commit.test", "author.name", cfg.Author.Name),
+					resource.TestCheckResourceAttr("git_commit.test", "author.email", cfg.Author.Email),
 					resource.TestCheckResourceAttr("git_commit.test", "committer.name", "test"),
+					resource.TestCheckResourceAttr("git_commit.test", "committer.email", ""),
 					resource.TestCheckResourceAttrWith("git_commit.test", "sha1", testutils.CheckExactLength(40)),
 					resource.TestCheckResourceAttr("git_commit.test", "files.#", "1"),
 				),
@@ -413,7 +434,7 @@ func TestResourceGitCommit_Committer_Partial_Email(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
 	defer os.RemoveAll(directory)
-	testutils.TestConfig(t, repository)
+	cfg := testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, name)
@@ -437,6 +458,9 @@ func TestResourceGitCommit_Committer_Partial_Email(t *testing.T) {
 					resource.TestCheckResourceAttrWith("git_commit.test", "id", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
+					resource.TestCheckResourceAttr("git_commit.test", "author.name", cfg.Author.Name),
+					resource.TestCheckResourceAttr("git_commit.test", "author.email", cfg.Author.Email),
+					resource.TestCheckResourceAttr("git_commit.test", "committer.name", ""),
 					resource.TestCheckResourceAttr("git_commit.test", "committer.email", "someone@example.com"),
 					resource.TestCheckResourceAttrWith("git_commit.test", "sha1", testutils.CheckExactLength(40)),
 					resource.TestCheckResourceAttr("git_commit.test", "files.#", "1"),
@@ -475,6 +499,7 @@ func TestResourceGitCommit_Committer_Name_Update(t *testing.T) {
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
 					resource.TestCheckResourceAttr("git_commit.test", "committer.name", "test"),
+					resource.TestCheckResourceAttr("git_commit.test", "committer.email", ""),
 					resource.TestCheckResourceAttrWith("git_commit.test", "sha1", testutils.CheckExactLength(40)),
 					resource.TestCheckResourceAttr("git_commit.test", "files.#", "1"),
 				),
@@ -495,6 +520,7 @@ func TestResourceGitCommit_Committer_Name_Update(t *testing.T) {
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
 					resource.TestCheckResourceAttr("git_commit.test", "committer.name", "different"),
+					resource.TestCheckNoResourceAttr("git_commit.test", "committer.email"),
 					resource.TestCheckNoResourceAttr("git_commit.test", "sha1"),
 					resource.TestCheckResourceAttr("git_commit.test", "files.#", "0"),
 				),
@@ -531,6 +557,7 @@ func TestResourceGitCommit_Committer_Email_Update(t *testing.T) {
 					resource.TestCheckResourceAttrWith("git_commit.test", "id", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
+					resource.TestCheckResourceAttr("git_commit.test", "committer.name", ""),
 					resource.TestCheckResourceAttr("git_commit.test", "committer.email", "someone@example.com"),
 					resource.TestCheckResourceAttrWith("git_commit.test", "sha1", testutils.CheckExactLength(40)),
 					resource.TestCheckResourceAttr("git_commit.test", "files.#", "1"),
@@ -551,6 +578,7 @@ func TestResourceGitCommit_Committer_Email_Update(t *testing.T) {
 					resource.TestCheckResourceAttrWith("git_commit.test", "id", testutils.CheckMinLength(1)),
 					resource.TestCheckResourceAttr("git_commit.test", "all", "false"),
 					resource.TestCheckResourceAttr("git_commit.test", "message", "committed with terraform"),
+					resource.TestCheckNoResourceAttr("git_commit.test", "committer.name"),
 					resource.TestCheckResourceAttr("git_commit.test", "committer.email", "different@example.com"),
 					resource.TestCheckNoResourceAttr("git_commit.test", "sha1"),
 					resource.TestCheckResourceAttr("git_commit.test", "files.#", "0"),

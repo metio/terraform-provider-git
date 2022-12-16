@@ -13,6 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -71,6 +73,9 @@ func (r *CommitResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Description:         "The timestamp of the last commit in Unix nanoseconds.",
 				MarkdownDescription: "The timestamp of the last commit in Unix nanoseconds.",
 				Computed:            true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
+				},
 			},
 			"message": schema.StringAttribute{
 				Description:         "The commit message to use.",
@@ -114,15 +119,24 @@ func (r *CommitResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 						MarkdownDescription: "The name of the author.",
 						Computed:            true,
 						Optional:            true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
+							stringplanmodifier.RequiresReplace(),
+						},
 					},
 					"email": schema.StringAttribute{
 						Description:         "The email address of the author.",
 						MarkdownDescription: "The email address of the author.",
 						Computed:            true,
 						Optional:            true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
+							stringplanmodifier.RequiresReplace(),
+						},
 					},
 				},
 				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.UseStateForUnknown(),
 					objectplanmodifier.RequiresReplace(),
 				},
 			},
@@ -137,15 +151,24 @@ func (r *CommitResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 						MarkdownDescription: "The name of the committer.",
 						Computed:            true,
 						Optional:            true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
+							stringplanmodifier.RequiresReplace(),
+						},
 					},
 					"email": schema.StringAttribute{
 						Description:         "The email address of the committer.",
 						MarkdownDescription: "The email address of the committer.",
 						Computed:            true,
 						Optional:            true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
+							stringplanmodifier.RequiresReplace(),
+						},
 					},
 				},
 				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.UseStateForUnknown(),
 					objectplanmodifier.RequiresReplace(),
 				},
 			},
@@ -153,12 +176,18 @@ func (r *CommitResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Description:         "The SHA1 hash of the created commit.",
 				MarkdownDescription: "The SHA1 hash of the created commit.",
 				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"files": schema.ListAttribute{
 				Description:         "The files updated by the commit.",
 				MarkdownDescription: "The files updated by the commit.",
 				ElementType:         types.StringType,
 				Computed:            true,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
 	}
@@ -168,7 +197,7 @@ func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest,
 	tflog.Debug(ctx, "Create resource git_commit")
 
 	var inputs commitResourceModel
-	diags := req.Config.Get(ctx, &inputs)
+	diags := req.Plan.Get(ctx, &inputs)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -193,14 +222,6 @@ func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	// NOTE: It seems default values are not working?
-	if inputs.All.IsNull() {
-		inputs.All = types.BoolValue(false)
-	}
-	if inputs.AllowEmptyCommits.IsNull() {
-		inputs.AllowEmptyCommits = types.BoolValue(true)
-	}
-
 	status, err := worktree.Status()
 	if err != nil {
 		return
@@ -212,8 +233,8 @@ func (r *CommitResource) Create(ctx context.Context, req resource.CreateRequest,
 	state.All = inputs.All
 	state.AllowEmptyCommits = inputs.AllowEmptyCommits
 	state.Message = inputs.Message
-	state.Author = inputs.Author
-	state.Committer = inputs.Committer
+	state.Author = signatureObject(&inputs.Author)
+	state.Committer = signatureObject(&inputs.Committer)
 	state.Files = types.ListNull(types.StringType)
 	state.SHA1 = types.StringNull()
 
