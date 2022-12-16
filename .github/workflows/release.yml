@@ -32,25 +32,47 @@ jobs:
           ref: ${{ steps.release.outputs.version }}
       - id: setup_go
         name: Set up Go
-        uses: actions/setup-go@v3
         if: steps.commits.outputs.count > 0
+        uses: actions/setup-go@v3
         with:
           go-version-file: go.mod
           cache: true
       - id: import_gpg
         name: Import GPG key
-        uses: crazy-max/ghaction-import-gpg@v5
         if: steps.commits.outputs.count > 0
+        uses: crazy-max/ghaction-import-gpg@v5
         with:
           gpg_private_key: ${{ secrets.GPG_SECRET_KEY_BASE64 }}
           passphrase: ${{ secrets.GPG_SECRET_KEY_PASSWORD }}
       - id: goreleaser
         name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v4
         if: steps.commits.outputs.count > 0
+        uses: goreleaser/goreleaser-action@v4
         with:
           version: latest
           args: release --rm-dist
         env:
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - id: mail
+        name: Send Mail
+        if: steps.commits.outputs.count > 0
+        uses: dawidd6/action-send-mail@v3.7.1
+        with:
+          server_address: $${{ secrets.MAIL_SERVER }}
+          server_port: $${{ secrets.MAIL_PORT }}
+          username: $${{ secrets.MAIL_USERNAME }}
+          password: $${{ secrets.MAIL_PASSWORD }}
+          subject: $${{ github.event.repository.name }} version $${{ steps.release.outputs.version }} published
+          body: See $${{ steps.create_release.outputs.url }} for details.
+          to: $${{ secrets.MAIL_RECIPIENT }}
+          from: $${{ secrets.MAIL_SENDER }}
+      - id: matrix
+        name: Send Matrix Message
+        if: steps.commits.outputs.count > 0
+        uses: s3krit/matrix-message-action@v0.0.3
+        with:
+          room_id: $${{ secrets.MATRIX_ROOM_ID }}
+          access_token: $${{ secrets.MATRIX_ACCESS_TOKEN }}
+          message: $${{ github.event.repository.name }} version [$${{ steps.release.outputs.version }}]($${{ steps.create_release.outputs.url }}) published
+          server: $${{ secrets.MATRIX_SERVER }}
