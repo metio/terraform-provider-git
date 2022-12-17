@@ -70,7 +70,7 @@ func createCommitOptions(ctx context.Context, inputs commitResourceModel) *git.C
 		"all": options.All,
 	})
 
-	options.AllowEmptyCommits = inputs.All.ValueBool()
+	options.AllowEmptyCommits = inputs.AllowEmptyCommits.ValueBool()
 	tflog.Trace(ctx, "using 'AllowEmptyCommits'", map[string]interface{}{
 		"allow empty commits": options.AllowEmptyCommits,
 	})
