@@ -57,22 +57,22 @@ jobs:
       - id: mail
         name: Send Mail
         if: steps.commits.outputs.count > 0
-        uses: dawidd6/action-send-mail@v3.7.1
+        uses: dawidd6/action-send-mail@v3
         with:
-          server_address: $${{ secrets.MAIL_SERVER }}
-          server_port: $${{ secrets.MAIL_PORT }}
-          username: $${{ secrets.MAIL_USERNAME }}
-          password: $${{ secrets.MAIL_PASSWORD }}
-          subject: $${{ github.event.repository.name }} version $${{ steps.release.outputs.version }} published
-          body: See $${{ steps.create_release.outputs.url }} for details.
-          to: $${{ secrets.MAIL_RECIPIENT }}
-          from: $${{ secrets.MAIL_SENDER }}
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port: ${{ secrets.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: ${{ github.event.repository.name }} version ${{ steps.release.outputs.version }} published
+          body: See ${{ steps.create_release.outputs.url }} for details.
+          to: ${{ secrets.MAIL_RECIPIENT }}
+          from: ${{ secrets.MAIL_SENDER }}
       - id: matrix
         name: Send Matrix Message
         if: steps.commits.outputs.count > 0
         uses: s3krit/matrix-message-action@v0.0.3
         with:
-          room_id: $${{ secrets.MATRIX_ROOM_ID }}
-          access_token: $${{ secrets.MATRIX_ACCESS_TOKEN }}
-          message: $${{ github.event.repository.name }} version [$${{ steps.release.outputs.version }}]($${{ steps.create_release.outputs.url }}) published
-          server: $${{ secrets.MATRIX_SERVER }}
+          room_id: ${{ secrets.MATRIX_ROOM_ID }}
+          access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
+          message: ${{ github.event.repository.name }} version [${{ steps.release.outputs.version }}](${{ steps.create_release.outputs.url }}) published
+          server: ${{ secrets.MATRIX_SERVER }}
