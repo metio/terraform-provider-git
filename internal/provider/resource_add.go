@@ -7,6 +7,7 @@ package provider
 
 import (
 	"context"
+	"github.com/bmatcuk/doublestar/v4"
 	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -18,7 +19,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"path/filepath"
 	"time"
 )
 
@@ -120,14 +120,14 @@ func (r *AddResource) Create(ctx context.Context, req resource.CreateRequest, re
 	for _, pattern := range paths {
 		for file, fileStatus := range status {
 			if fileStatus.Worktree != git.Unmodified {
-				match, errMatch := filepath.Match(pattern, file)
+				pathMatch, errMatch := doublestar.PathMatch(pattern, file)
 				if errMatch != nil {
 					resp.Diagnostics.AddError(
 						"Cannot match file path",
 						"Could not match pattern ["+pattern+"] because of: "+errMatch.Error(),
 					)
 				}
-				if match {
+				if pathMatch {
 					_, errAdd := worktree.Add(file)
 					if errAdd != nil {
 						resp.Diagnostics.AddError(
@@ -213,7 +213,7 @@ func (r *AddResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReq
 	for _, pattern := range paths {
 		for key, val := range status {
 			if val.Worktree != git.Unmodified {
-				match, errMatch := filepath.Match(pattern, key)
+				pathMatch, errMatch := doublestar.PathMatch(pattern, key)
 				if errMatch != nil {
 					resp.Diagnostics.AddError(
 						"Cannot match file path",
@@ -221,7 +221,7 @@ func (r *AddResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReq
 					)
 					return
 				}
-				if match {
+				if pathMatch {
 					id := path.Root("id")
 					resp.Plan.SetAttribute(ctx, id, time.Now().UnixNano())
 					resp.RequiresReplace = append(resp.RequiresReplace, id)
