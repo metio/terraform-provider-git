@@ -14,7 +14,7 @@ require (
 	github.com/hashicorp/terraform-plugin-framework-validators v0.10.0
 	github.com/hashicorp/terraform-plugin-go v0.14.3
 	github.com/hashicorp/terraform-plugin-log v0.8.0
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.26.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.26.1
 	github.com/stretchr/testify v1.8.2
 	golang.org/x/crypto v0.7.0
 )
