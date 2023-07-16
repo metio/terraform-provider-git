@@ -3,7 +3,7 @@
 
 module github.com/metio/terraform-provider-git
 
-go 1.19
+go 1.20
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.6.0
@@ -95,7 +95,7 @@ require (
 	github.com/skeema/knownhosts v1.1.1 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/tmccombs/hcl2json v0.3.3 // indirect
-	github.com/ulikunitz/xz v0.5.10 // indirect
+	github.com/ulikunitz/xz v0.5.11 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
