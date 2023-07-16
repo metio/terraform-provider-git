@@ -55,5 +55,3 @@ Read-Only:
 - `annotated` (Boolean) Whether the tag is an annotated tag or not.
 - `lightweight` (Boolean) Whether the tag is a lightweight tag or not.
 - `sha1` (String) The SHA1 checksum of the commit the tag is pointing at.
-
-

@@ -53,5 +53,3 @@ resource "git_add" "glob_pattern" {
 ### Read-Only
 
 - `id` (Number) The timestamp of the last addition in Unix nanoseconds.
-
-

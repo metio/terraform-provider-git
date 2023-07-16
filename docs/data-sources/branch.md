@@ -33,5 +33,3 @@ data "git_branch" "branch" {
 - `rebase` (String) The rebase configuration for the specified Git branch. Possible values are `true`, `interactive`, and `false`.
 - `remote` (String) The configured remote for the specified Git branch.
 - `sha1` (String) The SHA1 checksum of the `HEAD` commit in the specified Git branch.
-
-

@@ -177,5 +177,3 @@ Required:
 Optional:
 
 - `known_hosts` (Set of String) The list of known hosts files to accept. If none are specified, system defaults will be used.
-
-

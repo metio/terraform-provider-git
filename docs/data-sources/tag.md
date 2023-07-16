@@ -34,5 +34,3 @@ data "git_tag" "tag" {
 - `lightweight` (Boolean) Whether the given tag is a lightweight tag.
 - `message` (String) The associated message of an annotated tag.
 - `sha1` (String) The SHA1 checksum of the commit the given tag is pointing at.
-
-

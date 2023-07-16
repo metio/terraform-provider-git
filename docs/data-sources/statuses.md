@@ -38,5 +38,3 @@ Read-Only:
 
 - `staging` (String) The status of the file in the staging area.
 - `worktree` (String) The status of the file in the worktree
-
-
