@@ -32,5 +32,3 @@ data "git_status" "status" {
 - `id` (String) The same value as the `file` attribute.
 - `staging` (String) The status of the file in the staging area.
 - `worktree` (String) The status of the file in the worktree
-
-

@@ -31,5 +31,3 @@ data "git_remote" "remote" {
 
 - `id` (String) The same value as the `name` attribute.
 - `urls` (List of String) The configured URLs of the given remote.
-
-

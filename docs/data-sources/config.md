@@ -39,5 +39,3 @@ data "git_config" "config" {
 - `id` (String) The same value as the `directory` attribute.
 - `user_email` (String) The email address of the author and the committer of a commit.
 - `user_name` (String) The name of the author and the committer of a commit.
-
-

@@ -81,5 +81,3 @@ Read-Only:
 - `email` (String) The email address of the committer.
 - `name` (String) The name of the committer.
 - `timestamp` (String) The timestamp of the signature.
-
-

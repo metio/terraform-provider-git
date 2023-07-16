@@ -30,5 +30,3 @@ data "git_repository" "repository" {
 - `branch` (String) The name of the current branch of the given Git repository. Note that repositories in detached state might not have a branch associated with them.
 - `id` (String) The same value as the `directory` attribute.
 - `sha1` (String) The SHA1 of the current `HEAD` of the given Git repository.
-
-

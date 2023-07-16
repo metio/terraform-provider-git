@@ -36,5 +36,3 @@ data "git_remotes" "remotes" {
 Read-Only:
 
 - `urls` (List of String) The URLs for the remote.
-
-

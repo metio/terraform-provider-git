@@ -54,5 +54,3 @@ data "git_commit" "from_log" {
 
 - `commits` (List of String) The resulting commit SHA1 hashes ordered as specified by the `order` attribute.
 - `id` (String) The same value as the `directory` attribute.
-
-
