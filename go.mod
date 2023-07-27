@@ -8,7 +8,7 @@ go 1.20
 require (
 	github.com/bmatcuk/doublestar/v4 v4.6.0
 	github.com/go-git/go-git/v5 v5.8.1
-	github.com/gruntwork-io/terratest v0.43.10
+	github.com/gruntwork-io/terratest v0.43.11
 	github.com/hashicorp/terraform-plugin-docs v0.16.0
 	github.com/hashicorp/terraform-plugin-framework v1.3.3
 	github.com/hashicorp/terraform-plugin-framework-validators v0.10.0
