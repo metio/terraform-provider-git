@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/metio/terraform-provider-git/internal/testutils"
-	"os"
 	"regexp"
 	"testing"
 )
@@ -17,7 +16,6 @@ import (
 func TestResourceGitTag(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -48,7 +46,6 @@ func TestResourceGitTag(t *testing.T) {
 func TestResourceGitTag_Annotated(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -81,7 +78,6 @@ func TestResourceGitTag_Annotated(t *testing.T) {
 func TestResourceGitTag_Revision_Hash(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -117,7 +113,6 @@ func TestResourceGitTag_Revision_Hash(t *testing.T) {
 func TestResourceGitTag_Revision_Head(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -153,7 +148,6 @@ func TestResourceGitTag_Revision_Head(t *testing.T) {
 func TestResourceGitTag_Revision_Master(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -228,7 +222,6 @@ func TestResourceGitTag_Directory_Missing(t *testing.T) {
 func TestResourceGitTag_Name_Missing(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -248,7 +241,6 @@ func TestResourceGitTag_Name_Missing(t *testing.T) {
 func TestResourceGitTag_Import(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -297,7 +289,6 @@ func TestResourceGitTag_Import(t *testing.T) {
 func TestResourceGitTag_ImportWithRevision(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -348,7 +339,6 @@ func TestResourceGitTag_ImportWithRevision(t *testing.T) {
 func TestResourceGitTag_Import_NonExistingRepo(t *testing.T) {
 	t.Parallel()
 	directory := testutils.TemporaryDirectory(t)
-	defer os.RemoveAll(directory)
 	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
@@ -374,7 +364,6 @@ func TestResourceGitTag_Import_NonExistingRepo(t *testing.T) {
 func TestResourceGitTag_Name_Update(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -417,12 +406,10 @@ func TestResourceGitTag_Name_Update(t *testing.T) {
 func TestResourceGitTag_Directory_Update(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	newDirectory, newRepository := testutils.CreateRepository(t)
-	defer os.RemoveAll(newDirectory)
 	testutils.TestConfig(t, newRepository)
 	newWorktree := testutils.GetRepositoryWorktree(t, newRepository)
 	testutils.AddAndCommitNewFile(t, newWorktree, "other-file")

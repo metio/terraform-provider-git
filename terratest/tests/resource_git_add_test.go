@@ -15,7 +15,6 @@ import (
 
 func TestResourceGitAdd_SingleFile_Exact_WriteOnce(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)
@@ -42,7 +41,6 @@ func TestResourceGitAdd_SingleFile_Exact_WriteOnce(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Glob_WriteOnce(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)
@@ -69,7 +67,6 @@ func TestResourceGitAdd_SingleFile_Glob_WriteOnce(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Exact_NoMatch(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)
@@ -96,7 +93,6 @@ func TestResourceGitAdd_SingleFile_Exact_NoMatch(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Glob_NoMatch(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)
@@ -123,7 +119,6 @@ func TestResourceGitAdd_SingleFile_Glob_NoMatch(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Exact_WriteMultiple(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)
@@ -160,7 +155,6 @@ func TestResourceGitAdd_SingleFile_Exact_WriteMultiple(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Glob_WriteMultiple(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)
@@ -197,7 +191,6 @@ func TestResourceGitAdd_SingleFile_Glob_WriteMultiple(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Glob_Subfolder(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	err := os.Mkdir(directory+"/nested-folder", 0700)
 	if err != nil {
 		t.Fatal(err)
@@ -228,7 +221,6 @@ func TestResourceGitAdd_SingleFile_Glob_Subfolder(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Glob_SubSubfolder(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	err := os.Mkdir(directory+"/nested-folder", 0700)
 	if err != nil {
 		t.Fatal(err)
@@ -263,7 +255,6 @@ func TestResourceGitAdd_SingleFile_Glob_SubSubfolder(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Glob_SubSubfolder_All(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	err := os.Mkdir(directory+"/nested-folder", 0700)
 	if err != nil {
 		t.Fatal(err)
@@ -298,7 +289,6 @@ func TestResourceGitAdd_SingleFile_Glob_SubSubfolder_All(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Glob_SubSubfolder_PartialNested(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	err := os.Mkdir(directory+"/nested-folder", 0700)
 	if err != nil {
 		t.Fatal(err)
@@ -333,7 +323,6 @@ func TestResourceGitAdd_SingleFile_Glob_SubSubfolder_PartialNested(t *testing.T)
 
 func TestResourceGitAdd_SingleFile_Glob_SubSubfolder_PartialSub(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	err := os.Mkdir(directory+"/nested-folder", 0700)
 	if err != nil {
 		t.Fatal(err)
@@ -368,7 +357,6 @@ func TestResourceGitAdd_SingleFile_Glob_SubSubfolder_PartialSub(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Exact_WriteDelete(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)
@@ -404,7 +392,6 @@ func TestResourceGitAdd_SingleFile_Exact_WriteDelete(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Glob_WriteDelete(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)
@@ -440,7 +427,6 @@ func TestResourceGitAdd_SingleFile_Glob_WriteDelete(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Exact_DeleteCommitted(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.AddAndCommitNewFile(t, worktree, filename)
@@ -476,7 +462,6 @@ func TestResourceGitAdd_SingleFile_Exact_DeleteCommitted(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Glob_DeleteCommitted(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.AddAndCommitNewFile(t, worktree, filename)
@@ -512,7 +497,6 @@ func TestResourceGitAdd_SingleFile_Glob_DeleteCommitted(t *testing.T) {
 
 func TestResourceGitAdd_MultipleFiles_WriteOnce(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)

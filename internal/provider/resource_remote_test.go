@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/metio/terraform-provider-git/internal/testutils"
-	"os"
 	"regexp"
 	"testing"
 )
@@ -17,7 +16,6 @@ import (
 func TestResourceGitRemote(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 
@@ -47,7 +45,6 @@ func TestResourceGitRemote(t *testing.T) {
 func TestResourceGitRemote_MultipleUrls(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 	url2 := "https://codeberg.org/some-org/some-repo.git"
@@ -120,7 +117,6 @@ func TestResourceGitRemote_MissingRepository(t *testing.T) {
 func TestResourceGitRemote_MissingName(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -141,7 +137,6 @@ func TestResourceGitRemote_MissingName(t *testing.T) {
 func TestResourceGitRemote_MissingUrls(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	name := "some-name"
 
 	resource.UnitTest(t, resource.TestCase{
@@ -163,7 +158,6 @@ func TestResourceGitRemote_MissingUrls(t *testing.T) {
 func TestResourceGitRemote_Import_NonExistingRepo(t *testing.T) {
 	t.Parallel()
 	directory := testutils.TemporaryDirectory(t)
-	defer os.RemoveAll(directory)
 	name := "some-name"
 	url := "https://github.com/some-org/some-repo.git"
 
@@ -191,7 +185,6 @@ func TestResourceGitRemote_Import_NonExistingRepo(t *testing.T) {
 func TestResourceGitRemote_Import_NonExistingRemote(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	name := "some-name"
 	url := "https://example.com/metio/terraform-provider-git.git"
 
@@ -219,7 +212,6 @@ func TestResourceGitRemote_Import_NonExistingRemote(t *testing.T) {
 func TestResourceGitRemote_Import_SingleUrl(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	name := "some-name"
 	url := "https://example.com/metio/terraform-provider-git.git"
 	testutils.CreateRemoteWithUrls(t, repository, name, []string{url})
@@ -269,7 +261,6 @@ func TestResourceGitRemote_Import_SingleUrl(t *testing.T) {
 func TestResourceGitRemote_Import_SingleUrlWithDrift(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	name := "some-name"
 	url := "https://example.com/metio/terraform-provider-git.git"
 	testutils.CreateRemoteWithUrls(t, repository, name, []string{"https://example.com/another/random.git"})
@@ -319,7 +310,6 @@ func TestResourceGitRemote_Import_SingleUrlWithDrift(t *testing.T) {
 func TestResourceGitRemote_Import_MultipleUrls(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 	url2 := "https://codeberg.org/some-org/some-repo.git"
@@ -372,7 +362,6 @@ func TestResourceGitRemote_Import_MultipleUrls(t *testing.T) {
 func TestResourceGitRemote_Update_Urls(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 	url2 := "https://codeberg.org/some-org/some-repo.git"
@@ -436,7 +425,6 @@ func TestResourceGitRemote_Update_Urls(t *testing.T) {
 func TestResourceGitRemote_Update_Name(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	name := "some-name"
 	newName := "other-name"
 	url1 := "https://github.com/some-org/some-repo.git"
@@ -484,8 +472,6 @@ func TestResourceGitRemote_Update_Directory(t *testing.T) {
 	t.Parallel()
 	directory1, _ := testutils.CreateRepository(t)
 	directory2, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory1)
-	defer os.RemoveAll(directory2)
 	name := "some-name"
 	url1 := "https://github.com/some-org/some-repo.git"
 

@@ -9,13 +9,11 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/metio/terraform-provider-git/internal/testutils"
 	"github.com/stretchr/testify/assert"
-	"os"
 	"testing"
 )
 
 func TestDataSourceGitConfig_ScopedLocal(t *testing.T) {
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	scope := "local"
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
@@ -53,7 +51,6 @@ func TestDataSourceGitConfig_ScopedLocal(t *testing.T) {
 
 func TestDataSourceGitConfig_ScopedGlobal(t *testing.T) {
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	scope := "global"
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
@@ -91,7 +88,6 @@ func TestDataSourceGitConfig_ScopedGlobal(t *testing.T) {
 
 func TestDataSourceGitConfig_ScopedSystem(t *testing.T) {
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	scope := "system"
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
@@ -130,7 +126,6 @@ func TestDataSourceGitConfig_ScopedSystem(t *testing.T) {
 func TestDataSourceGitConfig_UsingDefaults(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_config/using_defaults",

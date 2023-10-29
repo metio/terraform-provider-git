@@ -10,7 +10,6 @@ import (
 	"github.com/go-git/go-git/v5/config"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/metio/terraform-provider-git/internal/testutils"
-	"os"
 	"regexp"
 	"testing"
 )
@@ -18,7 +17,6 @@ import (
 func TestDataSourceGitBranch(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	name := "name-of-branch"
@@ -73,7 +71,6 @@ func TestDataSourceGitBranch_InvalidRepository(t *testing.T) {
 func TestDataSourceGitBranch_InvalidBranch(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -94,7 +91,6 @@ func TestDataSourceGitBranch_InvalidBranch(t *testing.T) {
 func TestDataSourceGitBranch_MissingBranch(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
