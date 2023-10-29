@@ -17,7 +17,7 @@ import (
 func TestResourceGitPush(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	directory2, _ := testutils.CreateRepository(t)
+	directory2 := testutils.CreateBareRepository(t)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
