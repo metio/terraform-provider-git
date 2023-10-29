@@ -17,7 +17,6 @@ import (
 func TestResourceGitAdd(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, name)
@@ -45,7 +44,6 @@ func TestResourceGitAdd(t *testing.T) {
 func TestResourceGitAdd_AddPaths_Multiple(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, name)
@@ -74,7 +72,6 @@ func TestResourceGitAdd_AddPaths_Multiple(t *testing.T) {
 func TestResourceGitAdd_AddPaths_NonExistingFile(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	name := "some-file"
 
 	resource.UnitTest(t, resource.TestCase{
@@ -100,7 +97,6 @@ func TestResourceGitAdd_AddPaths_NonExistingFile(t *testing.T) {
 func TestResourceGitAdd_AddPaths_Directory(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	err := os.Mkdir(directory+"/nested-folder", 0700)
 	if err != nil {
 		t.Fatal(err)
@@ -129,7 +125,6 @@ func TestResourceGitAdd_AddPaths_Directory(t *testing.T) {
 func TestResourceGitAdd_AddPaths_Updated(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, name)
@@ -185,7 +180,6 @@ func TestResourceGitAdd_AddPaths_Updated(t *testing.T) {
 func TestResourceGitAdd_BareRepository(t *testing.T) {
 	t.Parallel()
 	directory := testutils.CreateBareRepository(t)
-	defer os.RemoveAll(directory)
 	name := "some-file"
 
 	resource.UnitTest(t, resource.TestCase{
@@ -246,7 +240,6 @@ func TestResourceGitAdd_Directory_Missing(t *testing.T) {
 func TestResourceGitAdd_AddPaths_Update(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name1 := "some-file"
 	name2 := "other-file"

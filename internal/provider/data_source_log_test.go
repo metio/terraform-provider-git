@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/metio/terraform-provider-git/internal/testutils"
-	"os"
 	"regexp"
 	"testing"
 )
@@ -17,7 +16,6 @@ import (
 func TestDataSourceGitLog(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	fileName := "some-file"
@@ -48,7 +46,6 @@ func TestDataSourceGitLog(t *testing.T) {
 func TestDataSourceGitLog_All(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -77,7 +74,6 @@ func TestDataSourceGitLog_All(t *testing.T) {
 func TestDataSourceGitLog_MaxCount(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -106,7 +102,6 @@ func TestDataSourceGitLog_MaxCount(t *testing.T) {
 func TestDataSourceGitLog_FilterPaths(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -135,7 +130,6 @@ func TestDataSourceGitLog_FilterPaths(t *testing.T) {
 func TestDataSourceGitLog_From(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -164,7 +158,6 @@ func TestDataSourceGitLog_From(t *testing.T) {
 func TestDataSourceGitLog_Skip(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -193,7 +186,6 @@ func TestDataSourceGitLog_Skip(t *testing.T) {
 func TestDataSourceGitLog_Since(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -222,7 +214,6 @@ func TestDataSourceGitLog_Since(t *testing.T) {
 func TestDataSourceGitLog_Until(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -251,7 +242,6 @@ func TestDataSourceGitLog_Until(t *testing.T) {
 func TestDataSourceGitLog_Order_Time(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -280,7 +270,6 @@ func TestDataSourceGitLog_Order_Time(t *testing.T) {
 func TestDataSourceGitLog_Order_Depth(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -309,7 +298,6 @@ func TestDataSourceGitLog_Order_Depth(t *testing.T) {
 func TestDataSourceGitLog_Order_Breadth(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -338,7 +326,6 @@ func TestDataSourceGitLog_Order_Breadth(t *testing.T) {
 func TestDataSourceGitLog_MaxCount_Zero(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -367,7 +354,6 @@ func TestDataSourceGitLog_MaxCount_Zero(t *testing.T) {
 func TestDataSourceGitLog_MaxCount_Negative(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 
 	resource.UnitTest(t, resource.TestCase{
@@ -389,7 +375,6 @@ func TestDataSourceGitLog_MaxCount_Negative(t *testing.T) {
 func TestDataSourceGitLog_Skip_Negative(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 
 	resource.UnitTest(t, resource.TestCase{
@@ -411,7 +396,6 @@ func TestDataSourceGitLog_Skip_Negative(t *testing.T) {
 func TestDataSourceGitLog_Order_Invalid(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 
 	resource.UnitTest(t, resource.TestCase{

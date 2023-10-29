@@ -14,11 +14,7 @@ import (
 )
 
 func TemporaryDirectory(t *testing.T) string {
-	directory, err := os.MkdirTemp("", "terraform-provider-git")
-	if err != nil {
-		t.Fatal(err)
-	}
-	return filepath.ToSlash(directory)
+	return filepath.ToSlash(t.TempDir())
 }
 
 func WriteFile(t *testing.T, name string) {

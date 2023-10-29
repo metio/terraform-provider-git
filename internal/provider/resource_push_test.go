@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/metio/terraform-provider-git/internal/testutils"
-	"os"
 	"path/filepath"
 	"regexp"
 	"testing"
@@ -18,9 +17,7 @@ import (
 func TestResourceGitPush(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	directory2, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
-	defer os.RemoveAll(directory2)
+	directory2 := testutils.CreateBareRepository(t)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
@@ -58,7 +55,6 @@ func TestResourceGitPush(t *testing.T) {
 func TestResourceGitPush_RefSpecs_Invalid(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -79,7 +75,6 @@ func TestResourceGitPush_RefSpecs_Invalid(t *testing.T) {
 func TestResourceGitPush_Remote_Unknown(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -119,7 +114,6 @@ func TestResourceGitPush_Directory_Invalid(t *testing.T) {
 func TestResourceGitPush_Auth_Invalid_BasicAndBearer(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -147,7 +141,6 @@ func TestResourceGitPush_Auth_Invalid_BasicAndBearer(t *testing.T) {
 func TestResourceGitPush_Auth_Invalid_BasicAndSshKey(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -177,7 +170,6 @@ func TestResourceGitPush_Auth_Invalid_BasicAndSshKey(t *testing.T) {
 func TestResourceGitPush_Auth_Invalid_BasicAndSshAgent(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -205,7 +197,6 @@ func TestResourceGitPush_Auth_Invalid_BasicAndSshAgent(t *testing.T) {
 func TestResourceGitPush_Auth_Invalid_BasicAndSshPassword(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -236,7 +227,6 @@ func TestResourceGitPush_Auth_Invalid_BasicAndSshPassword(t *testing.T) {
 func TestResourceGitPush_Auth_Invalid_BearerAndSshKey(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -263,7 +253,6 @@ func TestResourceGitPush_Auth_Invalid_BearerAndSshKey(t *testing.T) {
 func TestResourceGitPush_Auth_Invalid_BearerAndSshAgent(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -288,7 +277,6 @@ func TestResourceGitPush_Auth_Invalid_BearerAndSshAgent(t *testing.T) {
 func TestResourceGitPush_Auth_Invalid_BearerAndSshPassword(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -316,7 +304,6 @@ func TestResourceGitPush_Auth_Invalid_BearerAndSshPassword(t *testing.T) {
 func TestResourceGitPush_Auth_Invalid_SshKeyAndSshAgent(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -343,7 +330,6 @@ func TestResourceGitPush_Auth_Invalid_SshKeyAndSshAgent(t *testing.T) {
 func TestResourceGitPush_Auth_Invalid_SshKeyAndSshPassword(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -373,7 +359,6 @@ func TestResourceGitPush_Auth_Invalid_SshKeyAndSshPassword(t *testing.T) {
 func TestResourceGitPush_Auth_Invalid_BasicAuth_Username_Required(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -399,7 +384,6 @@ func TestResourceGitPush_Auth_Invalid_BasicAuth_Username_Required(t *testing.T) 
 func TestResourceGitPush_Auth_Invalid_BasicAuth_Password_Required(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -425,7 +409,6 @@ func TestResourceGitPush_Auth_Invalid_BasicAuth_Password_Required(t *testing.T) 
 func TestResourceGitPush_Auth_Invalid_Bearer_Token_Required(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -449,7 +432,6 @@ func TestResourceGitPush_Auth_Invalid_Bearer_Token_Required(t *testing.T) {
 func TestResourceGitPush_Auth_Invalid_SshKey_PrivateKey_Required(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -473,7 +455,6 @@ func TestResourceGitPush_Auth_Invalid_SshKey_PrivateKey_Required(t *testing.T) {
 func TestResourceGitPush_Auth_Invalid_SshKey_PathAndPem(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -500,7 +481,6 @@ func TestResourceGitPush_Auth_Invalid_SshKey_PathAndPem(t *testing.T) {
 func TestResourceGitPush_Auth_Invalid_SshPassword_Username_Required(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -526,7 +506,6 @@ func TestResourceGitPush_Auth_Invalid_SshPassword_Username_Required(t *testing.T
 func TestResourceGitPush_Auth_Invalid_SshPassword_Password_Required(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),
@@ -552,7 +531,6 @@ func TestResourceGitPush_Auth_Invalid_SshPassword_Password_Required(t *testing.T
 func TestResourceGitPush_Auth_Invalid_Empty(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),

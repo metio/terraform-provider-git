@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/metio/terraform-provider-git/internal/testutils"
-	"os"
 	"regexp"
 	"testing"
 )
@@ -17,7 +16,6 @@ import (
 func TestDataSourceGitRepository(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 
@@ -44,7 +42,6 @@ func TestDataSourceGitRepository(t *testing.T) {
 func TestDataSourceGitRepository_Detached(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	head := testutils.GetRepositoryHead(t, repository)
@@ -73,7 +70,6 @@ func TestDataSourceGitRepository_Detached(t *testing.T) {
 func TestDataSourceGitRepository_Empty(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: testutils.ProviderFactories(),

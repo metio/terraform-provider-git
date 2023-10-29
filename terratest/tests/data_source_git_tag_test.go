@@ -9,14 +9,12 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/metio/terraform-provider-git/internal/testutils"
 	"github.com/stretchr/testify/assert"
-	"os"
 	"testing"
 )
 
 func TestDataSourceGitTag_SingleTag(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	name := "some-tag"
@@ -46,7 +44,6 @@ func TestDataSourceGitTag_SingleTag(t *testing.T) {
 func TestDataSourceGitTag_EveryTag(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	testutils.CreateTag(t, repository, "some-tag")

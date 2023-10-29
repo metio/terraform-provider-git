@@ -9,14 +9,12 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/metio/terraform-provider-git/internal/testutils"
 	"github.com/stretchr/testify/assert"
-	"os"
 	"testing"
 )
 
 func TestDataSourceGitCommit_CurrentHead(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 
@@ -45,7 +43,6 @@ func TestDataSourceGitCommit_CurrentHead(t *testing.T) {
 func TestDataSourceGitCommit_FromLog(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 

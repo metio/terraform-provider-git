@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/metio/terraform-provider-git/internal/testutils"
-	"os"
 	"regexp"
 	"testing"
 )
@@ -17,7 +16,6 @@ import (
 func TestDataSourceGitTags(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-tag"
@@ -47,7 +45,6 @@ func TestDataSourceGitTags(t *testing.T) {
 func TestDataSourceGitTags_NoAnnotated(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-tag"
@@ -78,7 +75,6 @@ func TestDataSourceGitTags_NoAnnotated(t *testing.T) {
 func TestDataSourceGitTags_NoLightweight(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	tag := "some-tag"

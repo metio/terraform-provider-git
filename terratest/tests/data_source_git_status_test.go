@@ -9,13 +9,11 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/metio/terraform-provider-git/internal/testutils"
 	"github.com/stretchr/testify/assert"
-	"os"
 	"testing"
 )
 
 func TestDataSourceGitStatus_SingleFile_Committed(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.AddAndCommitNewFile(t, worktree, filename)
@@ -47,7 +45,6 @@ func TestDataSourceGitStatus_SingleFile_Committed(t *testing.T) {
 
 func TestDataSourceGitStatus_SingleFile_Written(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)
@@ -79,7 +76,6 @@ func TestDataSourceGitStatus_SingleFile_Written(t *testing.T) {
 
 func TestDataSourceGitStatus_SingleFile_Added(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)
@@ -113,7 +109,6 @@ func TestDataSourceGitStatus_SingleFile_Added(t *testing.T) {
 func TestDataSourceGitStatus_EveryFile(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.AddAndCommitNewFile(t, worktree, "some-file")
 	testutils.AddAndCommitNewFile(t, worktree, "other-file")

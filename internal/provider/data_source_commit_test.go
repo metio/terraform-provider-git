@@ -10,14 +10,12 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/metio/terraform-provider-git/internal/testutils"
-	"os"
 	"testing"
 )
 
 func TestDataSourceGitCommit(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	fileName := "some-file"
@@ -59,7 +57,6 @@ func TestDataSourceGitCommit(t *testing.T) {
 func TestDataSourceGitCommit_MultipleFiles(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	fileName1 := "some-file"
@@ -104,7 +101,6 @@ func TestDataSourceGitCommit_MultipleFiles(t *testing.T) {
 func TestDataSourceGitCommit_WithHead(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	fileName := "some-file"
@@ -146,7 +142,6 @@ func TestDataSourceGitCommit_WithHead(t *testing.T) {
 func TestDataSourceGitCommit_WithBranch(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	fileName := "some-file"
@@ -187,7 +182,6 @@ func TestDataSourceGitCommit_WithBranch(t *testing.T) {
 func TestDataSourceGitCommit_WithSignature(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	fileName := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, fileName)

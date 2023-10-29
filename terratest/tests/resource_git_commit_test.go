@@ -9,13 +9,11 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/metio/terraform-provider-git/internal/testutils"
 	"github.com/stretchr/testify/assert"
-	"os"
 	"testing"
 )
 
 func TestResourceGitCommit_WithAdd(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)
@@ -46,7 +44,6 @@ func TestResourceGitCommit_WithAdd(t *testing.T) {
 
 func TestResourceGitCommit_WithAdd_Repeated(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)
@@ -91,7 +88,6 @@ func TestResourceGitCommit_WithAdd_Repeated(t *testing.T) {
 
 func TestResourceGitCommit_All(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)
@@ -121,7 +117,6 @@ func TestResourceGitCommit_All(t *testing.T) {
 
 func TestResourceGitCommit_All_ModifiedCommitted(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.AddAndCommitNewFile(t, worktree, filename)
@@ -152,7 +147,6 @@ func TestResourceGitCommit_All_ModifiedCommitted(t *testing.T) {
 
 func TestResourceGitCommit_All_Repeated(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)
@@ -196,7 +190,6 @@ func TestResourceGitCommit_All_Repeated(t *testing.T) {
 
 func TestResourceGitCommit_All_ModifiedCommitted_Repeated(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.AddAndCommitNewFile(t, worktree, filename)
@@ -241,7 +234,6 @@ func TestResourceGitCommit_All_ModifiedCommitted_Repeated(t *testing.T) {
 
 func TestResourceGitCommit_WithoutAdd(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)
@@ -272,7 +264,6 @@ func TestResourceGitCommit_WithoutAdd(t *testing.T) {
 
 func TestResourceGitCommit_WithoutAdd_Repeated(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	filename := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, filename)

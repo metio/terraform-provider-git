@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/metio/terraform-provider-git/internal/testutils"
-	"os"
 	"regexp"
 	"testing"
 )
@@ -17,7 +16,6 @@ import (
 func TestResourceGitCommit(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	cfg := testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
@@ -56,7 +54,6 @@ func TestResourceGitCommit(t *testing.T) {
 func TestResourceGitCommit_AllowEmptyCommit_True(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	cfg := testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.WriteFileInWorktree(t, worktree, "some-file")
@@ -93,7 +90,6 @@ func TestResourceGitCommit_AllowEmptyCommit_True(t *testing.T) {
 func TestResourceGitCommit_AllowEmptyCommit_False(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.WriteFileInWorktree(t, worktree, "some-file")
@@ -118,7 +114,6 @@ func TestResourceGitCommit_AllowEmptyCommit_False(t *testing.T) {
 func TestResourceGitCommit_Author_Missing_WithoutConfig(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, name)
@@ -143,7 +138,6 @@ func TestResourceGitCommit_Author_Missing_WithoutConfig(t *testing.T) {
 func TestResourceGitCommit_Message_Missing(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, name)
@@ -166,8 +160,7 @@ func TestResourceGitCommit_Message_Missing(t *testing.T) {
 
 func TestResourceGitCommit_Directory_Missing(t *testing.T) {
 	t.Parallel()
-	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
+	_, repository := testutils.CreateRepository(t)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, name)
@@ -191,7 +184,6 @@ func TestResourceGitCommit_Directory_Missing(t *testing.T) {
 func TestResourceGitCommit_Author_Partial_Name(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, name)
@@ -230,7 +222,6 @@ func TestResourceGitCommit_Author_Partial_Name(t *testing.T) {
 func TestResourceGitCommit_Author_Name_Update(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, name)
@@ -292,7 +283,6 @@ func TestResourceGitCommit_Author_Name_Update(t *testing.T) {
 func TestResourceGitCommit_Author_Partial_Email(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, name)
@@ -331,7 +321,6 @@ func TestResourceGitCommit_Author_Partial_Email(t *testing.T) {
 func TestResourceGitCommit_Author_Email_Update(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, name)
@@ -393,7 +382,6 @@ func TestResourceGitCommit_Author_Email_Update(t *testing.T) {
 func TestResourceGitCommit_Committer_Partial_Name(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	cfg := testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
@@ -433,7 +421,6 @@ func TestResourceGitCommit_Committer_Partial_Name(t *testing.T) {
 func TestResourceGitCommit_Committer_Partial_Email(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	cfg := testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
@@ -473,7 +460,6 @@ func TestResourceGitCommit_Committer_Partial_Email(t *testing.T) {
 func TestResourceGitCommit_Committer_Name_Update(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
@@ -532,7 +518,6 @@ func TestResourceGitCommit_Committer_Name_Update(t *testing.T) {
 func TestResourceGitCommit_Committer_Email_Update(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
@@ -591,7 +576,6 @@ func TestResourceGitCommit_Committer_Email_Update(t *testing.T) {
 func TestResourceGitCommit_Committer_WithoutAuthor(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	name := "some-file"
 	testutils.WriteFileInWorktree(t, worktree, name)
@@ -619,7 +603,6 @@ func TestResourceGitCommit_Committer_WithoutAuthor(t *testing.T) {
 func TestResourceGitCommit_WithoutChanges(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 
 	resource.UnitTest(t, resource.TestCase{
@@ -647,7 +630,6 @@ func TestResourceGitCommit_WithoutChanges(t *testing.T) {
 func TestResourceGitCommit_WithoutChanges_AllEnabled(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 
 	resource.UnitTest(t, resource.TestCase{
@@ -676,7 +658,6 @@ func TestResourceGitCommit_WithoutChanges_AllEnabled(t *testing.T) {
 func TestResourceGitCommit_WithUnstagedChanges_AllEnabled(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.WriteFileInWorktree(t, worktree, "some-file")
@@ -709,7 +690,6 @@ func TestResourceGitCommit_WithUnstagedChanges_AllEnabled(t *testing.T) {
 func TestResourceGitCommit_WithStagedChanges_AllEnabled(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	testutils.TestConfig(t, repository)
 	worktree := testutils.GetRepositoryWorktree(t, repository)
 	testutils.WriteFileInWorktree(t, worktree, "some-file")

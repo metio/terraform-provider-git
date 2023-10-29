@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/metio/terraform-provider-git/internal/testutils"
-	"os"
 	"regexp"
 	"testing"
 )
@@ -17,7 +16,6 @@ import (
 func TestDataSourceGitRemotes(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	remote := "example"
 	testutils.CreateRemote(t, repository, remote)
 

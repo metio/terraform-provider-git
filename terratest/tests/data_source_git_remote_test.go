@@ -9,14 +9,12 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/metio/terraform-provider-git/internal/testutils"
 	"github.com/stretchr/testify/assert"
-	"os"
 	"testing"
 )
 
 func TestDataSourceGitRemote_SingleRemote(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
-	defer os.RemoveAll(directory)
 	name := "origin"
 	testutils.CreateRemote(t, repository, name)
 
