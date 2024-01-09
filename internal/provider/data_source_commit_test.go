@@ -98,6 +98,97 @@ func TestDataSourceGitCommit_MultipleFiles(t *testing.T) {
 	})
 }
 
+func TestDataSourceGitCommit_Issue231_SingleCommit(t *testing.T) {
+	t.Parallel()
+	directory, repository := testutils.CreateRepository(t)
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	fileName1 := "some-file"
+	fileName2 := "other-file"
+	testutils.WriteFileInWorktree(t, worktree, fileName1)
+	testutils.WriteFileInWorktree(t, worktree, fileName2)
+	testutils.GitAdd(t, worktree, fileName1)
+	//testutils.GitAdd(t, worktree, fileName2) // do not add second file to staging area
+	commit := testutils.GitCommit(t, worktree)
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "git_commit" "test" {
+						directory = "%s"
+						revision  = "%s"
+					}
+				`, directory, commit.String()),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.git_commit.test", "directory", directory),
+					resource.TestCheckResourceAttr("data.git_commit.test", "id", commit.String()),
+					resource.TestCheckResourceAttr("data.git_commit.test", "revision", commit.String()),
+					resource.TestCheckResourceAttr("data.git_commit.test", "sha1", commit.String()),
+					resource.TestCheckResourceAttr("data.git_commit.test", "signature", ""),
+					resource.TestCheckResourceAttr("data.git_commit.test", "files.#", "1"),
+					resource.TestCheckResourceAttr("data.git_commit.test", "files.0", "some-file"),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "message", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "tree_sha1", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.name", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.email", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.timestamp", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.name", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.email", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.timestamp", testutils.CheckMinLength(1)),
+				),
+			},
+		},
+	})
+}
+
+func TestDataSourceGitCommit_Issue231_MultipleCommits(t *testing.T) {
+	t.Parallel()
+	directory, repository := testutils.CreateRepository(t)
+	testutils.TestConfig(t, repository)
+	worktree := testutils.GetRepositoryWorktree(t, repository)
+	fileName1 := "some-file"
+	fileName2 := "other-file"
+	testutils.WriteFileInWorktree(t, worktree, fileName1)
+	testutils.WriteFileInWorktree(t, worktree, fileName2)
+	testutils.GitAdd(t, worktree, fileName1)
+	_ = testutils.GitCommit(t, worktree)
+	testutils.GitAdd(t, worktree, fileName2) // add second file to staging area of second commit
+	commit2 := testutils.GitCommit(t, worktree)
+
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: testutils.ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+					data "git_commit" "test" {
+						directory = "%s"
+						revision  = "%s"
+					}
+				`, directory, commit2.String()),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.git_commit.test", "directory", directory),
+					resource.TestCheckResourceAttr("data.git_commit.test", "id", commit2.String()),
+					resource.TestCheckResourceAttr("data.git_commit.test", "revision", commit2.String()),
+					resource.TestCheckResourceAttr("data.git_commit.test", "sha1", commit2.String()),
+					resource.TestCheckResourceAttr("data.git_commit.test", "signature", ""),
+					resource.TestCheckResourceAttr("data.git_commit.test", "files.#", "1"),
+					resource.TestCheckResourceAttr("data.git_commit.test", "files.0", "other-file"),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "message", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "tree_sha1", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.name", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.email", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "author.timestamp", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.name", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.email", testutils.CheckMinLength(1)),
+					resource.TestCheckResourceAttrWith("data.git_commit.test", "committer.timestamp", testutils.CheckMinLength(1)),
+				),
+			},
+		},
+	})
+}
+
 func TestDataSourceGitCommit_WithHead(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
