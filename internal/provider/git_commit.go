@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"slices"
 	"time"
 )
 
@@ -108,17 +109,40 @@ func objectToSignature(obj *types.Object) *object.Signature {
 
 func extractModifiedFiles(commit *object.Commit) []string {
 	fileNames := make([]string, 0)
-	files, err := commit.Files()
-	if err != nil {
-		return fileNames
+
+	if len(commit.ParentHashes) > 0 {
+		parent, err := commit.Parent(0)
+		if err != nil {
+			return fileNames
+		}
+		patch, err := parent.Patch(commit)
+		if err != nil {
+			return fileNames
+		}
+		filePatches := patch.FilePatches()
+		for _, file := range filePatches {
+			from, to := file.Files()
+			if from != nil && !slices.Contains(fileNames, from.Path()) {
+				fileNames = append(fileNames, from.Path())
+			}
+			if to != nil && !slices.Contains(fileNames, to.Path()) {
+				fileNames = append(fileNames, to.Path())
+			}
+		}
+	} else {
+		files, err := commit.Files()
+		if err != nil {
+			return fileNames
+		}
+		err = files.ForEach(func(file *object.File) error {
+			fileNames = append(fileNames, file.Name)
+			return nil
+		})
+		if err != nil {
+			return fileNames
+		}
 	}
-	err = files.ForEach(func(file *object.File) error {
-		fileNames = append(fileNames, file.Name)
-		return nil
-	})
-	if err != nil {
-		return fileNames
-	}
+
 	return fileNames
 }
 
