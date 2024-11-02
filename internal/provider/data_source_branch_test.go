@@ -8,7 +8,7 @@ package provider_test
 import (
 	"fmt"
 	"github.com/go-git/go-git/v5/config"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/metio/terraform-provider-git/internal/testutils"
 	"regexp"
 	"testing"
