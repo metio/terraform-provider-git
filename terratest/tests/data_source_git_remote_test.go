@@ -16,7 +16,8 @@ func TestDataSourceGitRemote_SingleRemote(t *testing.T) {
 	t.Parallel()
 	directory, repository := testutils.CreateRepository(t)
 	name := "origin"
-	testutils.CreateRemote(t, repository, name)
+	repositoryName := "some-repository-name"
+	testutils.CreateRemoteWithName(t, repository, name, repositoryName)
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_remote/single_remote",
@@ -34,9 +35,11 @@ func TestDataSourceGitRemote_SingleRemote(t *testing.T) {
 	actualId := terraform.Output(t, terraformOptions, "id")
 	actualName := terraform.Output(t, terraformOptions, "name")
 	actualUrls := terraform.OutputList(t, terraformOptions, "urls")
+	actualUpstreamRepositoryName := terraform.Output(t, terraformOptions, "upstream_repository_name")
 
 	assert.Equal(t, directory, actualDirectory, "actualDirectory")
 	assert.Equal(t, name, actualId, "actualId")
 	assert.Equal(t, name, actualName, "actualName")
 	assert.Equal(t, 1, len(actualUrls), "actualUrls")
+	assert.Equal(t, repositoryName, actualUpstreamRepositoryName, "actualUpstreamRepositoryName")
 }
