@@ -8,13 +8,18 @@
 package testutils
 
 import (
+	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"testing"
 )
 
 func CreateRemote(t *testing.T, repository *git.Repository, remote string) {
-	CreateRemoteWithUrls(t, repository, remote, []string{"https://example.com/metio/terraform-provider-git.git"})
+	CreateRemoteWithName(t, repository, remote, "terraform-provider-git")
+}
+
+func CreateRemoteWithName(t *testing.T, repository *git.Repository, remote string, name string) {
+	CreateRemoteWithUrls(t, repository, remote, []string{fmt.Sprintf("https://example.com/metio/%s.git", name)})
 }
 
 func CreateRemoteWithUrls(t *testing.T, repository *git.Repository, remote string, urls []string) {
