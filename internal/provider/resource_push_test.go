@@ -101,7 +101,7 @@ func TestResourceGitPush_Directory_Invalid(t *testing.T) {
 			{
 				Config: fmt.Sprintf(`
 					resource "git_push" "test" {
-						directory = "does/not/exist"
+						directory = "/does/not/exist"
 						refspecs  = ["%s"]
 					}
 				`, "master:master"),
