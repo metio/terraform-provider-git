@@ -15,13 +15,25 @@ import (
 )
 
 func openRepository(ctx context.Context, directory string, diag *diag.Diagnostics) *git.Repository {
-	repository, err := git.PlainOpen(directory)
+	repository, err := git.PlainOpenWithOptions(directory, &git.PlainOpenOptions{
+		DetectDotGit:          false,
+		EnableDotGitCommonDir: false,
+	})
 	if err != nil {
-		diag.AddError(
-			"Cannot open repository",
-			"Could not open git repository ["+directory+"] because of: "+err.Error(),
-		)
-		return nil
+		// we are trying to open the repository again, this time by searching upward for a .git folder
+		// this is necessary to support 'directory' values that point to any location within a git repository
+		// we cannot always enable this detection mechanism because it fails for bare repositories.
+		repository, err = git.PlainOpenWithOptions(directory, &git.PlainOpenOptions{
+			DetectDotGit:          true,
+			EnableDotGitCommonDir: false,
+		})
+		if err != nil {
+			diag.AddError(
+				"Cannot open repository",
+				"Could not open git repository ["+directory+"] because of: "+err.Error(),
+			)
+			return nil
+		}
 	}
 	tflog.Trace(ctx, "opened repository", map[string]interface{}{
 		"directory": directory,
