@@ -134,9 +134,9 @@ func TestDataSourceGitRemote_Issue314(t *testing.T) {
 						directory = "%s"
 						name      = "%s"
 					}
-				`, nested, remote),
+				`, filepath.ToSlash(nested), remote),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.git_remote.test", "directory", nested),
+					resource.TestCheckResourceAttr("data.git_remote.test", "directory", filepath.ToSlash(nested)),
 					resource.TestCheckResourceAttr("data.git_remote.test", "id", remote),
 					resource.TestCheckResourceAttr("data.git_remote.test", "name", remote),
 					resource.TestCheckResourceAttr("data.git_remote.test", "urls.#", "1"),
