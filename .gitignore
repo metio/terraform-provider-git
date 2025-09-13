@@ -158,3 +158,4 @@ fabric.properties
 .cache/
 .config/
 .local/
+.bash_history
