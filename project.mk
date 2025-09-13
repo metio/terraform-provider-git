@@ -8,7 +8,7 @@ VERSION       = 9999.99.99
 OS_ARCH       ?= linux_amd64
 XDG_DATA_HOME ?= ~/.local/share
 
-out/${PROVIDER}: $(shell find internal -type f -name '*.go' -and -not -name '*test.go')
+out/${PROVIDER}: go.mod $(shell find internal -type f -name '*.go' -and -not -name '*test.go')
 	mkdir --parents $(@D)
 	go build -o out/${PROVIDER}
 
