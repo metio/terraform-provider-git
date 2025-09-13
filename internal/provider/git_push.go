@@ -7,6 +7,7 @@ package provider
 
 import (
 	"context"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
@@ -96,8 +97,9 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 			}
 
 			if callback := knownHostsCallback(ctx, sshKeyAuth, diag); callback != nil {
-				cfg, _ := sshKeys.ClientConfig()
-				cfg.HostKeyCallback = callback
+				if cfg, _ := sshKeys.ClientConfig(); cfg != nil {
+					cfg.HostKeyCallback = callback
+				}
 			}
 
 			options.Auth = sshKeys
@@ -114,8 +116,9 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 			}
 
 			if callback := knownHostsCallback(ctx, sshAgentAuth, diag); callback != nil {
-				cfg, _ := agentAuth.ClientConfig()
-				cfg.HostKeyCallback = callback
+				if cfg, _ := agentAuth.ClientConfig(); cfg != nil {
+					cfg.HostKeyCallback = callback
+				}
 			}
 
 			options.Auth = agentAuth
@@ -129,8 +132,9 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 			}
 
 			if callback := knownHostsCallback(ctx, sshPasswordAuth, diag); callback != nil {
-				cfg, _ := passwordAuth.ClientConfig()
-				cfg.HostKeyCallback = callback
+				if cfg, _ := passwordAuth.ClientConfig(); cfg != nil {
+					cfg.HostKeyCallback = callback
+				}
 			}
 
 			options.Auth = passwordAuth
