@@ -42,6 +42,8 @@ resource "git_init" "bare" {
 
 Import is supported using the following syntax:
 
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
+
 ```shell
 # git_init resources can be imported by specifying the path to the Git
 # repository. Bare repositories are automatically detected during import.
