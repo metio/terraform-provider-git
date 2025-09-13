@@ -45,7 +45,6 @@ jobs:
         with:
           version: latest
           skip-cache: true
-          args: --timeout=10m
       - id: generate_docs
         name: Generate Documentation
         run: go generate
