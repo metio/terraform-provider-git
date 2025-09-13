@@ -7,6 +7,8 @@ package provider
 
 import (
 	"context"
+	"errors"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -40,7 +42,7 @@ func getTagReference(ctx context.Context, repository *git.Repository, tagName st
 
 func getTagObject(ctx context.Context, repository *git.Repository, hash plumbing.Hash, diag *diag.Diagnostics) (*object.Tag, error) {
 	tag, err := repository.TagObject(hash)
-	if err == plumbing.ErrObjectNotFound {
+	if errors.Is(err, plumbing.ErrObjectNotFound) {
 		tflog.Trace(ctx, "lightweight tag", map[string]interface{}{
 			"hash": hash.String(),
 		})

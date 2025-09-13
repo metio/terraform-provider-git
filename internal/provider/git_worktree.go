@@ -7,6 +7,8 @@ package provider
 
 import (
 	"context"
+	"errors"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -15,7 +17,7 @@ import (
 
 func getWorktree(repository *git.Repository, diag *diag.Diagnostics) (*git.Worktree, error) {
 	worktree, err := repository.Worktree()
-	if err == git.ErrIsBareRepository {
+	if errors.Is(err, git.ErrIsBareRepository) {
 		return nil, nil
 	} else if err == nil {
 		return worktree, nil
