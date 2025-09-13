@@ -158,4 +158,5 @@ fabric.properties
 .cache/
 .config/
 .local/
+.terraform.d/
 .bash_history
