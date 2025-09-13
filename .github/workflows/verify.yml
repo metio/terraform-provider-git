@@ -41,11 +41,10 @@ jobs:
           cache: true
       - id: lint
         name: Lint Go Code
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v8
         with:
           version: latest
-          skip-pkg-cache: true
-          skip-build-cache: true
+          skip-cache: true
           args: --timeout=10m
       - id: generate_docs
         name: Generate Documentation
