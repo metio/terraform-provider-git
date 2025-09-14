@@ -7,10 +7,11 @@ package provider_test
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/metio/terraform-provider-git/internal/testutils"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/testutils"
 )
 
 func TestDataSourceGitConfig(t *testing.T) {

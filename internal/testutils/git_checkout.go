@@ -8,9 +8,10 @@
 package testutils
 
 import (
+	"testing"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
-	"testing"
 )
 
 func TestGitCheckout(t *testing.T, worktree *git.Worktree, hash plumbing.Hash) {

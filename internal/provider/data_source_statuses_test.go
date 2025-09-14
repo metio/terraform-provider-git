@@ -7,9 +7,10 @@ package provider_test
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/metio/terraform-provider-git/internal/testutils"
-	"testing"
 )
 
 func TestDataSourceGitStatuses_Unclean(t *testing.T) {

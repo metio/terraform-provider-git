@@ -7,12 +7,13 @@ package provider_test
 
 import (
 	"context"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/metio/terraform-provider-git/internal/provider"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestCreatePushOptions_EmptyModel(t *testing.T) {

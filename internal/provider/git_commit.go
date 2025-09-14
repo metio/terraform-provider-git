@@ -7,13 +7,14 @@ package provider
 
 import (
 	"context"
+	"slices"
+	"time"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"slices"
-	"time"
 )
 
 func signatureToObject(signature *object.Signature) types.Object {

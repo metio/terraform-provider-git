@@ -6,11 +6,12 @@
 package provider_test
 
 import (
+	"testing"
+
 	"github.com/go-git/go-git/v5/config"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/metio/terraform-provider-git/internal/testutils"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestDataSourceGitBranches_AllBranches(t *testing.T) {

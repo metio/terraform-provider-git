@@ -7,11 +7,12 @@ package provider
 
 import (
 	"context"
+	"path"
+	"time"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"path"
-	"time"
 )
 
 func createLogOptions(ctx context.Context, repository *git.Repository, inputs *logDataSourceModel, diag *diag.Diagnostics) *git.LogOptions {

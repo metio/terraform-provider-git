@@ -8,10 +8,11 @@
 package testutils
 
 import (
+	"testing"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
-	"testing"
 )
 
 func CreateBranch(t *testing.T, repository *git.Repository, branch *config.Branch) {

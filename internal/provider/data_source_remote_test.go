@@ -7,12 +7,13 @@ package provider_test
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/metio/terraform-provider-git/internal/testutils"
 	"os"
 	"path/filepath"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/metio/terraform-provider-git/internal/testutils"
 )
 
 func TestDataSourceGitRemote(t *testing.T) {

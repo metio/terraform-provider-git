@@ -8,8 +8,9 @@
 package testutils
 
 import (
-	"github.com/go-git/go-git/v5"
 	"testing"
+
+	"github.com/go-git/go-git/v5"
 )
 
 func GitInit(t *testing.T, directory string, bare bool) *git.Repository {

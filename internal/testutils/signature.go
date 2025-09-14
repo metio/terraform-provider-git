@@ -8,8 +8,9 @@
 package testutils
 
 import (
-	"github.com/go-git/go-git/v5/plumbing/object"
 	"time"
+
+	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
 func Signature() *object.Signature {

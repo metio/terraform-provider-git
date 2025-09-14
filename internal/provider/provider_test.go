@@ -7,10 +7,11 @@ package provider_test
 
 import (
 	"context"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	internal "github.com/metio/terraform-provider-git/internal/provider"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestGitProvider_Metadata(t *testing.T) {

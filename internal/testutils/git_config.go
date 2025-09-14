@@ -8,9 +8,10 @@
 package testutils
 
 import (
+	"testing"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
-	"testing"
 )
 
 func TestConfig(t *testing.T, repository *git.Repository) *config.Config {

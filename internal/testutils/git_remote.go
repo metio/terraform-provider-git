@@ -9,9 +9,10 @@ package testutils
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
-	"testing"
 )
 
 func CreateRemote(t *testing.T, repository *git.Repository, remote string) {
