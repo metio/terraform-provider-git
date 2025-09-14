@@ -48,6 +48,9 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 
 	if !inputs.Auth.IsNull() {
 		options.Auth = authOptions(ctx, inputs.Auth, diag)
+		if diag.HasError() {
+			return nil
+		}
 	}
 
 	return options
