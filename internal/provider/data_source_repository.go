@@ -7,6 +7,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -93,7 +94,7 @@ func (d *RepositoryDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	state.Id = inputs.Directory
 
 	head, err := repository.Head()
-	if err == plumbing.ErrReferenceNotFound {
+	if errors.Is(err, plumbing.ErrReferenceNotFound) {
 		state.SHA1 = types.StringNull()
 		state.Branch = types.StringNull()
 	} else if err != nil {
