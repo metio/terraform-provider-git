@@ -7,6 +7,7 @@ package provider
 
 import (
 	"context"
+	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -17,7 +18,7 @@ import (
 func CreateCloneOptions(ctx context.Context, inputs *cloneResourceModel, diag *diag.Diagnostics) *git.CloneOptions {
 	options := &git.CloneOptions{}
 
-	options.URL = inputs.URL.ValueString()
+	options.URL = strings.ReplaceAll(inputs.URL.ValueString(), "/", "\\")
 	tflog.Trace(ctx, "using 'URL'", map[string]interface{}{
 		"URL": inputs.URL.ValueString(),
 	})
@@ -36,6 +37,9 @@ func CreateCloneOptions(ctx context.Context, inputs *cloneResourceModel, diag *d
 
 	if !inputs.Auth.IsNull() {
 		options.Auth = authOptions(ctx, inputs.Auth, diag)
+		if diag.HasError() {
+			return nil
+		}
 	}
 
 	return options
