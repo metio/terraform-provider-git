@@ -7,6 +7,7 @@ package provider
 
 import (
 	"context"
+	"runtime"
 	"strings"
 
 	"github.com/go-git/go-git/v5"
@@ -18,7 +19,12 @@ import (
 func CreateCloneOptions(ctx context.Context, inputs *cloneResourceModel, diag *diag.Diagnostics) *git.CloneOptions {
 	options := &git.CloneOptions{}
 
-	options.URL = strings.ReplaceAll(inputs.URL.ValueString(), "/", "\\")
+	if runtime.GOOS == "windows" {
+		options.URL = strings.ReplaceAll(inputs.URL.ValueString(), "/", `\`)
+	} else {
+		options.URL = inputs.URL.ValueString()
+	}
+
 	tflog.Trace(ctx, "using 'URL'", map[string]interface{}{
 		"URL": inputs.URL.ValueString(),
 	})

@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/go-git/go-git/v5"
@@ -515,9 +516,12 @@ func (r *CloneResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanR
 
 	localHeadHash := head.Hash()
 
+	if runtime.GOOS == "windows" {
+		url = strings.ReplaceAll(url, "/", `\`)
+	}
 	remote := git.NewRemote(memory.NewStorage(), &config.RemoteConfig{
 		Name: "origin",
-		URLs: []string{strings.ReplaceAll(url, "/", "\\")},
+		URLs: []string{url},
 	})
 	refs, err := remote.List(&git.ListOptions{
 		PeelingOption: git.AppendPeeled,
