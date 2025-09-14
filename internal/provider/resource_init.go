@@ -175,7 +175,7 @@ func (r *InitResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 	if !bare {
 		repository := openRepository(ctx, directory, &resp.Diagnostics)
 
-		if repository.Storer != nil {
+		if repository != nil && repository.Storer != nil {
 			storage, ok := repository.Storer.(*filesystem.Storage)
 
 			if ok {
