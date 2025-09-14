@@ -59,6 +59,7 @@ func (p *GitProvider) DataSources(_ context.Context) []func() datasource.DataSou
 func (p *GitProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewAddResource,
+		NewCloneResource,
 		NewCommitResource,
 		NewInitResource,
 		NewPushResource,
