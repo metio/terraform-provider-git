@@ -7,6 +7,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/go-git/go-git/v5"
@@ -375,7 +376,7 @@ func (r *PushResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 	err := repository.PushContext(ctx, options)
-	if err != git.NoErrAlreadyUpToDate && err != nil {
+	if !errors.Is(err, git.NoErrAlreadyUpToDate) && err != nil {
 		resp.Diagnostics.AddError(
 			"Cannot push commits",
 			"Could not push commits because of: "+err.Error(),

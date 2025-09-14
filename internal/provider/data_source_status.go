@@ -7,6 +7,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -106,7 +107,7 @@ func (d *StatusDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	state.Worktree = types.StringNull()
 
 	worktree, err := repository.Worktree()
-	if err == git.ErrIsBareRepository {
+	if errors.Is(err, git.ErrIsBareRepository) {
 		tflog.Trace(ctx, "read worktree of bare repository", map[string]interface{}{
 			"directory": directory,
 		})
