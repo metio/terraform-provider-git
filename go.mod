@@ -7,7 +7,7 @@ go 1.25.0
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.9.1
-	github.com/go-git/go-git/v5 v5.16.2
+	github.com/go-git/go-git/v5 v5.16.3
 	github.com/gruntwork-io/terratest v0.51.0
 	github.com/hashicorp/terraform-plugin-docs v0.23.0
 	github.com/hashicorp/terraform-plugin-framework v1.16.1
