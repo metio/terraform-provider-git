@@ -7,6 +7,7 @@ package provider
 
 import (
 	"context"
+	"os"
 	"runtime"
 	"strings"
 
@@ -33,6 +34,26 @@ func CreateCloneOptions(ctx context.Context, inputs *cloneResourceModel, diag *d
 	tflog.Trace(ctx, "using 'RemoteName'", map[string]interface{}{
 		"RemoteName": inputs.RemoteName.ValueString(),
 	})
+
+	options.InsecureSkipTLS = inputs.InsecureSkipTls.ValueBool()
+	tflog.Trace(ctx, "using 'InsecureSkipTls'", map[string]interface{}{
+		"InsecureSkipTls": inputs.InsecureSkipTls.ValueBool(),
+	})
+
+	if len(inputs.CaBundleFilePath.ValueString()) > 0 {
+		caBundle, err := os.ReadFile(inputs.CaBundleFilePath.ValueString())
+		if err != nil {
+			diag.AddError(
+				"Invalid CA bundle file path",
+				err.Error(),
+			)
+			return nil
+		}
+		options.CABundle = caBundle
+		tflog.Trace(ctx, "using 'CaBundleFilePath'", map[string]interface{}{
+			"CaBundleFilePath": inputs.CaBundleFilePath.ValueString(),
+		})
+	}
 
 	if !inputs.ReferenceName.IsNull() {
 		options.ReferenceName = plumbing.ReferenceName(inputs.ReferenceName.ValueString())

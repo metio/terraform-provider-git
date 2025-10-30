@@ -39,6 +39,8 @@ resource "git_clone" "bare" {
 
 - `auth` (Attributes) The authentication credentials, if required, to use with the remote repository. (see [below for nested schema](#nestedatt--auth))
 - `bare` (Boolean) Whether we should perform a bare clone. Defaults to `false`.
+- `ca_bundle_file_path` (String) File system path to an additional CA bundle to use together with the system cert pool.
+- `insecure_skip_tls` (Boolean) Skip SSL verification if protocol is HTTPS.
 - `reference_name` (String) Name of the remote to be added. Defaults to 'main'.
 - `remote_name` (String) Name of the remote to be added. Defaults to 'origin'.
 
