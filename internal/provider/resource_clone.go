@@ -40,14 +40,16 @@ var (
 )
 
 type cloneResourceModel struct {
-	Directory     types.String `tfsdk:"directory"`
-	Id            types.String `tfsdk:"id"`
-	Bare          types.Bool   `tfsdk:"bare"`
-	RemoteName    types.String `tfsdk:"remote_name"`
-	ReferenceName types.String `tfsdk:"reference_name"`
-	URL           types.String `tfsdk:"url"`
-	Auth          types.Object `tfsdk:"auth"`
-	SHA1          types.String `tfsdk:"sha1"`
+	Directory        types.String `tfsdk:"directory"`
+	Id               types.String `tfsdk:"id"`
+	Bare             types.Bool   `tfsdk:"bare"`
+	RemoteName       types.String `tfsdk:"remote_name"`
+	ReferenceName    types.String `tfsdk:"reference_name"`
+	URL              types.String `tfsdk:"url"`
+	InsecureSkipTls  types.Bool   `tfsdk:"insecure_skip_tls"`
+	CaBundleFilePath types.String `tfsdk:"ca_bundle_file_path"`
+	Auth             types.Object `tfsdk:"auth"`
+	SHA1             types.String `tfsdk:"sha1"`
 }
 
 func NewCloneResource() resource.Resource {
@@ -123,6 +125,26 @@ func (r *CloneResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 				},
 				PlanModifiers: []planmodifier.String{
 					modifiers.DefaultString("main"),
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"insecure_skip_tls": schema.BoolAttribute{
+				Description:         "Skip SSL verification if protocol is HTTPS.",
+				MarkdownDescription: "Skip SSL verification if protocol is HTTPS.",
+				Computed:            true,
+				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					modifiers.DefaultBool(false),
+					boolplanmodifier.RequiresReplace(),
+				},
+			},
+			"ca_bundle_file_path": schema.StringAttribute{
+				Description:         "File system path to an additional CA bundle to use together with the system cert pool.",
+				MarkdownDescription: "File system path to an additional CA bundle to use together with the system cert pool.",
+				Computed:            true,
+				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					modifiers.DefaultString(""),
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
@@ -412,6 +434,8 @@ func (r *CloneResource) Create(ctx context.Context, req resource.CreateRequest, 
 	state.URL = inputs.URL
 	state.RemoteName = inputs.RemoteName
 	state.ReferenceName = inputs.ReferenceName
+	state.InsecureSkipTls = inputs.InsecureSkipTls
+	state.CaBundleFilePath = inputs.CaBundleFilePath
 	state.Auth = inputs.Auth
 	state.SHA1 = types.StringNull()
 

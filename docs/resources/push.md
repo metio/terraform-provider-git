@@ -117,7 +117,9 @@ resource "git_push" "push_on_commit" {
 ### Optional
 
 - `auth` (Attributes) The authentication credentials, if required, to use with the remote repository. (see [below for nested schema](#nestedatt--auth))
+- `ca_bundle_file_path` (String) File system path to an additional CA bundle to use together with the system cert pool.
 - `force` (Boolean) Allow updating a remote ref that is not an ancestor of the local ref used to overwrite it. Can cause the remote repository to lose commits; use it with care. Defaults to `false`.
+- `insecure_skip_tls` (Boolean) Skip SSL verification if protocol is HTTPS.
 - `prune` (Boolean) Remove remote branches that don’t have a local counterpart. Defaults to `false`.
 - `remote` (String) The name of the remote to push into. Defaults to `origin`.
 

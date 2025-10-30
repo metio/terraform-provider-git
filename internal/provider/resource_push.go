@@ -35,13 +35,15 @@ var (
 )
 
 type PushResourceModel struct {
-	Directory types.String `tfsdk:"directory"`
-	Id        types.Int64  `tfsdk:"id"`
-	Remote    types.String `tfsdk:"remote"`
-	RefSpecs  types.List   `tfsdk:"refspecs"`
-	Prune     types.Bool   `tfsdk:"prune"`
-	Force     types.Bool   `tfsdk:"force"`
-	Auth      types.Object `tfsdk:"auth"`
+	Directory        types.String `tfsdk:"directory"`
+	Id               types.Int64  `tfsdk:"id"`
+	Remote           types.String `tfsdk:"remote"`
+	RefSpecs         types.List   `tfsdk:"refspecs"`
+	Prune            types.Bool   `tfsdk:"prune"`
+	Force            types.Bool   `tfsdk:"force"`
+	InsecureSkipTls  types.Bool   `tfsdk:"insecure_skip_tls"`
+	CaBundleFilePath types.String `tfsdk:"ca_bundle_file_path"`
+	Auth             types.Object `tfsdk:"auth"`
 }
 
 func NewPushResource() resource.Resource {
@@ -113,6 +115,26 @@ func (r *PushResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				PlanModifiers: []planmodifier.Bool{
 					modifiers.DefaultBool(false),
 					boolplanmodifier.RequiresReplace(),
+				},
+			},
+			"insecure_skip_tls": schema.BoolAttribute{
+				Description:         "Skip SSL verification if protocol is HTTPS.",
+				MarkdownDescription: "Skip SSL verification if protocol is HTTPS.",
+				Computed:            true,
+				Optional:            true,
+				PlanModifiers: []planmodifier.Bool{
+					modifiers.DefaultBool(false),
+					boolplanmodifier.RequiresReplace(),
+				},
+			},
+			"ca_bundle_file_path": schema.StringAttribute{
+				Description:         "File system path to an additional CA bundle to use together with the system cert pool.",
+				MarkdownDescription: "File system path to an additional CA bundle to use together with the system cert pool.",
+				Computed:            true,
+				Optional:            true,
+				PlanModifiers: []planmodifier.String{
+					modifiers.DefaultString(""),
+					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"auth": schema.SingleNestedAttribute{
@@ -391,6 +413,8 @@ func (r *PushResource) Create(ctx context.Context, req resource.CreateRequest, r
 	state.RefSpecs = inputs.RefSpecs
 	state.Prune = inputs.Prune
 	state.Force = inputs.Force
+	state.InsecureSkipTls = inputs.InsecureSkipTls
+	state.CaBundleFilePath = inputs.CaBundleFilePath
 	state.Auth = inputs.Auth
 
 	diags = resp.State.Set(ctx, &state)

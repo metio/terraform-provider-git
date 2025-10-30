@@ -7,6 +7,7 @@ package provider
 
 import (
 	"context"
+	"os"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
@@ -45,6 +46,26 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 	tflog.Trace(ctx, "using 'Force'", map[string]interface{}{
 		"Force": inputs.Force.ValueBool(),
 	})
+
+	options.InsecureSkipTLS = inputs.InsecureSkipTls.ValueBool()
+	tflog.Trace(ctx, "using 'InsecureSkipTls'", map[string]interface{}{
+		"InsecureSkipTls": inputs.InsecureSkipTls.ValueBool(),
+	})
+
+	if len(inputs.CaBundleFilePath.ValueString()) > 0 {
+		caBundle, err := os.ReadFile(inputs.CaBundleFilePath.ValueString())
+		if err != nil {
+			diag.AddError(
+				"Invalid CA bundle file path",
+				err.Error(),
+			)
+			return nil
+		}
+		options.CABundle = caBundle
+		tflog.Trace(ctx, "using 'CaBundleFilePath'", map[string]interface{}{
+			"CaBundleFilePath": inputs.CaBundleFilePath.ValueString(),
+		})
+	}
 
 	if !inputs.Auth.IsNull() {
 		options.Auth = authOptions(ctx, inputs.Auth, diag)
