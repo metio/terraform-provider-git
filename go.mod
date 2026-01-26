@@ -6,7 +6,7 @@ module github.com/metio/terraform-provider-git
 go 1.25.0
 
 require (
-	github.com/bmatcuk/doublestar/v4 v4.9.2
+	github.com/bmatcuk/doublestar/v4 v4.10.0
 	github.com/go-git/go-git/v5 v5.16.4
 	github.com/gruntwork-io/terratest v0.55.0
 	github.com/hashicorp/terraform-plugin-docs v0.24.0
