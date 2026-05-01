@@ -81,7 +81,7 @@ jobs:
           cache: true
       - id: setup_terraform
         name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_wrapper: false
       - id: tests
@@ -107,7 +107,7 @@ jobs:
           cache: true
       - id: setup_terraform
         name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_wrapper: false
       - id: gotestsum
