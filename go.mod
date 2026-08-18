@@ -15,7 +15,7 @@ require (
 	github.com/hashicorp/terraform-plugin-go v0.30.0
 	github.com/hashicorp/terraform-plugin-log v0.11.0
 	github.com/hashicorp/terraform-plugin-testing v1.14.0
-	github.com/stretchr/testify v1.11.1
+	github.com/stretchr/testify v1.12.0
 	golang.org/x/crypto v0.55.0
 )
 
@@ -35,7 +35,6 @@ require (
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/cloudflare/circl v1.6.3 // indirect
 	github.com/cyphar/filepath-securejoin v0.6.1 // indirect
-	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
@@ -85,7 +84,6 @@ require (
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/pjbgf/sha1cd v0.6.0 // indirect
-	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
