@@ -39,14 +39,20 @@ func authOptions(ctx context.Context, auth types.Object, diag *diag.Diagnostics)
 		username := sshKeyAuth.Attributes()["username"].(types.String)
 		password := sshKeyAuth.Attributes()["password"].(types.String)
 
+		// data sources cannot default the username with a plan modifier like resources do
+		user := username.ValueString()
+		if username.IsNull() {
+			user = "git"
+		}
+
 		var sshKeys *ssh.PublicKeys
 		var err error
 		if sshKeyAuth.Attributes()["private_key_path"] != nil {
 			keyPath := sshKeyAuth.Attributes()["private_key_path"].(types.String)
-			sshKeys, err = ssh.NewPublicKeysFromFile(username.ValueString(), keyPath.ValueString(), password.ValueString())
+			sshKeys, err = ssh.NewPublicKeysFromFile(user, keyPath.ValueString(), password.ValueString())
 		} else if sshKeyAuth.Attributes()["private_key_pem"] != nil {
 			keyPem := sshKeyAuth.Attributes()["private_key_pem"].(types.String)
-			sshKeys, err = ssh.NewPublicKeys(username.ValueString(), []byte(keyPem.ValueString()), password.ValueString())
+			sshKeys, err = ssh.NewPublicKeys(user, []byte(keyPem.ValueString()), password.ValueString())
 		} else {
 			diag.AddError(
 				"Invalid SSH key configuration",
