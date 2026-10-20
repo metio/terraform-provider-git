@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *diag.Diagnostics) *git.PushOptions {
+func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, remoteURL string, diag *diag.Diagnostics) *git.PushOptions {
 	options := &git.PushOptions{}
 
 	if len(inputs.RefSpecs.Elements()) > 0 {
@@ -68,7 +68,7 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 	}
 
 	if !inputs.Auth.IsNull() {
-		options.Auth = authOptions(ctx, inputs.Auth, diag)
+		options.Auth = authOptions(ctx, inputs.Auth, remoteURL, diag)
 		if diag.HasError() {
 			return nil
 		}

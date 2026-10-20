@@ -390,7 +390,13 @@ func (r *PushResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
-	options := CreatePushOptions(ctx, &inputs, &resp.Diagnostics)
+	// a missing remote is reported by the push itself
+	var remoteURL string
+	if remote, err := repository.Remote(inputs.Remote.ValueString()); err == nil && len(remote.Config().URLs) > 0 {
+		remoteURL = remote.Config().URLs[0]
+	}
+
+	options := CreatePushOptions(ctx, &inputs, remoteURL, &resp.Diagnostics)
 	if options == nil {
 		return
 	}

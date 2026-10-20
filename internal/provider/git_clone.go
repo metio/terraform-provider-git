@@ -63,7 +63,7 @@ func CreateCloneOptions(ctx context.Context, inputs *cloneResourceModel, diag *d
 	}
 
 	if !inputs.Auth.IsNull() {
-		options.Auth = authOptions(ctx, inputs.Auth, diag)
+		options.Auth = authOptions(ctx, inputs.Auth, inputs.URL.ValueString(), diag)
 		if diag.HasError() {
 			return nil
 		}
