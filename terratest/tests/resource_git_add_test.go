@@ -192,7 +192,7 @@ func TestResourceGitAdd_SingleFile_Glob_WriteMultiple(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Glob_Subfolder(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	err := os.Mkdir(directory+"/nested-folder", 0700)
+	err := os.Mkdir(directory+"/nested-folder", 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -222,11 +222,11 @@ func TestResourceGitAdd_SingleFile_Glob_Subfolder(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Glob_SubSubfolder(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	err := os.Mkdir(directory+"/nested-folder", 0700)
+	err := os.Mkdir(directory+"/nested-folder", 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = os.Mkdir(directory+"/nested-folder/sub-folder", 0700)
+	err = os.Mkdir(directory+"/nested-folder/sub-folder", 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -256,11 +256,11 @@ func TestResourceGitAdd_SingleFile_Glob_SubSubfolder(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Glob_SubSubfolder_All(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	err := os.Mkdir(directory+"/nested-folder", 0700)
+	err := os.Mkdir(directory+"/nested-folder", 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = os.Mkdir(directory+"/nested-folder/sub-folder", 0700)
+	err = os.Mkdir(directory+"/nested-folder/sub-folder", 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -290,11 +290,11 @@ func TestResourceGitAdd_SingleFile_Glob_SubSubfolder_All(t *testing.T) {
 
 func TestResourceGitAdd_SingleFile_Glob_SubSubfolder_PartialNested(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	err := os.Mkdir(directory+"/nested-folder", 0700)
+	err := os.Mkdir(directory+"/nested-folder", 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = os.Mkdir(directory+"/nested-folder/sub-folder", 0700)
+	err = os.Mkdir(directory+"/nested-folder/sub-folder", 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -324,11 +324,11 @@ func TestResourceGitAdd_SingleFile_Glob_SubSubfolder_PartialNested(t *testing.T)
 
 func TestResourceGitAdd_SingleFile_Glob_SubSubfolder_PartialSub(t *testing.T) {
 	directory, repository := testutils.CreateRepository(t)
-	err := os.Mkdir(directory+"/nested-folder", 0700)
+	err := os.Mkdir(directory+"/nested-folder", 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = os.Mkdir(directory+"/nested-folder/sub-folder", 0700)
+	err = os.Mkdir(directory+"/nested-folder/sub-folder", 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}

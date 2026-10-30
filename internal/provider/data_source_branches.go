@@ -21,9 +21,7 @@ import (
 
 type BranchesDataSource struct{}
 
-var (
-	_ datasource.DataSource = (*BranchesDataSource)(nil)
-)
+var _ datasource.DataSource = (*BranchesDataSource)(nil)
 
 type branchesDataSourceModel struct {
 	Directory types.String `tfsdk:"directory"`

@@ -18,9 +18,7 @@ import (
 
 type CommitDataSource struct{}
 
-var (
-	_ datasource.DataSource = (*CommitDataSource)(nil)
-)
+var _ datasource.DataSource = (*CommitDataSource)(nil)
 
 type commitDataSourceModel struct {
 	Directory types.String `tfsdk:"directory"`

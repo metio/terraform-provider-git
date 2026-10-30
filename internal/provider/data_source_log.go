@@ -20,9 +20,7 @@ import (
 
 type LogDataSource struct{}
 
-var (
-	_ datasource.DataSource = (*LogDataSource)(nil)
-)
+var _ datasource.DataSource = (*LogDataSource)(nil)
 
 type logDataSourceModel struct {
 	Directory   types.String `tfsdk:"directory"`

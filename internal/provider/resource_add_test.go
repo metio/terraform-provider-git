@@ -98,7 +98,7 @@ func TestResourceGitAdd_AddPaths_NonExistingFile(t *testing.T) {
 func TestResourceGitAdd_AddPaths_Directory(t *testing.T) {
 	t.Parallel()
 	directory, _ := testutils.CreateRepository(t)
-	err := os.Mkdir(directory+"/nested-folder", 0700)
+	err := os.Mkdir(directory+"/nested-folder", 0o700)
 	if err != nil {
 		t.Fatal(err)
 	}

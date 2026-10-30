@@ -16,9 +16,7 @@ import (
 
 type GitProvider struct{}
 
-var (
-	_ provider.Provider = (*GitProvider)(nil)
-)
+var _ provider.Provider = (*GitProvider)(nil)
 
 func New() provider.Provider {
 	return &GitProvider{}

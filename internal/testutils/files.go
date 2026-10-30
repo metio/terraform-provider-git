@@ -22,7 +22,7 @@ func WriteFile(t *testing.T, name string) {
 }
 
 func WriteFileContent(t *testing.T, name string, content string) {
-	err := os.WriteFile(name, []byte(content), 0644)
+	err := os.WriteFile(name, []byte(content), 0o600)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -18,9 +18,7 @@ import (
 
 type RemoteDataSource struct{}
 
-var (
-	_ datasource.DataSource = (*RemoteDataSource)(nil)
-)
+var _ datasource.DataSource = (*RemoteDataSource)(nil)
 
 type remoteDataSourceModel struct {
 	Directory types.String `tfsdk:"directory"`

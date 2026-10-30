@@ -123,7 +123,7 @@ func knownHostsCallback(ctx context.Context, object types.Object, diag *diag.Dia
 			"Cannot use given known hosts - ",
 			"Known hosts configuration failed because of: "+err.Error(),
 		)
-		return ssh2.InsecureIgnoreHostKey()
+		return ssh2.InsecureIgnoreHostKey() // #nosec G106 -- unusable known hosts degrade to a warning
 	}
 	return callback
 }

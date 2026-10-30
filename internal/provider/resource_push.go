@@ -30,9 +30,7 @@ import (
 
 type PushResource struct{}
 
-var (
-	_ resource.Resource = (*PushResource)(nil)
-)
+var _ resource.Resource = (*PushResource)(nil)
 
 type PushResourceModel struct {
 	Directory        types.String `tfsdk:"directory"`

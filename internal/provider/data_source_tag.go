@@ -18,9 +18,7 @@ import (
 
 type TagDataSource struct{}
 
-var (
-	_ datasource.DataSource = (*TagDataSource)(nil)
-)
+var _ datasource.DataSource = (*TagDataSource)(nil)
 
 type tagDataSourceModel struct {
 	Directory   types.String `tfsdk:"directory"`

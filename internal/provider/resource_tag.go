@@ -23,9 +23,7 @@ import (
 
 type TagResource struct{}
 
-var (
-	_ resource.Resource = (*TagResource)(nil)
-)
+var _ resource.Resource = (*TagResource)(nil)
 
 type tagResourceModel struct {
 	Directory types.String `tfsdk:"directory"`

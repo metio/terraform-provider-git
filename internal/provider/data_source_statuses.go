@@ -19,9 +19,7 @@ import (
 
 type StatusesDataSource struct{}
 
-var (
-	_ datasource.DataSource = (*StatusesDataSource)(nil)
-)
+var _ datasource.DataSource = (*StatusesDataSource)(nil)
 
 type statusesDataSourceModel struct {
 	Directory types.String `tfsdk:"directory"`
