@@ -8,7 +8,7 @@ go 1.26.0
 require (
 	github.com/bmatcuk/doublestar/v4 v4.10.4
 	github.com/go-git/go-git/v5 v5.19.3
-	github.com/gruntwork-io/terratest v0.56.0
+	github.com/gruntwork-io/terratest v1.0.1
 	github.com/hashicorp/terraform-plugin-docs v0.25.0
 	github.com/hashicorp/terraform-plugin-framework v1.18.0
 	github.com/hashicorp/terraform-plugin-framework-validators v0.19.0
@@ -85,7 +85,7 @@ require (
 	github.com/pjbgf/sha1cd v0.7.0 // indirect
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
-	github.com/shopspring/decimal v1.3.1 // indirect
+	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/skeema/knownhosts v1.3.1 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/tmccombs/hcl2json v0.6.4 // indirect
