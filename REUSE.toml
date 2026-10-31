@@ -1,0 +1,22 @@
+version = 1
+SPDX-PackageName = "terraform-provider-git"
+SPDX-PackageSupplier = "Sebastian Hoß <seb@hoß.de>"
+SPDX-PackageDownloadLocation = "https://github.com/metio/terraform-provider-git"
+
+[[annotations]]
+path = ".idea/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "The terraform-provider-git Authors"
+SPDX-License-Identifier = "0BSD"
+
+[[annotations]]
+path = "docs/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "The terraform-provider-git Authors"
+SPDX-License-Identifier = "0BSD"
+
+[[annotations]]
+path = "examples/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "The terraform-provider-git Authors"
+SPDX-License-Identifier = "0BSD"
