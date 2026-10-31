@@ -146,7 +146,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
       - id: mail
         name: Send Mail
-        uses: dawidd6/action-send-mail@v4
+        uses: dawidd6/action-send-mail@47af4a10b540781705f283a2cf1a9650713ac795 # v23
         with:
           server_address: ${{ secrets.MAIL_SERVER }}
           server_port: ${{ secrets.MAIL_PORT }}
