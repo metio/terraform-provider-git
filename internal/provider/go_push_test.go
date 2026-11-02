@@ -7,6 +7,9 @@ package provider_test
 
 import (
 	"context"
+	"crypto/ed25519"
+	"crypto/rand"
+	"encoding/pem"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -14,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/metio/terraform-provider-git/internal/provider"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/crypto/ssh"
 )
 
 func TestCreatePushOptions_EmptyModel(t *testing.T) {
@@ -375,6 +379,59 @@ func TestCreatePushOptions_Auth_SshKeyAuth_PrivateKeyPath_Invalid(t *testing.T) 
 
 	assert.Nil(t, options)
 	assert.True(t, diagnostics.HasError())
+}
+
+func TestCreatePushOptions_Auth_SshKeyAuth_PrivateKeyPem_Valid(t *testing.T) {
+	ctx := context.TODO()
+	model := &provider.PushResourceModel{}
+	diagnostics := &diag.Diagnostics{}
+
+	_, privateKey, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	block, err := ssh.MarshalPrivateKey(privateKey, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	model.RefSpecs, _ = types.ListValueFrom(ctx, types.StringType, []string{"refs/heads/main"})
+	model.Auth = types.ObjectValueMust(
+		map[string]attr.Type{
+			"ssh_key": types.ObjectType{
+				AttrTypes: map[string]attr.Type{
+					"username":         types.StringType,
+					"password":         types.StringType,
+					"private_key_path": types.StringType,
+					"private_key_pem":  types.StringType,
+					"known_hosts":      types.ListType{ElemType: types.StringType},
+				},
+			},
+		},
+		map[string]attr.Value{
+			"ssh_key": types.ObjectValueMust(
+				map[string]attr.Type{
+					"username":         types.StringType,
+					"password":         types.StringType,
+					"private_key_path": types.StringType,
+					"private_key_pem":  types.StringType,
+					"known_hosts":      types.ListType{ElemType: types.StringType},
+				},
+				map[string]attr.Value{
+					"username":         types.StringValue("git"),
+					"password":         types.StringValue(""),
+					"private_key_path": types.StringNull(),
+					"private_key_pem":  types.StringValue(string(pem.EncodeToMemory(block))),
+					"known_hosts":      types.ListNull(types.StringType),
+				},
+			),
+		},
+	)
+	options := provider.CreatePushOptions(ctx, model, diagnostics)
+
+	assert.NotNil(t, options)
+	assert.False(t, diagnostics.HasError())
+	assert.NotNil(t, options.Auth)
 }
 
 func TestCreatePushOptions_Auth_SshAgentAuth_Null(t *testing.T) {
