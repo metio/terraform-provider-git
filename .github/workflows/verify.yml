@@ -3,6 +3,7 @@
 
 name: Verify Commits
 on:
+  merge_group:
   push:
     branches: [ main ]
     paths:
