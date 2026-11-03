@@ -36,10 +36,10 @@ func TestDataSourceGitBranches_AllBranches(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	everyBranch := terraform.OutputMap(t, terraformOptions, "all_branches")
+	everyBranch := terraform.OutputMapContext(t, t.Context(), terraformOptions, "all_branches")
 
 	assert.NotNil(t, everyBranch["master"], "master")
 	assert.NotNil(t, everyBranch[name], name)

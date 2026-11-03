@@ -29,14 +29,14 @@ func TestDataSourceGitRemote_SingleRemote(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualDirectory := terraform.Output(t, terraformOptions, "directory")
-	actualId := terraform.Output(t, terraformOptions, "id")
-	actualName := terraform.Output(t, terraformOptions, "name")
-	actualUrls := terraform.OutputList(t, terraformOptions, "urls")
-	actualUpstreamRepositoryName := terraform.Output(t, terraformOptions, "upstream_repository_name")
+	actualDirectory := terraform.OutputContext(t, t.Context(), terraformOptions, "directory")
+	actualId := terraform.OutputContext(t, t.Context(), terraformOptions, "id")
+	actualName := terraform.OutputContext(t, t.Context(), terraformOptions, "name")
+	actualUrls := terraform.OutputListContext(t, t.Context(), terraformOptions, "urls")
+	actualUpstreamRepositoryName := terraform.OutputContext(t, t.Context(), terraformOptions, "upstream_repository_name")
 
 	assert.Equal(t, directory, actualDirectory, "actualDirectory")
 	assert.Equal(t, name, actualId, "actualId")

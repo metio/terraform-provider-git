@@ -31,14 +31,14 @@ func TestDataSourceGitTags_AllTags(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualDirectory := terraform.Output(t, terraformOptions, "directory")
-	actualId := terraform.Output(t, terraformOptions, "id")
-	actualAnnotated := terraform.Output(t, terraformOptions, "annotated")
-	actualLightweight := terraform.Output(t, terraformOptions, "lightweight")
-	actualTags := terraform.OutputMap(t, terraformOptions, "tags")
+	actualDirectory := terraform.OutputContext(t, t.Context(), terraformOptions, "directory")
+	actualId := terraform.OutputContext(t, t.Context(), terraformOptions, "id")
+	actualAnnotated := terraform.OutputContext(t, t.Context(), terraformOptions, "annotated")
+	actualLightweight := terraform.OutputContext(t, t.Context(), terraformOptions, "lightweight")
+	actualTags := terraform.OutputMapContext(t, t.Context(), terraformOptions, "tags")
 
 	assert.Equal(t, directory, actualDirectory, "actualDirectory")
 	assert.Equal(t, actualDirectory, actualId, "actualId")

@@ -29,11 +29,11 @@ func TestDataSourceGitStatuses_AllFiles(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	isClean := terraform.Output(t, terraformOptions, "is_clean")
-	files := terraform.OutputMap(t, terraformOptions, "files")
+	isClean := terraform.OutputContext(t, t.Context(), terraformOptions, "is_clean")
+	files := terraform.OutputMapContext(t, t.Context(), terraformOptions, "files")
 
 	assert.Equal(t, "false", isClean)
 	assert.NotNil(t, files["some-file"], "some-file")

@@ -37,13 +37,13 @@ func TestDataSourceGitBranch_BranchOnly(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualDirectory := terraform.Output(t, terraformOptions, "directory")
-	actualId := terraform.Output(t, terraformOptions, "id")
-	actualName := terraform.Output(t, terraformOptions, "name")
-	actualRemote := terraform.Output(t, terraformOptions, "remote")
+	actualDirectory := terraform.OutputContext(t, t.Context(), terraformOptions, "directory")
+	actualId := terraform.OutputContext(t, t.Context(), terraformOptions, "id")
+	actualName := terraform.OutputContext(t, t.Context(), terraformOptions, "name")
+	actualRemote := terraform.OutputContext(t, t.Context(), terraformOptions, "remote")
 
 	assert.Equal(t, directory, actualDirectory)
 	assert.Equal(t, name, actualId)
@@ -65,12 +65,12 @@ func TestDataSourceGitBranch_BranchFromRepo(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualDirectory := terraform.Output(t, terraformOptions, "directory")
-	actualId := terraform.Output(t, terraformOptions, "id")
-	actualName := terraform.Output(t, terraformOptions, "name")
+	actualDirectory := terraform.OutputContext(t, t.Context(), terraformOptions, "directory")
+	actualId := terraform.OutputContext(t, t.Context(), terraformOptions, "id")
+	actualName := terraform.OutputContext(t, t.Context(), terraformOptions, "name")
 
 	assert.Equal(t, directory, actualDirectory)
 	assert.Equal(t, "master", actualId)
@@ -99,10 +99,10 @@ func TestDataSourceGitBranch_EveryBranch(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	everyBranch := terraform.OutputMap(t, terraformOptions, "every_branch")
+	everyBranch := terraform.OutputMapContext(t, t.Context(), terraformOptions, "every_branch")
 
 	assert.NotNil(t, everyBranch["master"], "master")
 	assert.NotNil(t, everyBranch[name], name)

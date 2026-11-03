@@ -29,13 +29,13 @@ func TestResourceGitCommit_WithAdd(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualStaging := terraform.Output(t, terraformOptions, "staging")
-	actualWorktree := terraform.Output(t, terraformOptions, "worktree")
-	actualSha1 := terraform.Output(t, terraformOptions, "sha1")
-	actualFiles := terraform.OutputList(t, terraformOptions, "files")
+	actualStaging := terraform.OutputContext(t, t.Context(), terraformOptions, "staging")
+	actualWorktree := terraform.OutputContext(t, t.Context(), terraformOptions, "worktree")
+	actualSha1 := terraform.OutputContext(t, t.Context(), terraformOptions, "sha1")
+	actualFiles := terraform.OutputListContext(t, t.Context(), terraformOptions, "files")
 
 	assert.Equal(t, "?", actualStaging, "actualStaging")
 	assert.Equal(t, "?", actualWorktree, "actualWorktree")
@@ -59,13 +59,13 @@ func TestResourceGitCommit_WithAdd_Repeated(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualStaging := terraform.Output(t, terraformOptions, "staging")
-	actualWorktree := terraform.Output(t, terraformOptions, "worktree")
-	actualSha1 := terraform.Output(t, terraformOptions, "sha1")
-	actualFiles := terraform.OutputList(t, terraformOptions, "files")
+	actualStaging := terraform.OutputContext(t, t.Context(), terraformOptions, "staging")
+	actualWorktree := terraform.OutputContext(t, t.Context(), terraformOptions, "worktree")
+	actualSha1 := terraform.OutputContext(t, t.Context(), terraformOptions, "sha1")
+	actualFiles := terraform.OutputListContext(t, t.Context(), terraformOptions, "files")
 
 	assert.Equal(t, "?", actualStaging, "actualStaging")
 	assert.Equal(t, "?", actualWorktree, "actualWorktree")
@@ -74,12 +74,12 @@ func TestResourceGitCommit_WithAdd_Repeated(t *testing.T) {
 
 	testutils.WriteFileContent(t, testutils.FileInWorktree(worktree, filename), "new content")
 
-	terraform.ApplyAndIdempotent(t, terraformOptions)
+	terraform.ApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualStaging = terraform.Output(t, terraformOptions, "staging")
-	actualWorktree = terraform.Output(t, terraformOptions, "worktree")
-	actualSha1 = terraform.Output(t, terraformOptions, "sha1")
-	actualFiles = terraform.OutputList(t, terraformOptions, "files")
+	actualStaging = terraform.OutputContext(t, t.Context(), terraformOptions, "staging")
+	actualWorktree = terraform.OutputContext(t, t.Context(), terraformOptions, "worktree")
+	actualSha1 = terraform.OutputContext(t, t.Context(), terraformOptions, "sha1")
+	actualFiles = terraform.OutputListContext(t, t.Context(), terraformOptions, "files")
 
 	assert.Equal(t, "?", actualStaging, "actualStaging")
 	assert.Equal(t, "?", actualWorktree, "actualWorktree")
@@ -102,13 +102,13 @@ func TestResourceGitCommit_All(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualStaging := terraform.Output(t, terraformOptions, "staging")
-	actualWorktree := terraform.Output(t, terraformOptions, "worktree")
-	actualSha1 := terraform.Output(t, terraformOptions, "sha1")
-	actualFiles := terraform.OutputList(t, terraformOptions, "files")
+	actualStaging := terraform.OutputContext(t, t.Context(), terraformOptions, "staging")
+	actualWorktree := terraform.OutputContext(t, t.Context(), terraformOptions, "worktree")
+	actualSha1 := terraform.OutputContext(t, t.Context(), terraformOptions, "sha1")
+	actualFiles := terraform.OutputListContext(t, t.Context(), terraformOptions, "files")
 
 	assert.Equal(t, "?", actualStaging, "actualStaging")
 	assert.Equal(t, "?", actualWorktree, "actualWorktree")
@@ -132,13 +132,13 @@ func TestResourceGitCommit_All_ModifiedCommitted(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualStaging := terraform.Output(t, terraformOptions, "staging")
-	actualWorktree := terraform.Output(t, terraformOptions, "worktree")
-	actualSha1 := terraform.Output(t, terraformOptions, "sha1")
-	actualFiles := terraform.OutputList(t, terraformOptions, "files")
+	actualStaging := terraform.OutputContext(t, t.Context(), terraformOptions, "staging")
+	actualWorktree := terraform.OutputContext(t, t.Context(), terraformOptions, "worktree")
+	actualSha1 := terraform.OutputContext(t, t.Context(), terraformOptions, "sha1")
+	actualFiles := terraform.OutputListContext(t, t.Context(), terraformOptions, "files")
 
 	assert.Equal(t, "?", actualStaging, "actualStaging")
 	assert.Equal(t, "?", actualWorktree, "actualWorktree")
@@ -161,13 +161,13 @@ func TestResourceGitCommit_All_Repeated(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualStaging := terraform.Output(t, terraformOptions, "staging")
-	actualWorktree := terraform.Output(t, terraformOptions, "worktree")
-	actualSha1 := terraform.Output(t, terraformOptions, "sha1")
-	actualFiles := terraform.OutputList(t, terraformOptions, "files")
+	actualStaging := terraform.OutputContext(t, t.Context(), terraformOptions, "staging")
+	actualWorktree := terraform.OutputContext(t, t.Context(), terraformOptions, "worktree")
+	actualSha1 := terraform.OutputContext(t, t.Context(), terraformOptions, "sha1")
+	actualFiles := terraform.OutputListContext(t, t.Context(), terraformOptions, "files")
 
 	assert.Equal(t, "?", actualStaging, "actualStaging")
 	assert.Equal(t, "?", actualWorktree, "actualWorktree")
@@ -176,12 +176,12 @@ func TestResourceGitCommit_All_Repeated(t *testing.T) {
 
 	testutils.WriteFileContent(t, testutils.FileInWorktree(worktree, filename), "new content")
 
-	terraform.ApplyAndIdempotent(t, terraformOptions)
+	terraform.ApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualStaging = terraform.Output(t, terraformOptions, "staging")
-	actualWorktree = terraform.Output(t, terraformOptions, "worktree")
-	actualSha1 = terraform.Output(t, terraformOptions, "sha1")
-	actualFiles = terraform.OutputList(t, terraformOptions, "files")
+	actualStaging = terraform.OutputContext(t, t.Context(), terraformOptions, "staging")
+	actualWorktree = terraform.OutputContext(t, t.Context(), terraformOptions, "worktree")
+	actualSha1 = terraform.OutputContext(t, t.Context(), terraformOptions, "sha1")
+	actualFiles = terraform.OutputListContext(t, t.Context(), terraformOptions, "files")
 
 	assert.Equal(t, "?", actualStaging, "actualStaging")
 	assert.Equal(t, "?", actualWorktree, "actualWorktree")
@@ -205,13 +205,13 @@ func TestResourceGitCommit_All_ModifiedCommitted_Repeated(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualStaging := terraform.Output(t, terraformOptions, "staging")
-	actualWorktree := terraform.Output(t, terraformOptions, "worktree")
-	actualSha1 := terraform.Output(t, terraformOptions, "sha1")
-	actualFiles := terraform.OutputList(t, terraformOptions, "files")
+	actualStaging := terraform.OutputContext(t, t.Context(), terraformOptions, "staging")
+	actualWorktree := terraform.OutputContext(t, t.Context(), terraformOptions, "worktree")
+	actualSha1 := terraform.OutputContext(t, t.Context(), terraformOptions, "sha1")
+	actualFiles := terraform.OutputListContext(t, t.Context(), terraformOptions, "files")
 
 	assert.Equal(t, "?", actualStaging, "actualStaging")
 	assert.Equal(t, "?", actualWorktree, "actualWorktree")
@@ -220,12 +220,12 @@ func TestResourceGitCommit_All_ModifiedCommitted_Repeated(t *testing.T) {
 
 	testutils.WriteFileContent(t, testutils.FileInWorktree(worktree, filename), "repeated content")
 
-	terraform.ApplyAndIdempotent(t, terraformOptions)
+	terraform.ApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualStaging = terraform.Output(t, terraformOptions, "staging")
-	actualWorktree = terraform.Output(t, terraformOptions, "worktree")
-	actualSha1 = terraform.Output(t, terraformOptions, "sha1")
-	actualFiles = terraform.OutputList(t, terraformOptions, "files")
+	actualStaging = terraform.OutputContext(t, t.Context(), terraformOptions, "staging")
+	actualWorktree = terraform.OutputContext(t, t.Context(), terraformOptions, "worktree")
+	actualSha1 = terraform.OutputContext(t, t.Context(), terraformOptions, "sha1")
+	actualFiles = terraform.OutputListContext(t, t.Context(), terraformOptions, "files")
 
 	assert.Equal(t, "?", actualStaging, "actualStaging")
 	assert.Equal(t, "?", actualWorktree, "actualWorktree")
@@ -249,13 +249,13 @@ func TestResourceGitCommit_WithoutAdd(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualStaging := terraform.Output(t, terraformOptions, "staging")
-	actualWorktree := terraform.Output(t, terraformOptions, "worktree")
-	actualSha1 := terraform.Output(t, terraformOptions, "sha1")
-	actualFiles := terraform.OutputList(t, terraformOptions, "files")
+	actualStaging := terraform.OutputContext(t, t.Context(), terraformOptions, "staging")
+	actualWorktree := terraform.OutputContext(t, t.Context(), terraformOptions, "worktree")
+	actualSha1 := terraform.OutputContext(t, t.Context(), terraformOptions, "sha1")
+	actualFiles := terraform.OutputListContext(t, t.Context(), terraformOptions, "files")
 
 	assert.Equal(t, "?", actualStaging, "actualStaging")
 	assert.Equal(t, "?", actualWorktree, "actualWorktree")
@@ -279,13 +279,13 @@ func TestResourceGitCommit_WithoutAdd_Repeated(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualStaging := terraform.Output(t, terraformOptions, "staging")
-	actualWorktree := terraform.Output(t, terraformOptions, "worktree")
-	actualSha1 := terraform.Output(t, terraformOptions, "sha1")
-	actualFiles := terraform.OutputList(t, terraformOptions, "files")
+	actualStaging := terraform.OutputContext(t, t.Context(), terraformOptions, "staging")
+	actualWorktree := terraform.OutputContext(t, t.Context(), terraformOptions, "worktree")
+	actualSha1 := terraform.OutputContext(t, t.Context(), terraformOptions, "sha1")
+	actualFiles := terraform.OutputListContext(t, t.Context(), terraformOptions, "files")
 
 	assert.Equal(t, "?", actualStaging, "actualStaging")
 	assert.Equal(t, "?", actualWorktree, "actualWorktree")
@@ -295,12 +295,12 @@ func TestResourceGitCommit_WithoutAdd_Repeated(t *testing.T) {
 	testutils.WriteFileContent(t, testutils.FileInWorktree(worktree, filename), "new content")
 	testutils.GitAdd(t, worktree, filename)
 
-	terraform.ApplyAndIdempotent(t, terraformOptions)
+	terraform.ApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualStaging = terraform.Output(t, terraformOptions, "staging")
-	actualWorktree = terraform.Output(t, terraformOptions, "worktree")
-	actualSha1 = terraform.Output(t, terraformOptions, "sha1")
-	actualFiles = terraform.OutputList(t, terraformOptions, "files")
+	actualStaging = terraform.OutputContext(t, t.Context(), terraformOptions, "staging")
+	actualWorktree = terraform.OutputContext(t, t.Context(), terraformOptions, "worktree")
+	actualSha1 = terraform.OutputContext(t, t.Context(), terraformOptions, "sha1")
+	actualFiles = terraform.OutputListContext(t, t.Context(), terraformOptions, "files")
 
 	assert.Equal(t, "?", actualStaging, "actualStaging")
 	assert.Equal(t, "?", actualWorktree, "actualWorktree")

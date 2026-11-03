@@ -28,14 +28,14 @@ func TestDataSourceGitStatus_SingleFile_Committed(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualDirectory := terraform.Output(t, terraformOptions, "directory")
-	actualId := terraform.Output(t, terraformOptions, "id")
-	actualFile := terraform.Output(t, terraformOptions, "file")
-	actualStaging := terraform.Output(t, terraformOptions, "staging")
-	actualWorktree := terraform.Output(t, terraformOptions, "worktree")
+	actualDirectory := terraform.OutputContext(t, t.Context(), terraformOptions, "directory")
+	actualId := terraform.OutputContext(t, t.Context(), terraformOptions, "id")
+	actualFile := terraform.OutputContext(t, t.Context(), terraformOptions, "file")
+	actualStaging := terraform.OutputContext(t, t.Context(), terraformOptions, "staging")
+	actualWorktree := terraform.OutputContext(t, t.Context(), terraformOptions, "worktree")
 
 	assert.Equal(t, directory, actualDirectory, "actualDirectory")
 	assert.Equal(t, filename, actualId, "actualId")
@@ -59,14 +59,14 @@ func TestDataSourceGitStatus_SingleFile_Written(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualDirectory := terraform.Output(t, terraformOptions, "directory")
-	actualId := terraform.Output(t, terraformOptions, "id")
-	actualFile := terraform.Output(t, terraformOptions, "file")
-	actualStaging := terraform.Output(t, terraformOptions, "staging")
-	actualWorktree := terraform.Output(t, terraformOptions, "worktree")
+	actualDirectory := terraform.OutputContext(t, t.Context(), terraformOptions, "directory")
+	actualId := terraform.OutputContext(t, t.Context(), terraformOptions, "id")
+	actualFile := terraform.OutputContext(t, t.Context(), terraformOptions, "file")
+	actualStaging := terraform.OutputContext(t, t.Context(), terraformOptions, "staging")
+	actualWorktree := terraform.OutputContext(t, t.Context(), terraformOptions, "worktree")
 
 	assert.Equal(t, directory, actualDirectory, "actualDirectory")
 	assert.Equal(t, filename, actualId, "actualId")
@@ -91,14 +91,14 @@ func TestDataSourceGitStatus_SingleFile_Added(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	actualDirectory := terraform.Output(t, terraformOptions, "directory")
-	actualId := terraform.Output(t, terraformOptions, "id")
-	actualFile := terraform.Output(t, terraformOptions, "file")
-	actualStaging := terraform.Output(t, terraformOptions, "staging")
-	actualWorktree := terraform.Output(t, terraformOptions, "worktree")
+	actualDirectory := terraform.OutputContext(t, t.Context(), terraformOptions, "directory")
+	actualId := terraform.OutputContext(t, t.Context(), terraformOptions, "id")
+	actualFile := terraform.OutputContext(t, t.Context(), terraformOptions, "file")
+	actualStaging := terraform.OutputContext(t, t.Context(), terraformOptions, "staging")
+	actualWorktree := terraform.OutputContext(t, t.Context(), terraformOptions, "worktree")
 
 	assert.Equal(t, directory, actualDirectory, "actualDirectory")
 	assert.Equal(t, filename, actualId, "actualId")
@@ -123,10 +123,10 @@ func TestDataSourceGitStatus_EveryFile(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
-	terraform.InitAndApplyAndIdempotent(t, terraformOptions)
+	defer terraform.DestroyContext(t, t.Context(), terraformOptions)
+	terraform.InitAndApplyAndIdempotentContext(t, t.Context(), terraformOptions)
 
-	everyFile := terraform.OutputMap(t, terraformOptions, "every_file")
+	everyFile := terraform.OutputMapContext(t, t.Context(), terraformOptions, "every_file")
 
 	assert.NotNil(t, everyFile["some-file"], "some-file")
 	assert.NotNil(t, everyFile["other-file"], "other-file")
