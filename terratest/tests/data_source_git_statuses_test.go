@@ -23,7 +23,7 @@ func TestDataSourceGitStatuses_AllFiles(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_statuses/all_files",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 		},
 		NoColor: true,

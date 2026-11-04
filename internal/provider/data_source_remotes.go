@@ -100,7 +100,7 @@ func (d *RemotesDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		return
 	}
 
-	tflog.Trace(ctx, "read remotes", map[string]interface{}{
+	tflog.Trace(ctx, "read remotes", map[string]any{
 		"directory": directory,
 	})
 

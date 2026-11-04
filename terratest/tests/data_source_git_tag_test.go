@@ -23,7 +23,7 @@ func TestDataSourceGitTag_SingleTag(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_tag/single_tag",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"name":      name,
 		},
@@ -52,7 +52,7 @@ func TestDataSourceGitTag_EveryTag(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_tag/every_tag",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 		},
 		NoColor: true,

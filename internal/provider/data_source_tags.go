@@ -124,7 +124,7 @@ func (d *TagsDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		return
 	}
 
-	tflog.Trace(ctx, "read tags", map[string]interface{}{
+	tflog.Trace(ctx, "read tags", map[string]any{
 		"directory": directory,
 	})
 

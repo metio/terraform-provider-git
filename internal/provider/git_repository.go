@@ -36,7 +36,7 @@ func openRepository(ctx context.Context, directory string, diag *diag.Diagnostic
 			return nil
 		}
 	}
-	tflog.Trace(ctx, "opened repository", map[string]interface{}{
+	tflog.Trace(ctx, "opened repository", map[string]any{
 		"directory": directory,
 	})
 	return repository
@@ -51,7 +51,7 @@ func resolveRevision(ctx context.Context, repository *git.Repository, revision s
 		)
 		return nil
 	}
-	tflog.Trace(ctx, "resolved revision", map[string]interface{}{
+	tflog.Trace(ctx, "resolved revision", map[string]any{
 		"revision": revision,
 		"hash":     hash.String(),
 	})
@@ -67,7 +67,7 @@ func getCommit(ctx context.Context, repository *git.Repository, hash *plumbing.H
 		)
 		return nil
 	}
-	tflog.Trace(ctx, "read commit", map[string]interface{}{
+	tflog.Trace(ctx, "read commit", map[string]any{
 		"hash": hash,
 	})
 	return commitObject

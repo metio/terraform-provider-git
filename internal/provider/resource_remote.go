@@ -122,7 +122,7 @@ func (r *RemoteResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	tflog.Trace(ctx, "created remote", map[string]interface{}{
+	tflog.Trace(ctx, "created remote", map[string]any{
 		"directory": directory,
 		"remote":    name,
 	})
@@ -210,7 +210,7 @@ func (r *RemoteResource) Update(ctx context.Context, req resource.UpdateRequest,
 		)
 		return
 	}
-	tflog.Trace(ctx, "read repository config", map[string]interface{}{
+	tflog.Trace(ctx, "read repository config", map[string]any{
 		"directory": directory,
 	})
 
@@ -232,7 +232,7 @@ func (r *RemoteResource) Update(ctx context.Context, req resource.UpdateRequest,
 		)
 		return
 	}
-	tflog.Trace(ctx, "wrote repository config", map[string]interface{}{
+	tflog.Trace(ctx, "wrote repository config", map[string]any{
 		"directory": directory,
 	})
 
@@ -272,7 +272,7 @@ func (r *RemoteResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		)
 		return
 	}
-	tflog.Trace(ctx, "deleted remote", map[string]interface{}{
+	tflog.Trace(ctx, "deleted remote", map[string]any{
 		"directory": directory,
 		"remote":    name,
 	})
@@ -294,7 +294,7 @@ func (r *RemoteResource) ImportState(ctx context.Context, req resource.ImportSta
 
 	directory := idParts[0]
 	name := idParts[1]
-	tflog.Trace(ctx, "parsed import ID", map[string]interface{}{
+	tflog.Trace(ctx, "parsed import ID", map[string]any{
 		"directory": directory,
 		"remote":    name,
 	})

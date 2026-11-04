@@ -106,7 +106,7 @@ func (d *StatusDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	worktree, err := repository.Worktree()
 	if errors.Is(err, git.ErrIsBareRepository) {
-		tflog.Trace(ctx, "read worktree of bare repository", map[string]interface{}{
+		tflog.Trace(ctx, "read worktree of bare repository", map[string]any{
 			"directory": directory,
 		})
 	} else if err != nil {
@@ -116,7 +116,7 @@ func (d *StatusDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		)
 		return
 	} else {
-		tflog.Trace(ctx, "read worktree", map[string]interface{}{
+		tflog.Trace(ctx, "read worktree", map[string]any{
 			"directory": directory,
 		})
 
@@ -128,13 +128,13 @@ func (d *StatusDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			)
 			return
 		}
-		tflog.Trace(ctx, "read status", map[string]interface{}{
+		tflog.Trace(ctx, "read status", map[string]any{
 			"directory": directory,
 			"status":    status.String(),
 		})
 
 		fileStatus := status.File(fileName)
-		tflog.Trace(ctx, "read file status", map[string]interface{}{
+		tflog.Trace(ctx, "read file status", map[string]any{
 			"directory": directory,
 			"file":      fileName,
 			"staging":   fileStatus.Staging,

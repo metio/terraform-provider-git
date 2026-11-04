@@ -21,7 +21,7 @@ func TestDataSourceGitRemotes_AllRemotes(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_remotes/all_remotes",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 		},
 		NoColor: true,

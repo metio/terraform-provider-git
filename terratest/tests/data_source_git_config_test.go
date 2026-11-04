@@ -19,7 +19,7 @@ func TestDataSourceGitConfig_ScopedLocal(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_config/scoped",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"scope":     scope,
 		},
@@ -56,7 +56,7 @@ func TestDataSourceGitConfig_ScopedGlobal(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_config/scoped",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"scope":     scope,
 		},
@@ -93,7 +93,7 @@ func TestDataSourceGitConfig_ScopedSystem(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_config/scoped",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"scope":     scope,
 		},
@@ -130,7 +130,7 @@ func TestDataSourceGitConfig_UsingDefaults(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_config/using_defaults",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 		},
 		NoColor: true,

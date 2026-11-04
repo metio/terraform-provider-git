@@ -22,7 +22,7 @@ func TestDataSourceGitRemote_SingleRemote(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_remote/single_remote",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"name":      name,
 		},

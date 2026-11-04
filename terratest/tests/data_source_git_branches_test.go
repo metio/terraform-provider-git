@@ -30,7 +30,7 @@ func TestDataSourceGitBranches_AllBranches(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_branches/all_branches",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 		},
 		NoColor: true,

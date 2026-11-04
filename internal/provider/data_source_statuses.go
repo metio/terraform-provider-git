@@ -113,7 +113,7 @@ func (d *StatusesDataSource) Read(ctx context.Context, req datasource.ReadReques
 	if err != nil {
 		return
 	} else if worktree == nil {
-		tflog.Trace(ctx, "read worktree of bare repository", map[string]interface{}{
+		tflog.Trace(ctx, "read worktree of bare repository", map[string]any{
 			"directory": directory,
 		})
 		state.IsClean = types.BoolValue(true)
@@ -124,7 +124,7 @@ func (d *StatusesDataSource) Read(ctx context.Context, req datasource.ReadReques
 			map[string]attr.Value{},
 		)
 	} else {
-		tflog.Trace(ctx, "read worktree", map[string]interface{}{
+		tflog.Trace(ctx, "read worktree", map[string]any{
 			"directory": directory,
 		})
 
@@ -136,7 +136,7 @@ func (d *StatusesDataSource) Read(ctx context.Context, req datasource.ReadReques
 			)
 			return
 		}
-		tflog.Trace(ctx, "read status", map[string]interface{}{
+		tflog.Trace(ctx, "read status", map[string]any{
 			"directory": directory,
 			"status":    status.String(),
 		})

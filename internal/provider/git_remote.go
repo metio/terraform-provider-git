@@ -22,7 +22,7 @@ func getRemote(ctx context.Context, repository *git.Repository, remoteName strin
 		)
 		return nil
 	}
-	tflog.Trace(ctx, "read remote", map[string]interface{}{
+	tflog.Trace(ctx, "read remote", map[string]any{
 		"remote": remoteName,
 	})
 	return remote

@@ -23,7 +23,7 @@ func TestDataSourceGitTags_AllTags(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_tags/all_tags",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory":   directory,
 			"annotated":   true,
 			"lightweight": true,

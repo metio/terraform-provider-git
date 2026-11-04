@@ -64,18 +64,18 @@ func createCommitOptions(ctx context.Context, inputs commitResourceModel) *git.C
 	options := &git.CommitOptions{}
 
 	options.All = inputs.All.ValueBool()
-	tflog.Trace(ctx, "using 'All'", map[string]interface{}{
+	tflog.Trace(ctx, "using 'All'", map[string]any{
 		"all": options.All,
 	})
 
 	options.AllowEmptyCommits = inputs.AllowEmptyCommits.ValueBool()
-	tflog.Trace(ctx, "using 'AllowEmptyCommits'", map[string]interface{}{
+	tflog.Trace(ctx, "using 'AllowEmptyCommits'", map[string]any{
 		"allow empty commits": options.AllowEmptyCommits,
 	})
 
 	if !inputs.Author.IsNull() && !inputs.Author.IsUnknown() {
 		options.Author = objectToSignature(&inputs.Author)
-		tflog.Trace(ctx, "using 'Author'", map[string]interface{}{
+		tflog.Trace(ctx, "using 'Author'", map[string]any{
 			"name":  options.Author.Name,
 			"email": options.Author.Email,
 		})
@@ -83,7 +83,7 @@ func createCommitOptions(ctx context.Context, inputs commitResourceModel) *git.C
 
 	if !inputs.Committer.IsNull() && !inputs.Committer.IsUnknown() {
 		options.Committer = objectToSignature(&inputs.Committer)
-		tflog.Trace(ctx, "using 'Committer'", map[string]interface{}{
+		tflog.Trace(ctx, "using 'Committer'", map[string]any{
 			"name":  options.Committer.Name,
 			"email": options.Committer.Email,
 		})

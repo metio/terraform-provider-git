@@ -21,7 +21,7 @@ func TestDataSourceGitLog_CurrentLog(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_log/current_log",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 		},
 		NoColor: true,
@@ -48,7 +48,7 @@ func TestDataSourceGitLog_Filtered(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_log/filtered",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory":   directory,
 			"filter_path": filename,
 		},

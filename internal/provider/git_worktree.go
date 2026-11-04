@@ -50,7 +50,7 @@ func getStatus(ctx context.Context, worktree *git.Worktree, diag *diag.Diagnosti
 		)
 		return nil
 	}
-	tflog.Trace(ctx, "read status", map[string]interface{}{
+	tflog.Trace(ctx, "read status", map[string]any{
 		"status": status.String(),
 	})
 	return status

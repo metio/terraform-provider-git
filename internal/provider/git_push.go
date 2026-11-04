@@ -25,7 +25,7 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 			return nil
 		}
 		options.RefSpecs = refSpecs
-		tflog.Trace(ctx, "using 'RefSpecs'", map[string]interface{}{
+		tflog.Trace(ctx, "using 'RefSpecs'", map[string]any{
 			"RefSpecs": refSpecs,
 		})
 	} else {
@@ -33,22 +33,22 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 	}
 
 	options.RemoteName = inputs.Remote.ValueString()
-	tflog.Trace(ctx, "using 'RemoteName'", map[string]interface{}{
+	tflog.Trace(ctx, "using 'RemoteName'", map[string]any{
 		"RemoteName": inputs.Remote.ValueString(),
 	})
 
 	options.Prune = inputs.Prune.ValueBool()
-	tflog.Trace(ctx, "using 'Prune'", map[string]interface{}{
+	tflog.Trace(ctx, "using 'Prune'", map[string]any{
 		"Prune": inputs.Prune.ValueBool(),
 	})
 
 	options.Force = inputs.Force.ValueBool()
-	tflog.Trace(ctx, "using 'Force'", map[string]interface{}{
+	tflog.Trace(ctx, "using 'Force'", map[string]any{
 		"Force": inputs.Force.ValueBool(),
 	})
 
 	options.InsecureSkipTLS = inputs.InsecureSkipTls.ValueBool()
-	tflog.Trace(ctx, "using 'InsecureSkipTls'", map[string]interface{}{
+	tflog.Trace(ctx, "using 'InsecureSkipTls'", map[string]any{
 		"InsecureSkipTls": inputs.InsecureSkipTls.ValueBool(),
 	})
 
@@ -62,7 +62,7 @@ func CreatePushOptions(ctx context.Context, inputs *PushResourceModel, diag *dia
 			return nil
 		}
 		options.CABundle = caBundle
-		tflog.Trace(ctx, "using 'CaBundleFilePath'", map[string]interface{}{
+		tflog.Trace(ctx, "using 'CaBundleFilePath'", map[string]any{
 			"CaBundleFilePath": inputs.CaBundleFilePath.ValueString(),
 		})
 	}

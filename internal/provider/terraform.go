@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 )
 
-func updatedUsingPlan(ctx context.Context, req *resource.UpdateRequest, res *resource.UpdateResponse, model interface{}) {
+func updatedUsingPlan(ctx context.Context, req *resource.UpdateRequest, res *resource.UpdateResponse, model any) {
 	res.Diagnostics.Append(req.Plan.Get(ctx, model)...)
 	if res.Diagnostics.HasError() {
 		return

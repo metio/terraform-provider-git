@@ -26,17 +26,17 @@ func CreateCloneOptions(ctx context.Context, inputs *cloneResourceModel, diag *d
 		options.URL = inputs.URL.ValueString()
 	}
 
-	tflog.Trace(ctx, "using 'URL'", map[string]interface{}{
+	tflog.Trace(ctx, "using 'URL'", map[string]any{
 		"URL": inputs.URL.ValueString(),
 	})
 
 	options.RemoteName = inputs.RemoteName.ValueString()
-	tflog.Trace(ctx, "using 'RemoteName'", map[string]interface{}{
+	tflog.Trace(ctx, "using 'RemoteName'", map[string]any{
 		"RemoteName": inputs.RemoteName.ValueString(),
 	})
 
 	options.InsecureSkipTLS = inputs.InsecureSkipTls.ValueBool()
-	tflog.Trace(ctx, "using 'InsecureSkipTls'", map[string]interface{}{
+	tflog.Trace(ctx, "using 'InsecureSkipTls'", map[string]any{
 		"InsecureSkipTls": inputs.InsecureSkipTls.ValueBool(),
 	})
 
@@ -50,14 +50,14 @@ func CreateCloneOptions(ctx context.Context, inputs *cloneResourceModel, diag *d
 			return nil
 		}
 		options.CABundle = caBundle
-		tflog.Trace(ctx, "using 'CaBundleFilePath'", map[string]interface{}{
+		tflog.Trace(ctx, "using 'CaBundleFilePath'", map[string]any{
 			"CaBundleFilePath": inputs.CaBundleFilePath.ValueString(),
 		})
 	}
 
 	if !inputs.ReferenceName.IsNull() {
 		options.ReferenceName = plumbing.ReferenceName(inputs.ReferenceName.ValueString())
-		tflog.Trace(ctx, "using 'ReferenceName'", map[string]interface{}{
+		tflog.Trace(ctx, "using 'ReferenceName'", map[string]any{
 			"ReferenceName": inputs.ReferenceName.ValueString(),
 		})
 	}

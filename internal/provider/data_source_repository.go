@@ -102,7 +102,7 @@ func (d *RepositoryDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		)
 		return
 	} else {
-		tflog.Trace(ctx, "read HEAD reference", map[string]interface{}{
+		tflog.Trace(ctx, "read HEAD reference", map[string]any{
 			"directory": directory,
 			"head":      head.String(),
 		})

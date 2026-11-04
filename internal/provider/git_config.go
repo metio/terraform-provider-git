@@ -35,7 +35,7 @@ func readConfig(ctx context.Context, repository *git.Repository, scope string, d
 		return nil
 	}
 
-	tflog.Trace(ctx, "read config", map[string]interface{}{
+	tflog.Trace(ctx, "read config", map[string]any{
 		"scope": scope,
 	})
 	return cfg

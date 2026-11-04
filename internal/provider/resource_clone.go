@@ -423,7 +423,7 @@ func (r *CloneResource) Create(ctx context.Context, req resource.CreateRequest, 
 		return
 	}
 
-	tflog.Trace(ctx, "cloned repository", map[string]interface{}{
+	tflog.Trace(ctx, "cloned repository", map[string]any{
 		"directory": directory,
 		"bare":      bare,
 	})

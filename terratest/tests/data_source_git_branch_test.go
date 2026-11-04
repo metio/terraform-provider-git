@@ -30,7 +30,7 @@ func TestDataSourceGitBranch_BranchOnly(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_branch/branch_only",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"name":      name,
 		},
@@ -59,7 +59,7 @@ func TestDataSourceGitBranch_BranchFromRepo(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_branch/branch_from_repo",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 		},
 		NoColor: true,
@@ -93,7 +93,7 @@ func TestDataSourceGitBranch_EveryBranch(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_branch/every_branch",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 		},
 		NoColor: true,

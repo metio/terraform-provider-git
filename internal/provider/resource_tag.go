@@ -133,7 +133,7 @@ func (r *TagResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	tflog.Trace(ctx, "created tag", map[string]interface{}{
+	tflog.Trace(ctx, "created tag", map[string]any{
 		"directory": directory,
 		"tag":       tagName,
 	})

@@ -34,7 +34,7 @@ func getTagReference(ctx context.Context, repository *git.Repository, tagName st
 		)
 		return nil
 	}
-	tflog.Trace(ctx, "read tag", map[string]interface{}{
+	tflog.Trace(ctx, "read tag", map[string]any{
 		"tag": tag,
 	})
 	return tag
@@ -43,12 +43,12 @@ func getTagReference(ctx context.Context, repository *git.Repository, tagName st
 func getTagObject(ctx context.Context, repository *git.Repository, hash plumbing.Hash, diag *diag.Diagnostics) (*object.Tag, error) {
 	tag, err := repository.TagObject(hash)
 	if errors.Is(err, plumbing.ErrObjectNotFound) {
-		tflog.Trace(ctx, "lightweight tag", map[string]interface{}{
+		tflog.Trace(ctx, "lightweight tag", map[string]any{
 			"hash": hash.String(),
 		})
 		return nil, nil
 	} else if err == nil {
-		tflog.Trace(ctx, "annotated tag", map[string]interface{}{
+		tflog.Trace(ctx, "annotated tag", map[string]any{
 			"hash": hash.String(),
 		})
 		return tag, nil

@@ -21,7 +21,7 @@ func TestDataSourceGitStatus_SingleFile_Committed(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_status/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"file":      filename,
 		},
@@ -52,7 +52,7 @@ func TestDataSourceGitStatus_SingleFile_Written(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_status/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"file":      filename,
 		},
@@ -84,7 +84,7 @@ func TestDataSourceGitStatus_SingleFile_Added(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_status/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"file":      filename,
 		},
@@ -117,7 +117,7 @@ func TestDataSourceGitStatus_EveryFile(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../data-sources/git_status/every_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 		},
 		NoColor: true,

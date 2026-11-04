@@ -21,7 +21,7 @@ func TestResourceGitCommit_WithAdd(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_commit/with_add",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{filename},
 			"file":      filename,
@@ -51,7 +51,7 @@ func TestResourceGitCommit_WithAdd_Repeated(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_commit/with_add",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{filename},
 			"file":      filename,
@@ -95,7 +95,7 @@ func TestResourceGitCommit_All(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_commit/all",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"file":      filename,
 		},
@@ -125,7 +125,7 @@ func TestResourceGitCommit_All_ModifiedCommitted(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_commit/all",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"file":      filename,
 		},
@@ -154,7 +154,7 @@ func TestResourceGitCommit_All_Repeated(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_commit/all",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"file":      filename,
 		},
@@ -198,7 +198,7 @@ func TestResourceGitCommit_All_ModifiedCommitted_Repeated(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_commit/all",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"file":      filename,
 		},
@@ -242,7 +242,7 @@ func TestResourceGitCommit_WithoutAdd(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_commit/without_add",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"file":      filename,
 		},
@@ -272,7 +272,7 @@ func TestResourceGitCommit_WithoutAdd_Repeated(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_commit/without_add",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"file":      filename,
 		},

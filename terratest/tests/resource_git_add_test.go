@@ -22,7 +22,7 @@ func TestResourceGitAdd_SingleFile_Exact_WriteOnce(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{filename},
 			"file":      filename,
@@ -48,7 +48,7 @@ func TestResourceGitAdd_SingleFile_Glob_WriteOnce(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{"some*"},
 			"file":      filename,
@@ -74,7 +74,7 @@ func TestResourceGitAdd_SingleFile_Exact_NoMatch(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{"other-file"},
 			"file":      filename,
@@ -100,7 +100,7 @@ func TestResourceGitAdd_SingleFile_Glob_NoMatch(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{"other*"},
 			"file":      filename,
@@ -126,7 +126,7 @@ func TestResourceGitAdd_SingleFile_Exact_WriteMultiple(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{filename},
 			"file":      filename,
@@ -162,7 +162,7 @@ func TestResourceGitAdd_SingleFile_Glob_WriteMultiple(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{"some*"},
 			"file":      filename,
@@ -202,7 +202,7 @@ func TestResourceGitAdd_SingleFile_Glob_Subfolder(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{"nested-folder/**"},
 			"file":      filename,
@@ -236,7 +236,7 @@ func TestResourceGitAdd_SingleFile_Glob_SubSubfolder(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{"nested-folder/**"},
 			"file":      filename,
@@ -270,7 +270,7 @@ func TestResourceGitAdd_SingleFile_Glob_SubSubfolder_All(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{"**"},
 			"file":      filename,
@@ -304,7 +304,7 @@ func TestResourceGitAdd_SingleFile_Glob_SubSubfolder_PartialNested(t *testing.T)
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{"nested-*/**"},
 			"file":      filename,
@@ -338,7 +338,7 @@ func TestResourceGitAdd_SingleFile_Glob_SubSubfolder_PartialSub(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{"nested-folder/sub*/*"},
 			"file":      filename,
@@ -364,7 +364,7 @@ func TestResourceGitAdd_SingleFile_Exact_WriteDelete(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{filename},
 			"file":      filename,
@@ -399,7 +399,7 @@ func TestResourceGitAdd_SingleFile_Glob_WriteDelete(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{"some*"},
 			"file":      filename,
@@ -434,7 +434,7 @@ func TestResourceGitAdd_SingleFile_Exact_DeleteCommitted(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{filename},
 			"file":      filename,
@@ -469,7 +469,7 @@ func TestResourceGitAdd_SingleFile_Glob_DeleteCommitted(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/single_file",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{"some*"},
 			"file":      filename,
@@ -505,7 +505,7 @@ func TestResourceGitAdd_MultipleFiles_WriteOnce(t *testing.T) {
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../resources/git_add/multiple_files",
-		Vars: map[string]interface{}{
+		Vars: map[string]any{
 			"directory": directory,
 			"add_paths": []string{filename},
 		},
@@ -520,8 +520,8 @@ func TestResourceGitAdd_MultipleFiles_WriteOnce(t *testing.T) {
 	assert.NotNil(t, actualFiles[filename], filename)
 	assert.NotNil(t, actualFiles["other-file"], filename)
 
-	stagedFile := actualFiles[filename].(map[string]interface{})
-	unStagedFile := actualFiles["other-file"].(map[string]interface{})
+	stagedFile := actualFiles[filename].(map[string]any)
+	unStagedFile := actualFiles["other-file"].(map[string]any)
 
 	assert.Equal(t, "A", stagedFile["staging"], "stagedFile-staging")
 	assert.Equal(t, " ", stagedFile["worktree"], "stagedFile-worktree")

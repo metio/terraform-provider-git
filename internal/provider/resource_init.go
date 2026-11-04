@@ -104,7 +104,7 @@ func (r *InitResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
-	tflog.Trace(ctx, "created repository", map[string]interface{}{
+	tflog.Trace(ctx, "created repository", map[string]any{
 		"directory": directory,
 		"bare":      bare,
 	})

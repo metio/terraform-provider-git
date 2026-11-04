@@ -132,7 +132,7 @@ func (d *BranchDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 				return err
 			}
 
-			tflog.Trace(ctx, "read branch", map[string]interface{}{
+			tflog.Trace(ctx, "read branch", map[string]any{
 				"directory": directory,
 				"branch":    name,
 			})

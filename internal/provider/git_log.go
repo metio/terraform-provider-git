@@ -19,7 +19,7 @@ func createLogOptions(ctx context.Context, repository *git.Repository, inputs *l
 	logOptions := &git.LogOptions{}
 
 	logOptions.All = inputs.All.ValueBool()
-	tflog.Trace(ctx, "using 'All'", map[string]interface{}{
+	tflog.Trace(ctx, "using 'All'", map[string]any{
 		"all": logOptions.All,
 	})
 
@@ -29,7 +29,7 @@ func createLogOptions(ctx context.Context, repository *git.Repository, inputs *l
 			return nil
 		}
 		logOptions.From = *hash
-		tflog.Trace(ctx, "using 'From'", map[string]interface{}{
+		tflog.Trace(ctx, "using 'From'", map[string]any{
 			"from": logOptions.From,
 		})
 	}
@@ -44,7 +44,7 @@ func createLogOptions(ctx context.Context, repository *git.Repository, inputs *l
 			return nil
 		}
 		logOptions.Since = &since
-		tflog.Trace(ctx, "using 'Since'", map[string]interface{}{
+		tflog.Trace(ctx, "using 'Since'", map[string]any{
 			"since": logOptions.Since,
 		})
 	}
@@ -59,7 +59,7 @@ func createLogOptions(ctx context.Context, repository *git.Repository, inputs *l
 			return nil
 		}
 		logOptions.Until = &until
-		tflog.Trace(ctx, "using 'Until'", map[string]interface{}{
+		tflog.Trace(ctx, "using 'Until'", map[string]any{
 			"until": logOptions.Until,
 		})
 	}
@@ -73,7 +73,7 @@ func createLogOptions(ctx context.Context, repository *git.Repository, inputs *l
 		default:
 			logOptions.Order = git.LogOrderCommitterTime
 		}
-		tflog.Trace(ctx, "using 'Order'", map[string]interface{}{
+		tflog.Trace(ctx, "using 'Order'", map[string]any{
 			"order": logOptions.Order,
 		})
 	}
@@ -84,7 +84,7 @@ func createLogOptions(ctx context.Context, repository *git.Repository, inputs *l
 		if diag.HasError() {
 			return nil
 		}
-		tflog.Trace(ctx, "using 'FilterPaths'", map[string]interface{}{
+		tflog.Trace(ctx, "using 'FilterPaths'", map[string]any{
 			"filter_paths": paths,
 		})
 		logOptions.PathFilter = func(file string) bool {
