@@ -34,8 +34,3 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
-.cache/
-.config/
-.local/
-.terraform.d/
-.bash_history
