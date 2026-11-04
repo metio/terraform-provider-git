@@ -1,31 +1,39 @@
 # SPDX-FileCopyrightText: The terraform-provider-git Authors
 # SPDX-License-Identifier: 0BSD
 
-name: Automated Release
+name: Release
 on:
   schedule:
-    - cron: 47 2 * * FRI
+    - cron: 15 8 * * 4
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 jobs:
   prepare:
     name: Prepare Release
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     outputs:
       commit_count: ${{ steps.commits.outputs.count }}
       release_version: ${{ steps.release.outputs.version }}
     steps:
-      - id: checkout
-        name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
+      - id: last_release
+        name: Fetch Last Release
+        run: echo "tag=$(gh release view --json tagName --jq '.tagName')" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
       - id: commits
         name: Count Commits
-        run: echo "count=$(git rev-list --count HEAD --since='last week')" >> "$GITHUB_OUTPUT"
+        run: echo "count=$(git rev-list --count "${LAST_RELEASE}..HEAD")" >> "$GITHUB_OUTPUT"
+        env:
+          LAST_RELEASE: ${{ steps.last_release.outputs.tag }}
       - id: release
         name: Create Release Version
         if: steps.commits.outputs.count > 0
@@ -52,8 +60,6 @@ jobs:
           - goos: windows
             goarch: 386
           - goos: windows
-            goarch: arm
-          - goos: windows
             goarch: arm64
           - goos: linux
             goarch: amd64
@@ -66,36 +72,27 @@ jobs:
           - goos: darwin
             goarch: amd64
           - goos: darwin
-            goarch: arm
-          - goos: darwin
             goarch: arm64
     env:
       VERSION: ${{ needs.prepare.outputs.release_version }}
       GOOS: ${{ matrix.goos }}
       GOARCH: ${{ matrix.goarch }}
     steps:
-      - id: checkout
-        name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - id: toolchain
-        name: Set up Toolchain
-        uses: metio/ci/breto@bfcb1a4d37c4fd4d5d9c27181191dcad0d04f90c # main
+      - uses: metio/ci/breto@bfcb1a4d37c4fd4d5d9c27181191dcad0d04f90c # main
         with:
           registries: github:metio/toolchains
-      - id: build
-        name: Build Provider
+      - name: Build Provider
         run: |
           binary="terraform-provider-git_v${VERSION}"
           if [ "$GOOS" = windows ]; then binary="$binary.exe"; fi
           go build -trimpath -ldflags="-s -w -X main.version=${VERSION} -X main.commit=${GITHUB_SHA}" -o "$binary"
-          zip "terraform-provider-git_${VERSION}_${GOOS}_${GOARCH}.zip" "$binary" LICENSE README.md
+          zip --recurse-paths "terraform-provider-git_${VERSION}_${GOOS}_${GOARCH}.zip" "$binary" LICENSE LICENSES README.md
         env:
           CGO_ENABLED: 0
-      - id: upload
-        name: Upload Archive
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: terraform-provider-git-${{ matrix.goos }}-${{ matrix.goarch }}
           path: terraform-provider-git_${{ needs.prepare.outputs.release_version }}_${{ matrix.goos }}_${{ matrix.goarch }}.zip
@@ -103,33 +100,27 @@ jobs:
     name: GitHub Release
     needs: [prepare, build]
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     permissions:
       contents: write
     env:
       VERSION: ${{ needs.prepare.outputs.release_version }}
     steps:
-      - id: checkout
-        name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - id: download
-        name: Download Archives
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           path: dist
           pattern: terraform-provider-git-*
           merge-multiple: true
-      - id: checksums
-        name: Calculate Checksums
+      - name: Calculate Checksums
         run: |
           cp terraform-registry-manifest.json "dist/terraform-provider-git_${VERSION}_manifest.json"
           cd dist
           sha256sum -- *.zip "terraform-provider-git_${VERSION}_manifest.json" > "terraform-provider-git_${VERSION}_SHA256SUMS"
       # The Terraform Registry only accepts a GPG signature of the checksums.
-      - id: sign
-        name: Sign Checksums
+      - name: Sign Checksums
         run: |
           export GNUPGHOME="$RUNNER_TEMP/gnupg"
           mkdir --mode=700 "$GNUPGHOME"
@@ -139,13 +130,11 @@ jobs:
         env:
           GPG_SECRET_KEY_BASE64: ${{ secrets.GPG_SECRET_KEY_BASE64 }}
           GPG_SECRET_KEY_PASSWORD: ${{ secrets.GPG_SECRET_KEY_PASSWORD }}
-      - id: create_release
-        name: Create Release
+      - name: Create Release
         run: gh release create "$VERSION" --target "$GITHUB_SHA" --title "$VERSION" --generate-notes dist/*
         env:
           GH_TOKEN: ${{ github.token }}
-      - id: mail
-        name: Send Mail
+      - name: Send Mail
         uses: dawidd6/action-send-mail@47af4a10b540781705f283a2cf1a9650713ac795 # v23
         with:
           server_address: ${{ secrets.MAIL_SERVER }}
@@ -153,14 +142,13 @@ jobs:
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: ${{ github.event.repository.name }} version ${{ needs.prepare.outputs.release_version }} published
-          body: See https://github.com/metio/terraform-provider-git/releases/tag/${{ needs.prepare.outputs.release_version }} for details.
+          body: See ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ needs.prepare.outputs.release_version }} for details.
           to: ${{ secrets.MAIL_RECIPIENT }}
           from: ${{ secrets.MAIL_SENDER }}
-      - id: matrix
-        name: Send Matrix Message
+      - name: Send Matrix Message
         uses: s3krit/matrix-message-action@70ad3fb812ee0e45ff8999d6af11cafad11a6ecf # v0.0.3
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
-          message: ${{ github.event.repository.name }} version [${{ needs.prepare.outputs.release_version }}](https://github.com/metio/terraform-provider-git/releases/tag/${{ needs.prepare.outputs.release_version }}) published
+          message: ${{ github.event.repository.name }} version [${{ needs.prepare.outputs.release_version }}](${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ needs.prepare.outputs.release_version }}) published
           server: ${{ secrets.MATRIX_SERVER }}
