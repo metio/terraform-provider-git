@@ -39,13 +39,15 @@ func authOptions(ctx context.Context, auth types.Object, diag *diag.Diagnostics)
 		username := sshKeyAuth.Attributes()["username"].(types.String)
 		password := sshKeyAuth.Attributes()["password"].(types.String)
 
+		// both attributes are always present in the object, so check for null values instead of missing keys
+		keyPath, keyPathOk := sshKeyAuth.Attributes()["private_key_path"].(types.String)
+		keyPem, keyPemOk := sshKeyAuth.Attributes()["private_key_pem"].(types.String)
+
 		var sshKeys *ssh.PublicKeys
 		var err error
-		if sshKeyAuth.Attributes()["private_key_path"] != nil {
-			keyPath := sshKeyAuth.Attributes()["private_key_path"].(types.String)
+		if keyPathOk && !keyPath.IsNull() {
 			sshKeys, err = ssh.NewPublicKeysFromFile(username.ValueString(), keyPath.ValueString(), password.ValueString())
-		} else if sshKeyAuth.Attributes()["private_key_pem"] != nil {
-			keyPem := sshKeyAuth.Attributes()["private_key_pem"].(types.String)
+		} else if keyPemOk && !keyPem.IsNull() {
 			sshKeys, err = ssh.NewPublicKeys(username.ValueString(), []byte(keyPem.ValueString()), password.ValueString())
 		} else {
 			diag.AddError(
