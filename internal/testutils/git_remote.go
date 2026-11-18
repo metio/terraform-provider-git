@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing"
 )
 
 func CreateRemote(t *testing.T, repository *git.Repository, remote string) {
@@ -28,6 +29,14 @@ func CreateRemoteWithUrls(t *testing.T, repository *git.Repository, remote strin
 		Name: remote,
 		URLs: urls,
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func SetRemoteHead(t *testing.T, repository *git.Repository, remote string, branch string) {
+	reference := plumbing.NewSymbolicReference(plumbing.NewRemoteHEADReferenceName(remote), plumbing.NewRemoteReferenceName(remote, branch))
+	err := repository.Storer.SetReference(reference)
 	if err != nil {
 		t.Fatal(err)
 	}
