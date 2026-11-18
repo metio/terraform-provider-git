@@ -7,6 +7,8 @@ package provider
 
 import (
 	"context"
+	"net"
+	"strconv"
 
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
@@ -16,7 +18,7 @@ import (
 	ssh2 "golang.org/x/crypto/ssh"
 )
 
-func authOptions(ctx context.Context, auth types.Object, diag *diag.Diagnostics) transport.AuthMethod {
+func authOptions(ctx context.Context, auth types.Object, url string, diag *diag.Diagnostics) transport.AuthMethod {
 	basicAuth, basicOk := auth.Attributes()["basic"].(types.Object)
 	bearerAuth, bearerOk := auth.Attributes()["bearer"].(types.String)
 	sshKeyAuth, sshKeyOk := auth.Attributes()["ssh_key"].(types.Object)
@@ -62,10 +64,12 @@ func authOptions(ctx context.Context, auth types.Object, diag *diag.Diagnostics)
 			return nil
 		}
 
-		if callback := knownHostsCallback(ctx, sshKeyAuth, diag); callback != nil {
-			if cfg, _ := sshKeys.ClientConfig(); cfg != nil {
-				cfg.HostKeyCallback = callback
-			}
+		if callback, algorithms := knownHostsCallback(ctx, sshKeyAuth, url, diag); callback != nil {
+			sshKeys.HostKeyCallback = callback
+			sshKeys.HostKeyAlgorithms = algorithms
+		}
+		if diag.HasError() {
+			return nil
 		}
 
 		return sshKeys
@@ -81,10 +85,12 @@ func authOptions(ctx context.Context, auth types.Object, diag *diag.Diagnostics)
 			return nil
 		}
 
-		if callback := knownHostsCallback(ctx, sshAgentAuth, diag); callback != nil {
-			if cfg, _ := agentAuth.ClientConfig(); cfg != nil {
-				cfg.HostKeyCallback = callback
-			}
+		if callback, algorithms := knownHostsCallback(ctx, sshAgentAuth, url, diag); callback != nil {
+			agentAuth.HostKeyCallback = callback
+			agentAuth.HostKeyAlgorithms = algorithms
+		}
+		if diag.HasError() {
+			return nil
 		}
 
 		return agentAuth
@@ -97,10 +103,12 @@ func authOptions(ctx context.Context, auth types.Object, diag *diag.Diagnostics)
 			Password: password.ValueString(),
 		}
 
-		if callback := knownHostsCallback(ctx, sshPasswordAuth, diag); callback != nil {
-			if cfg, _ := passwordAuth.ClientConfig(); cfg != nil {
-				cfg.HostKeyCallback = callback
-			}
+		if callback, algorithms := knownHostsCallback(ctx, sshPasswordAuth, url, diag); callback != nil {
+			passwordAuth.HostKeyCallback = callback
+			passwordAuth.HostKeyAlgorithms = algorithms
+		}
+		if diag.HasError() {
+			return nil
 		}
 
 		return passwordAuth
@@ -108,22 +116,56 @@ func authOptions(ctx context.Context, auth types.Object, diag *diag.Diagnostics)
 	return nil
 }
 
-func knownHostsCallback(ctx context.Context, object types.Object, diag *diag.Diagnostics) ssh2.HostKeyCallback {
+// knownHostsCallback verifies host keys against the given known_hosts files. Without any files, it returns nil so that
+// go-git uses the default known_hosts files. A custom callback disables go-git's own detection of the host key
+// algorithms, so they are looked up here for the host the remote URL points to.
+func knownHostsCallback(ctx context.Context, object types.Object, url string, diag *diag.Diagnostics) (ssh2.HostKeyCallback, []string) {
 	var files []string
 	knownHosts, ok := object.Attributes()["known_hosts"].(types.Set)
 	if ok && !knownHosts.IsNull() {
 		diag.Append(knownHosts.ElementsAs(ctx, &files, false)...)
 		if diag.HasError() {
-			return nil
+			return nil, nil
 		}
 	}
-	callback, err := ssh.NewKnownHostsCallback(files...)
+	if len(files) == 0 {
+		return nil, nil
+	}
+
+	db, err := ssh.NewKnownHostsDb(files...)
 	if err != nil {
-		diag.AddWarning(
-			"Cannot use given known hosts - ",
+		diag.AddError(
+			"Cannot use given known hosts",
 			"Known hosts configuration failed because of: "+err.Error(),
 		)
-		return ssh2.InsecureIgnoreHostKey() // #nosec G106 -- unusable known hosts degrade to a warning
+		return nil, nil
 	}
-	return callback
+
+	var algorithms []string
+	if hostWithPort := sshHostWithPort(url); hostWithPort != "" {
+		algorithms = db.HostKeyAlgorithms(hostWithPort)
+	}
+	return db.HostKeyCallback(), algorithms
+}
+
+// sshHostWithPort returns the address go-git dials for the given URL, honoring HostName and Port from the SSH config.
+func sshHostWithPort(url string) string {
+	endpoint, err := transport.NewEndpoint(url)
+	if err != nil || endpoint.Host == "" {
+		return ""
+	}
+	host := endpoint.Host
+	port := endpoint.Port
+	if ssh.DefaultSSHConfig != nil {
+		if configHost := ssh.DefaultSSHConfig.Get(endpoint.Host, "Hostname"); configHost != "" {
+			host = configHost
+			if configPort, err := strconv.Atoi(ssh.DefaultSSHConfig.Get(endpoint.Host, "Port")); err == nil {
+				port = configPort
+			}
+		}
+	}
+	if port <= 0 {
+		port = ssh.DefaultPort
+	}
+	return net.JoinHostPort(host, strconv.Itoa(port))
 }

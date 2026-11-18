@@ -549,7 +549,7 @@ func (r *CloneResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanR
 	})
 	refs, err := remote.List(&git.ListOptions{
 		PeelingOption: git.AppendPeeled,
-		Auth:          authOptions(ctx, inputs.Auth, &diags),
+		Auth:          authOptions(ctx, inputs.Auth, url, &diags),
 	})
 	if err != nil {
 		diags.AddError(
