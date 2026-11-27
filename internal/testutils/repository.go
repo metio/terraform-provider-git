@@ -57,3 +57,11 @@ func AddAndCommitNewFile(t *testing.T, worktree *git.Worktree, name string) {
 	GitAdd(t, worktree, name)
 	GitCommit(t, worktree)
 }
+
+func SetHead(t *testing.T, repository *git.Repository, branch string) {
+	reference := plumbing.NewSymbolicReference(plumbing.HEAD, plumbing.NewBranchReferenceName(branch))
+	err := repository.Storer.SetReference(reference)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

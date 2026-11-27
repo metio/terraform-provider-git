@@ -21,10 +21,13 @@ type RemoteDataSource struct{}
 var _ datasource.DataSource = (*RemoteDataSource)(nil)
 
 type remoteDataSourceModel struct {
-	Directory types.String `tfsdk:"directory"`
-	Id        types.String `tfsdk:"id"`
-	Name      types.String `tfsdk:"name"`
-	URLs      types.List   `tfsdk:"urls"`
+	Directory   types.String `tfsdk:"directory"`
+	Id          types.String `tfsdk:"id"`
+	Name        types.String `tfsdk:"name"`
+	URLs        types.List   `tfsdk:"urls"`
+	QueryRemote types.Bool   `tfsdk:"query_remote"`
+	Auth        types.Object `tfsdk:"auth"`
+	HeadBranch  types.String `tfsdk:"head_branch"`
 }
 
 func NewRemoteDataSource() datasource.DataSource {
@@ -67,6 +70,17 @@ func (d *RemoteDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 				ElementType:         types.StringType,
 				Computed:            true,
 			},
+			"query_remote": schema.BoolAttribute{
+				Description:         "Whether to ask the remote itself which branch its HEAD points to, similar to 'git remote show', instead of reading the local 'refs/remotes/<name>/HEAD' reference. This connects to the first URL of the remote, using the 'auth' credentials if given. Defaults to 'false'.",
+				MarkdownDescription: "Whether to ask the remote itself which branch its `HEAD` points to, similar to `git remote show`, instead of reading the local `refs/remotes/<name>/HEAD` reference. This connects to the first URL of the remote, using the `auth` credentials if given. Defaults to `false`.",
+				Optional:            true,
+			},
+			"auth": authDataSourceSchema(),
+			"head_branch": schema.StringAttribute{
+				Description:         "The branch the HEAD of the remote points to, usually its default branch. Read from the local 'refs/remotes/<name>/HEAD' reference that 'git clone' and 'git remote set-head' maintain, unless 'query_remote' is 'true'. Null when unknown. Note that the 'git_clone' resource does not create that reference.",
+				MarkdownDescription: "The branch the `HEAD` of the remote points to, usually its default branch. Read from the local `refs/remotes/<name>/HEAD` reference that `git clone` and `git remote set-head` maintain, unless `query_remote` is `true`. Null when unknown. **Note**: The `git_clone` resource does not create that reference.",
+				Computed:            true,
+			},
 		},
 	}
 }
@@ -100,6 +114,17 @@ func (d *RemoteDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	state.Id = inputs.Name
 	state.Name = inputs.Name
 	state.URLs, _ = types.ListValueFrom(ctx, types.StringType, remote.Config().URLs)
+	state.QueryRemote = inputs.QueryRemote
+	state.Auth = inputs.Auth
+
+	if inputs.QueryRemote.ValueBool() {
+		state.HeadBranch = queryRemoteHeadBranch(ctx, remote, inputs.Auth, &resp.Diagnostics)
+	} else {
+		state.HeadBranch = getRemoteHeadBranch(ctx, repository, remoteName, &resp.Diagnostics)
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
